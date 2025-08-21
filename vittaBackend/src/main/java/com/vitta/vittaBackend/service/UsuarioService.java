@@ -2,8 +2,10 @@ package com.vitta.vittaBackend.service;
 
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -22,13 +24,13 @@ public class UsuarioService {
         return this.usuarioRepository.findAll();
     }
 
-    public void cadastrarUsuario(Usuario usuario) {
-        usuarioRepository.saveAndFlush(usuario);
+    public Usuario cadastrarUsuario(Usuario usuario) {
+        return usuarioRepository.saveAndFlush(usuario);
     }
 
     public Usuario buscarUsuarioPorId(Integer id) {
-        return usuarioRepository.findById(id).orElseThrow( //usado para criar uma exceçao informativa, caso dê erro
-                () -> new RuntimeException("ID de Usuário não encontrado.")
+        return usuarioRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ID de Usuário não encontrado.")
         );
     }
 

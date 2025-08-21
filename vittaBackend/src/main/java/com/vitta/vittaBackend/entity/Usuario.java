@@ -12,13 +12,13 @@ import jakarta.persistence.Table;
         name = "usuario"
 )
 public class Usuario {
-    // id - nome - telefone - email - status
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "usuario_id")
     private Integer id;
 
-    @Column(name = "usario_nome")
+    @Column(name = "usuario_nome")
     private String nome;
 
     @Column(name = "usuario_telefone")
@@ -28,7 +28,7 @@ public class Usuario {
     private String email;
 
     @Column(name = "usuario_status")
-    private Integer Status;
+    private Integer status;
 
     public Integer getId() {
         return id;
@@ -58,11 +58,7 @@ public class Usuario {
 
     public void setEmail(String email) { this.email = email; }
 
-    public Integer getStatus() {
-        return Status;
-    }
+    public Integer getStatus() { return status; }
 
-    public void setStatus(Integer status) {
-        Status = status;
-    }
+    public void setStatus(Integer status) { this.status = status; }
 }
