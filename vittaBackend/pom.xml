@@ -57,7 +57,14 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.2.0</version> <!-- Use the latest stable version -->
 		</dependency>
-	</dependencies>
+
+        <!-- dependencia para 'automatizar' os campos nao preenchidos nos metodos Atualizar de cada classe -->
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>

@@ -15,29 +15,19 @@ public class Usuario {
     // id - nome - telefone - email - status
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(
-            name = "usario_nome"
-    )
+    @Column(name = "usario_nome")
     private String nome;
 
-    @Column(
-            name = "usuario_telefone"
-    )
+    @Column(name = "usuario_telefone")
     private String telefone;
 
-    @Column(
-            name = "usuario_email"
-    )
+    @Column(name = "usuario_email", unique = true)
     private String email;
 
-    @Column(
-            name = "usuario_status"
-    )
+    @Column(name = "usuario_status")
     private Integer Status;
 
     public Integer getId() {
@@ -64,13 +54,9 @@ public class Usuario {
         this.telefone = telefone;
     }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getEmail() { return email; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public void setEmail(String email) { this.email = email; }
 
     public Integer getStatus() {
         return Status;
