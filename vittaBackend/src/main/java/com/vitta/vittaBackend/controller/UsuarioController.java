@@ -1,5 +1,7 @@
 package com.vitta.vittaBackend.controller;
 
+import com.vitta.vittaBackend.dto.request.UsuarioDTORequest;
+import com.vitta.vittaBackend.dto.response.UsuarioDTOResponse;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.service.UsuarioService;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,9 @@ public class UsuarioController {
     public UsuarioController(UsuarioService usuarioService) { this.usuarioService = usuarioService; }
 
     @PostMapping("cadastrar")
-    public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody Usuario usuario) {
-        usuarioService.cadastrarUsuario(usuario);
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<UsuarioDTOResponse> cadastrarUsuario(@RequestBody UsuarioDTORequest usuarioDTO) {
+        UsuarioDTOResponse usuarioResponse = usuarioService.cadastrarUsuario(usuarioDTO);
+        return ResponseEntity.ok(usuarioResponse);
     }
 
     @GetMapping("listarPorId")

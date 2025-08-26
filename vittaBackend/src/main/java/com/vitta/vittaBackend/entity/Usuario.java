@@ -27,6 +27,9 @@ public class Usuario {
     @Column(name = "usuario_email", unique = true)
     private String email;
 
+    @Column(name = "usuario_senha")
+    private String senha;
+
     @Column(name = "usuario_status")
     private Integer status;
 
@@ -57,6 +60,14 @@ public class Usuario {
     public String getEmail() { return email; }
 
     public void setEmail(String email) { this.email = email; }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
 
     public Integer getStatus() { return status; }
 
