@@ -3,6 +3,7 @@ package com.vitta.vittaBackend.service;
 import com.vitta.vittaBackend.dto.request.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.response.UsuarioDTOResponse;
 import com.vitta.vittaBackend.entity.Usuario;
+import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
@@ -29,9 +30,26 @@ public class UsuarioService {
 
     //cadastrar usuario
     public UsuarioDTOResponse cadastrarUsuario(UsuarioDTORequest usuarioDTORequest) {
-        Usuario usuario = modelMapper.map(usuarioDTORequest, Usuario.class);
-        Usuario usuarioSalvo = usuarioRepository.saveAndFlush(usuario);
-        return modelMapper.map(usuarioSalvo, UsuarioDTOResponse.class);
+        Usuario usuario = new Usuario();
+        usuario.setNome(usuarioDTORequest.getNome());
+        usuario.setTelefone(usuarioDTORequest.getTelefone());
+        usuario.setEmail(usuarioDTORequest.getEmail());
+        usuario.setSenha(usuarioDTORequest.getSenha());
+
+        //usuario já começa com o status 1(ativo)
+        usuario.setStatusEnum(OrderStatus.ATIVO);
+
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
+
+        // montar DTO de resposta
+        UsuarioDTOResponse response = new UsuarioDTOResponse();
+        response.setId(usuarioSalvo.getId());
+        response.setNome(usuarioSalvo.getNome());
+        response.setTelefone(usuarioSalvo.getTelefone());
+        response.setEmail(usuarioSalvo.getEmail());
+        response.setStatus(usuarioSalvo.getStatusEnum());
+
+        return response;
     }
 
     //listar 1 usuario, pegando pelo ID

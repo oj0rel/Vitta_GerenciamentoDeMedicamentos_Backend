@@ -1,5 +1,6 @@
 package com.vitta.vittaBackend.entity;
 
+import com.vitta.vittaBackend.enums.OrderStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -70,4 +71,13 @@ public class Usuario {
     public Integer getStatus() { return status; }
 
     public void setStatus(Integer status) { this.status = status; }
+
+    // Métodos para status
+    public OrderStatus getStatusEnum() {
+        return OrderStatus.fromCode(this.status);
+    }
+
+    public void setStatusEnum(OrderStatus status) {
+        this.status = (status != null) ? status.getCode() : null;
+    }
 }

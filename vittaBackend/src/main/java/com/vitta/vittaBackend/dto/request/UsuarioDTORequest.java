@@ -1,5 +1,7 @@
 package com.vitta.vittaBackend.dto.request;
 
+import com.vitta.vittaBackend.enums.OrderStatus;
+
 public class UsuarioDTORequest {
     private String nome;
     private String telefone;
@@ -45,5 +47,10 @@ public class UsuarioDTORequest {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    // converter para enum
+    public OrderStatus getStatusEnum() {
+        return OrderStatus.fromCode(this.status);
     }
 }

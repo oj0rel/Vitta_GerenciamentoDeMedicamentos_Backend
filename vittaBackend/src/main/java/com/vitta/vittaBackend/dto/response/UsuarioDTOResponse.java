@@ -1,11 +1,13 @@
 package com.vitta.vittaBackend.dto.response;
 
+import com.vitta.vittaBackend.enums.OrderStatus;
+
 public class UsuarioDTOResponse {
     private Integer id;
     private String nome;
     private String telefone;
     private String email;
-    private Integer status;
+    private OrderStatus status;
 
     public Integer getId() {
         return id;
@@ -39,11 +41,7 @@ public class UsuarioDTOResponse {
         this.email = email;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
+    public OrderStatus getStatus() { return status; }
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
+    public void setStatus(OrderStatus status) { this.status = status; }
 }
