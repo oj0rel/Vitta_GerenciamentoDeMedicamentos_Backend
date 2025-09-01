@@ -5,6 +5,7 @@ import com.vitta.vittaBackend.dto.response.UsuarioDTOResponse;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
@@ -12,12 +13,12 @@ import java.util.List;
 
 @Service
 public class UsuarioService {
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
+    @Autowired
     private ModelMapper modelMapper;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, ModelMapper modelMapper) {
+    public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
-        this.modelMapper = modelMapper;
     }
 
     //metodos para Usuario
@@ -28,57 +29,46 @@ public class UsuarioService {
                 .toList();
     }
 
-    //cadastrar usuario
-    public UsuarioDTOResponse cadastrarUsuario(UsuarioDTORequest usuarioDTORequest) {
-        Usuario usuario = new Usuario();
-        usuario.setNome(usuarioDTORequest.getNome());
-        usuario.setTelefone(usuarioDTORequest.getTelefone());
-        usuario.setEmail(usuarioDTORequest.getEmail());
-        usuario.setSenha(usuarioDTORequest.getSenha());
-
-        //usuario já começa com o status 1(ativo)
-        usuario.setStatusEnum(OrderStatus.ATIVO);
-
-        Usuario usuarioSalvo = usuarioRepository.save(usuario);
-
-        // montar DTO de resposta
-        UsuarioDTOResponse response = new UsuarioDTOResponse();
-        response.setId(usuarioSalvo.getId());
-        response.setNome(usuarioSalvo.getNome());
-        response.setTelefone(usuarioSalvo.getTelefone());
-        response.setEmail(usuarioSalvo.getEmail());
-        response.setStatus(usuarioSalvo.getStatusEnum());
-
-        return response;
-    }
-
     //listar 1 usuario, pegando pelo ID
     public UsuarioDTOResponse buscarUsuarioPorId(Integer usuarioId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("ID do Usuário não encontrado."));
-        return modelMapper.map(usuario, UsuarioDTOResponse.class);
+        Usuario usuarioEncontrado = this.validarUsuario(usuarioId);
+        UsuarioDTOResponse usuarioDTOResponse = modelMapper.map(usuarioEncontrado, UsuarioDTOResponse.class);
+        return usuarioDTOResponse;
     }
 
-    //deletar 1 usuario, pegando pelo ID
-    public void deletarUsuarioPorId(Integer id) {
-        Usuario usuarioEntity = buscarUsuarioEntityPorId(id); // garante que o Usuario existe, caso nao, ja estoura a exceçao do metodo
-        usuarioRepository.deleteById(id);
+
+    //cadastrar usuario
+    public UsuarioDTOResponse cadastrarUsuario(UsuarioDTORequest usuarioDTORequest) {
+        Usuario usuario = modelMapper.map(usuarioDTORequest, Usuario.class);
+        usuario.setStatus(OrderStatus.ATIVO.getCode());
+        Usuario usuarioSave = this.usuarioRepository.save(usuario);
+        UsuarioDTOResponse usuarioDTOResponse = modelMapper.map(usuarioSave, UsuarioDTOResponse.class);
+        return usuarioDTOResponse;
     }
 
     //atualizar 1 usuario, pegando pelo ID
-    public UsuarioDTOResponse atualizarUsuarioPorId(Integer id, UsuarioDTORequest usuarioDTORequest) {
-        Usuario usuarioEntity = buscarUsuarioEntityPorId(id);
+    public UsuarioDTOResponse atualizarUsuarioPorId(Integer usuarioId, UsuarioDTORequest usuarioDTORequest) {
+        Usuario usuarioBuscado = this.validarUsuario(usuarioId);
 
-        modelMapper.getConfiguration().setSkipNullEnabled(true); //configurando para ignorar nulos
-        modelMapper.map(usuarioDTORequest, usuarioEntity); //mapear os campos enviados para o usuario do banco
-
-        Usuario usuarioAtualizado = usuarioRepository.saveAndFlush(usuarioEntity);
-        return modelMapper.map(usuarioAtualizado, UsuarioDTOResponse.class);
+        if (usuarioBuscado != null) {
+            modelMapper.map(usuarioDTORequest, usuarioBuscado);
+            Usuario usuarioRecebido = usuarioRepository.save(usuarioBuscado);
+            return modelMapper.map(usuarioRecebido, UsuarioDTOResponse.class);
+        } else {
+            return null;
+        }
     }
 
-    //exceção caso a busca pelo Usuario não encontre ninguem
-    private Usuario buscarUsuarioEntityPorId(Integer id) {
-        return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ID de Usuário não encontrado."));
+    //deletar 1 usuario, pegando pelo ID
+    public void deletarUsuarioPorId(Integer usuarioId) {
+        Usuario usuarioEntity = this.validarUsuario(usuarioId); // garante que o Usuario existe, caso nao, ja estoura a exceçao do metodo
+        usuarioRepository.deleteById(usuarioId);
     }
+
+    // metodo privado para validar se a entidade existe pelo ID
+    private Usuario validarUsuario(Integer usuarioId) {
+        return usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("ID do Usuário não encontrado."));
+    }
+
 }

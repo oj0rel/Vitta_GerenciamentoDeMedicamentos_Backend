@@ -7,7 +7,6 @@ public class UsuarioDTORequest {
     private String telefone;
     private String email;
     private String senha;
-    private Integer status;
 
     public String getNome() {
         return nome;
@@ -41,16 +40,4 @@ public class UsuarioDTORequest {
         this.senha = senha;
     }
 
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    // converter para enum
-    public OrderStatus getStatusEnum() {
-        return OrderStatus.fromCode(this.status);
-    }
 }
