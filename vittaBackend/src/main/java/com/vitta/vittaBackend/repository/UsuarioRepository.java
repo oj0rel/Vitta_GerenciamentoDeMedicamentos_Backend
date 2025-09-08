@@ -22,4 +22,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer>{
 
     @Query("SELECT u FROM Usuario u WHERE u.id = :id AND u.status >= 0")
     Usuario obterUsuarioPeloId(@Param("id") Integer usuarioId);
+
+    //TESTE PARA LISTAR USUARIOS CANCELADOS
+    @Query("SELECT u FROM Usuario u WHERE u.status = -1")
+    List<Usuario> listarUsuariosCancelados();
 }

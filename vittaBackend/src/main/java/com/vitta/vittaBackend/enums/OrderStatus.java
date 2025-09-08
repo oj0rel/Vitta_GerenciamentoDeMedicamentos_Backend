@@ -2,8 +2,8 @@ package com.vitta.vittaBackend.enums;
 
 public enum OrderStatus {
     ATIVO(1),
-    INATIVO(2),
-    CANCELADO(0);
+    INATIVO(0),
+    CANCELADO(-1);
 
     private int code;
 

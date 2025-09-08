@@ -1,7 +1,9 @@
 package com.vitta.vittaBackend.service;
 
-import com.vitta.vittaBackend.dto.request.UsuarioDTORequest;
-import com.vitta.vittaBackend.dto.response.UsuarioDTOResponse;
+import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
+import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequestAtualizar;
+import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
+import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponseAtualizar;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
@@ -51,13 +53,13 @@ public class UsuarioService {
 
     //ATUALIZAR 1 USUÁRIO, PEGANDO PELO ID
     @Transactional
-    public UsuarioDTOResponse atualizarUsuarioPorId(Integer usuarioId, UsuarioDTORequest usuarioDTORequest) {
+    public UsuarioDTOResponseAtualizar atualizarUsuarioPorId(Integer usuarioId, UsuarioDTORequestAtualizar usuarioDTORequestAtualizar) {
         Usuario usuarioBuscado = this.validarUsuario(usuarioId);
 
         if (usuarioBuscado != null) {
-            modelMapper.map(usuarioDTORequest, usuarioBuscado);
+            modelMapper.map(usuarioDTORequestAtualizar, usuarioBuscado);
             Usuario usuarioRecebido = usuarioRepository.save(usuarioBuscado);
-            return modelMapper.map(usuarioRecebido, UsuarioDTOResponse.class);
+            return modelMapper.map(usuarioRecebido, UsuarioDTOResponseAtualizar.class);
         } else {
             return null;
         }
@@ -74,6 +76,15 @@ public class UsuarioService {
             throw new RuntimeException("Usuário não encontrado ou inativo.");
         }
         return usuario;
+    }
+
+    //METODO PARA TESTE DE ENDPOINT
+    //LISTAR USUÁRIOS CANCELADOS
+    public List<UsuarioDTOResponse> listarUsuariosCancelados() {
+        return this.usuarioRepository.listarUsuariosCancelados()
+                .stream()
+                .map(usuario -> modelMapper.map(usuario, UsuarioDTOResponse.class))
+                .collect(Collectors.toList());
     }
 
 }
