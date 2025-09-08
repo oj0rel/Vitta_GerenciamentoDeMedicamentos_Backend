@@ -5,11 +5,13 @@ import com.vitta.vittaBackend.dto.response.UsuarioDTOResponse;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
@@ -21,23 +23,24 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    //metodos para Usuario
-    //listar usuarios
+    //LISTAR USUÁRIOS
     public List<UsuarioDTOResponse> listarUsuarios() {
-        return this.usuarioRepository.findAll().stream()
+        return this.usuarioRepository.listarUsuarios()
+                .stream()
                 .map(usuario -> modelMapper.map(usuario, UsuarioDTOResponse.class))
-                .toList();
+                .collect(Collectors.toList());
     }
 
-    //listar 1 usuario, pegando pelo ID
-    public UsuarioDTOResponse buscarUsuarioPorId(Integer usuarioId) {
-        Usuario usuarioEncontrado = this.validarUsuario(usuarioId);
-        UsuarioDTOResponse usuarioDTOResponse = modelMapper.map(usuarioEncontrado, UsuarioDTOResponse.class);
-        return usuarioDTOResponse;
+    //LISTAR 1 USUÁRIO, PEGANDO PELO ID
+    public UsuarioDTOResponse listarUsuarioPorId(Integer usuarioId) {
+        Usuario usuario = usuarioRepository.obterUsuarioPeloId(usuarioId);
+
+        return modelMapper.map(usuario, UsuarioDTOResponse.class);
     }
 
 
-    //cadastrar usuario
+    //CADASTRAR USUÁRIO
+    @Transactional
     public UsuarioDTOResponse cadastrarUsuario(UsuarioDTORequest usuarioDTORequest) {
         Usuario usuario = modelMapper.map(usuarioDTORequest, Usuario.class);
         usuario.setStatus(OrderStatus.ATIVO.getCode());
@@ -46,7 +49,8 @@ public class UsuarioService {
         return usuarioDTOResponse;
     }
 
-    //atualizar 1 usuario, pegando pelo ID
+    //ATUALIZAR 1 USUÁRIO, PEGANDO PELO ID
+    @Transactional
     public UsuarioDTOResponse atualizarUsuarioPorId(Integer usuarioId, UsuarioDTORequest usuarioDTORequest) {
         Usuario usuarioBuscado = this.validarUsuario(usuarioId);
 
@@ -59,16 +63,17 @@ public class UsuarioService {
         }
     }
 
-    //deletar 1 usuario, pegando pelo ID
-    public void deletarUsuarioPorId(Integer usuarioId) {
-        Usuario usuarioEntity = this.validarUsuario(usuarioId); // garante que o Usuario existe, caso nao, ja estoura a exceçao do metodo
-        usuarioRepository.deleteById(usuarioId);
-    }
+    //DELETAR 1 USUÁRIO, PEGANDO PELO ID
+    @Transactional
+    public void deletarUsuario(Integer usuarioId) { usuarioRepository.apagadoLogicoUsuario(usuarioId); }
 
-    // metodo privado para validar se a entidade existe pelo ID
+    //METODO PRIVADO PARA VALIDAR SE A IDENTIDADE EXISTE, PEGANDO PELO ID - para utilizar em outros métodos
     private Usuario validarUsuario(Integer usuarioId) {
-        return usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("ID do Usuário não encontrado."));
+        Usuario usuario = usuarioRepository.obterUsuarioPeloId(usuarioId);
+        if (usuario == null) {
+            throw new RuntimeException("Usuário não encontrado ou inativo.");
+        }
+        return usuario;
     }
 
 }

@@ -2,6 +2,7 @@ package com.vitta.vittaBackend.controller;
 
 import com.vitta.vittaBackend.dto.request.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.response.UsuarioDTOResponse;
+import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,16 +23,15 @@ public class UsuarioController {
     public UsuarioController(UsuarioService usuarioService) { this.usuarioService = usuarioService; }
 
     @GetMapping("/listar")
-    @Operation(summary = "Listar usuários.", description = "Endpoint para listar todos os usuários.")
-    public ResponseEntity<List<UsuarioDTOResponse>> listarUsuarios() {
-        return ResponseEntity.ok(usuarioService.listarUsuarios());
-    }
+    @Operation(summary = "Listar Usuários.", description = "Endpoint para listar todos os Usuários.")
+    public ResponseEntity <List<Usuario>> listarUsuarios() { return ResponseEntity.ok(usuarioService.listarUsuarios()); }
 
     @GetMapping("/listarUsuarioPorId/{usuarioId}")
-    @Operation(summary = "Listar usuário pelo ID dele.", description = "Endpoint para listar um usuário pelo ID.")
+    @Operation(summary = "Listar Usuário pelo ID dele.", description = "Endpoint para listar um Usuário pelo ID.")
     public ResponseEntity<UsuarioDTOResponse> buscarUsuarioPorId(@PathVariable("usuarioId") Integer usuarioId) {
-        UsuarioDTOResponse usuario = usuarioService.buscarUsuarioPorId(usuarioId);
-        return ResponseEntity.ok(usuario);
+        UsuarioDTOResponse usuarioDTOResponse = usuarioService.listarUsuarioPorId(usuarioId);
+
+
     }
 
     @PostMapping("/cadastrar")
