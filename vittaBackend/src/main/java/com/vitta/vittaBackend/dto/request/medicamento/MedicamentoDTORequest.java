@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class MedicamentoDTORequest {
@@ -12,14 +13,14 @@ public class MedicamentoDTORequest {
     private Integer tipoUnidadeDeMedida;
     private Integer frequencia;
     private String instrucoes;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private LocalDateTime dataDeInicio;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private LocalDateTime dataDeTermino;
+
     private Integer usuarioId;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Date dataDeInicio;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Date dataDeTermino;
-    private Integer status;
 
     public String getNome() {
         return nome;
@@ -61,28 +62,20 @@ public class MedicamentoDTORequest {
         this.instrucoes = instrucoes;
     }
 
-    public Date getDataDeInicio() {
+    public LocalDateTime getDataDeInicio() {
         return dataDeInicio;
     }
 
-    public void setDataDeInicio(Date dataDeInicio) {
+    public void setDataDeInicio(LocalDateTime dataDeInicio) {
         this.dataDeInicio = dataDeInicio;
     }
 
-    public Date getDataDeTermino() {
+    public LocalDateTime getDataDeTermino() {
         return dataDeTermino;
     }
 
-    public void setDataDeTermino(Date dataDeTermino) {
+    public void setDataDeTermino(LocalDateTime dataDeTermino) {
         this.dataDeTermino = dataDeTermino;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public Integer getUsuarioId() {

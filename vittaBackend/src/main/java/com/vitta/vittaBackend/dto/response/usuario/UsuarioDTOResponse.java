@@ -10,7 +10,7 @@ public class UsuarioDTOResponse {
     private String nome;
     private String telefone;
     private String email;
-    private Integer status;
+    private OrderStatus status;
 
     private List<MedicamentoDTOResponse> medicamentos;
 
@@ -46,11 +46,11 @@ public class UsuarioDTOResponse {
         this.email = email;
     }
 
-    public Integer getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 

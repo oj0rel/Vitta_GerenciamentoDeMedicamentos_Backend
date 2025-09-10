@@ -5,19 +5,19 @@ public enum OrderStatus {
     INATIVO(0),
     CANCELADO(-1);
 
-    private int code;
+    private Integer code;
 
-    private OrderStatus(Integer code) {
+    OrderStatus(Integer code) {
         this.code = code;
     }
 
-    public int getCode() {
+    public Integer getCode() {
         return code;
     }
 
-    public static OrderStatus fromCodigo(int code) {
+    public static OrderStatus fromCodigo(Integer code) {
         for (OrderStatus status : OrderStatus.values()) {
-            if (status.getCode() == code) {
+            if (status.getCode().equals(code)) {
                 return status;
             }
         }

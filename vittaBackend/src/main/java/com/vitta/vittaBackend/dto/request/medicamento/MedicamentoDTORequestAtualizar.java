@@ -1,8 +1,10 @@
 package com.vitta.vittaBackend.dto.request.medicamento;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class MedicamentoDTORequestAtualizar {
@@ -10,8 +12,12 @@ public class MedicamentoDTORequestAtualizar {
     private String tipoUnidadeDeMedida;
     private Integer frequencia;
     private String instrucoes;
-    private Date dataDeInicio;
-    private Date dataDeTermino;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private LocalDateTime dataDeInicio;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    private LocalDateTime dataDeTermino;
 
     public BigDecimal getDosagem() {
         return dosagem;
@@ -45,19 +51,19 @@ public class MedicamentoDTORequestAtualizar {
         this.instrucoes = instrucoes;
     }
 
-    public Date getDataDeInicio() {
+    public LocalDateTime getDataDeInicio() {
         return dataDeInicio;
     }
 
-    public void setDataDeInicio(Date dataDeInicio) {
+    public void setDataDeInicio(LocalDateTime dataDeInicio) {
         this.dataDeInicio = dataDeInicio;
     }
 
-    public Date getDataDeTermino() {
+    public LocalDateTime getDataDeTermino() {
         return dataDeTermino;
     }
 
-    public void setDataDeTermino(Date dataDeTermino) {
+    public void setDataDeTermino(LocalDateTime dataDeTermino) {
         this.dataDeTermino = dataDeTermino;
     }
 }

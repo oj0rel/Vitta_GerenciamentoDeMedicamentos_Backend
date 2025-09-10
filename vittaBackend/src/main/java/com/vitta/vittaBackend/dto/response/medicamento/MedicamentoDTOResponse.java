@@ -1,22 +1,24 @@
 package com.vitta.vittaBackend.dto.response.medicamento;
 
+import com.vitta.vittaBackend.dto.response.UsuarioDTOResponse;
+import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class MedicamentoDTOResponse {
     private Integer id;
     private String nome;
     private BigDecimal dosagem;
-    private String tipoUnidadeDeMedida;
+    private TipoUnidadeDeMedida tipoUnidadeDeMedida;
     private Integer frequencia;
     private String instrucoes;
-    private Date dataDeInicio;
-    private Date dataDeTermino;
-    private String status;
-
-    private Integer usuarioId;
+    private LocalDateTime dataDeInicio;
+    private LocalDateTime dataDeTermino;
+    private OrderStatus status;
+    private UsuarioDTOResponse usuario;
 
     public Integer getId() {
         return id;
@@ -42,11 +44,11 @@ public class MedicamentoDTOResponse {
         this.dosagem = dosagem;
     }
 
-    public String getTipoUnidadeDeMedida() {
+    public TipoUnidadeDeMedida getTipoUnidadeDeMedida() {
         return tipoUnidadeDeMedida;
     }
 
-    public void setTipoUnidadeDeMedida(String tipoUnidadeDeMedida) {
+    public void setTipoUnidadeDeMedida(TipoUnidadeDeMedida tipoUnidadeDeMedida) {
         this.tipoUnidadeDeMedida = tipoUnidadeDeMedida;
     }
 
@@ -66,35 +68,35 @@ public class MedicamentoDTOResponse {
         this.instrucoes = instrucoes;
     }
 
-    public Date getDataDeInicio() {
+    public LocalDateTime getDataDeInicio() {
         return dataDeInicio;
     }
 
-    public void setDataDeInicio(Date dataDeInicio) {
+    public void setDataDeInicio(LocalDateTime dataDeInicio) {
         this.dataDeInicio = dataDeInicio;
     }
 
-    public Date getDataDeTermino() {
+    public LocalDateTime getDataDeTermino() {
         return dataDeTermino;
     }
 
-    public void setDataDeTermino(Date dataDeTermino) {
+    public void setDataDeTermino(LocalDateTime dataDeTermino) {
         this.dataDeTermino = dataDeTermino;
     }
 
-    public String getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 
-    public Integer getUsuarioId() {
-        return usuarioId;
+    public UsuarioDTOResponse getUsuario() {
+        return usuario;
     }
 
-    public void setUsuarioId(Integer usuarioId) {
-        this.usuarioId = usuarioId;
+    public void setUsuario(UsuarioDTOResponse usuario) {
+        this.usuario = usuario;
     }
 }

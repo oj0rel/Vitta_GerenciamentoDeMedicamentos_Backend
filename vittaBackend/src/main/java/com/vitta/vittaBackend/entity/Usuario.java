@@ -29,13 +29,20 @@ public class Usuario {
     private String senha;
 
     @Column(name = "usuario_status")
-    private Integer status;
+    private OrderStatus status;
 
 
     //para trazer a tabela Medicamento para Usuario
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario")
     @JsonIgnore
-    private List<Medicamento> medicamentos = new ArrayList<>();
+    private List<Medicamento> medicamentos;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.status == null) {
+            this.status = status.ATIVO;
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -73,19 +80,13 @@ public class Usuario {
         this.senha = senha;
     }
 
-    public Integer getStatus() { return status; }
-
-    public void setStatus(Integer status) { this.status = status; }
-
-    // Métodos para status
-    public OrderStatus getStatusEnum() {
-        return OrderStatus.fromCodigo(this.status);
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public void setStatusEnum(OrderStatus status) {
-        this.status = (status != null) ? status.getCode() : null;
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
-
 
     //GET E SET - TABELA ESTRANGEIRA
     public List<Medicamento> getMedicamentos() {

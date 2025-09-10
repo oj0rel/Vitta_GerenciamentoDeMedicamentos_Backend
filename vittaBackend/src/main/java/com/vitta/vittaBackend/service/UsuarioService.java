@@ -55,7 +55,6 @@ public class UsuarioService {
         usuario.setTelefone(usuarioDTORequest.getTelefone());
         usuario.setEmail(usuarioDTORequest.getEmail());
         usuario.setSenha(usuarioDTORequest.getSenha());
-        usuario.setStatus(OrderStatus.ATIVO.getCode());
 
         if (usuarioDTORequest.getMedicamentosId() != null && !usuarioDTORequest.getMedicamentosId().isEmpty()) {
             List<Medicamento> medicamentos = medicamentoRepository.findAllById(usuarioDTORequest.getMedicamentosId());

@@ -4,8 +4,10 @@ import com.vitta.vittaBackend.dto.request.medicamento.MedicamentoDTORequest;
 import com.vitta.vittaBackend.dto.request.medicamento.MedicamentoDTORequestAtualizar;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
 import com.vitta.vittaBackend.entity.Medicamento;
+import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.repository.MedicamentoRepository;
+import com.vitta.vittaBackend.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +20,15 @@ import java.util.stream.Collectors;
 public class MedicamentoService {
     
     private final MedicamentoRepository medicamentoRepository;
+    private final UsuarioRepository usuarioRepository;
     
     @Autowired
     private ModelMapper modelMapper;
     
-    public MedicamentoService(MedicamentoRepository medicamentoRepository) { this.medicamentoRepository = medicamentoRepository; }
+    public MedicamentoService(MedicamentoRepository medicamentoRepository, UsuarioRepository usuarioRepository) {
+        this.medicamentoRepository = medicamentoRepository;
+        this.usuarioRepository = usuarioRepository;
+    }
 
     //LISTAR MEDICAMENTOS
     public List<MedicamentoDTOResponse> listarMedicamentos() {
@@ -45,14 +51,25 @@ public class MedicamentoService {
     public MedicamentoDTOResponse cadastrarMedicamento(MedicamentoDTORequest medicamentoDTORequest) {
         Medicamento medicamento = modelMapper.map(medicamentoDTORequest, Medicamento.class);
 
-        if (medicamento.getStatusTipo() == null) {
-            medicamento.setStatusTipo(OrderStatus.ATIVO);
-        }
+        if (medicamentoDTORequest.getUsuarioId() != null) {
+            Usuario usuario = usuarioRepository.findById(medicamentoDTORequest.getUsuarioId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        Medicamento medicamentoSave = this.medicamentoRepository.save(medicamento);
-        MedicamentoDTOResponse medicamentoDTOResponse = modelMapper.map(medicamentoSave, MedicamentoDTOResponse.class);
-        return medicamentoDTOResponse;
+            // Faz o vínculo bidirecional
+            medicamento.setUsuario(usuario);
+            usuario.getMedicamentos().add(medicamento);
+
+            // Salva explicitamente o medicamento
+            Medicamento medicamentoSalvo = medicamentoRepository.save(medicamento);
+
+            return modelMapper.map(medicamentoSalvo, MedicamentoDTOResponse.class);
+        } else {
+            Medicamento medicamentoSalvo = medicamentoRepository.save(medicamento);
+            return modelMapper.map(medicamentoSalvo, MedicamentoDTOResponse.class);
+        }
     }
+
+
 
     //ATUALIZAR 1 MEDICAMENTO, PEGANDO PELO ID
     @Transactional

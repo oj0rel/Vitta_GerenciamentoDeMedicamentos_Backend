@@ -27,10 +27,8 @@ public class Medicamento {
     private BigDecimal dosagem;
 
     @Column(name = "medicamento_tipo_unidade_de_medida")
-    private Integer tipoUnidadeCodigo;
-
-    @Transient
     private TipoUnidadeDeMedida tipoUnidadeDeMedida;
+
 
     @Column(name = "medicamento_frequencia")
     private Integer frequencia;
@@ -45,16 +43,20 @@ public class Medicamento {
     private LocalDateTime dataDeTermino;
 
     @Column(name = "medicamento_status")
-    private Integer status;
+    private OrderStatus status;
 
-    @Transient
-    private OrderStatus statusTipo;
 
     //isso aki é para enviar a tabela Medicamento para Usuario
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    @JsonIgnoreProperties("medicamentos")
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.status == null) {
+            this.status = status.ATIVO;
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -80,15 +82,12 @@ public class Medicamento {
         this.dosagem = dosagem;
     }
 
-    //FAZENDO GET E SET DE PARA GRAVAR O CÓDIGO DO ENUM - TIPO DE MEDICAMENTO
     public TipoUnidadeDeMedida getTipoUnidadeDeMedida() {
-        return tipoUnidadeCodigo != null ?
-                TipoUnidadeDeMedida.fromCodigo(tipoUnidadeCodigo) : null;
+        return tipoUnidadeDeMedida;
     }
 
-    public void setTipoUnidadeDeMedida(TipoUnidadeDeMedida tipo) {
-        this.tipoUnidadeCodigo = tipo != null ? tipo.getCodigo() : null;
-        this.tipoUnidadeDeMedida = tipo;
+    public void setTipoUnidadeDeMedida(TipoUnidadeDeMedida tipoUnidadeDeMedida) {
+        this.tipoUnidadeDeMedida = tipoUnidadeDeMedida;
     }
 
     public Integer getFrequencia() {
@@ -107,13 +106,6 @@ public class Medicamento {
         this.instrucoes = instrucoes;
     }
 
-    public Integer getTipoUnidadeCodigo() {
-        return tipoUnidadeCodigo;
-    }
-
-    public void setTipoUnidadeCodigo(Integer tipoUnidadeCodigo) {
-        this.tipoUnidadeCodigo = tipoUnidadeCodigo;
-    }
 
     public LocalDateTime getDataDeInicio() {
         return dataDeInicio;
@@ -131,15 +123,13 @@ public class Medicamento {
         this.dataDeTermino = dataDeTermino;
     }
 
-    //FAZENDO GET E SET DE PARA GRAVAR O CÓDIGO DO ENUM NO BANCO - STATUS
-    public OrderStatus getStatusTipo() {
-        return status != null ? OrderStatus.fromCodigo(status) : null;
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public void setStatusTipo(OrderStatus status) {
-        this.status = status != null ? status.getCode() : null;
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
-
 
     //GET E SET - TABELA ESTRANGEIRA
     public Usuario getUsuario() {
