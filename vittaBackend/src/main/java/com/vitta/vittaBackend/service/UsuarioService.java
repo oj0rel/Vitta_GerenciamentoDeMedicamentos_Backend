@@ -3,9 +3,10 @@ package com.vitta.vittaBackend.service;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequestAtualizar;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponseAtualizar;
+import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.repository.MedicamentoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +20,14 @@ import java.util.stream.Collectors;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final MedicamentoRepository medicamentoRepository;
 
     @Autowired
     private ModelMapper modelMapper;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, MedicamentoRepository medicamentoRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.medicamentoRepository = medicamentoRepository;
     }
 
     //LISTAR USUÁRIOS
@@ -46,22 +49,48 @@ public class UsuarioService {
     //CADASTRAR USUÁRIO
     @Transactional
     public UsuarioDTOResponse cadastrarUsuario(UsuarioDTORequest usuarioDTORequest) {
-        Usuario usuario = modelMapper.map(usuarioDTORequest, Usuario.class);
+        Usuario usuario = new Usuario();
+
+        usuario.setNome(usuarioDTORequest.getNome());
+        usuario.setTelefone(usuarioDTORequest.getTelefone());
+        usuario.setEmail(usuarioDTORequest.getEmail());
+        usuario.setSenha(usuarioDTORequest.getSenha());
         usuario.setStatus(OrderStatus.ATIVO.getCode());
-        Usuario usuarioSave = this.usuarioRepository.save(usuario);
-        UsuarioDTOResponse usuarioDTOResponse = modelMapper.map(usuarioSave, UsuarioDTOResponse.class);
-        return usuarioDTOResponse;
+
+        if (usuarioDTORequest.getMedicamentosId() != null && !usuarioDTORequest.getMedicamentosId().isEmpty()) {
+            List<Medicamento> medicamentos = medicamentoRepository.findAllById(usuarioDTORequest.getMedicamentosId());
+            for (Medicamento m : medicamentos) {
+                m.setUsuario(usuario); // vincula bidirecional
+                usuario.getMedicamentos().add(m);
+            }
+        }
+
+        Usuario usuarioSave = usuarioRepository.save(usuario);
+        return modelMapper.map(usuarioSave, UsuarioDTOResponse.class);
     }
 
     //ATUALIZAR 1 USUÁRIO, PEGANDO PELO ID
     @Transactional
-    public UsuarioDTOResponseAtualizar atualizarUsuarioPorId(Integer usuarioId, UsuarioDTORequestAtualizar usuarioDTORequestAtualizar) {
-        Usuario usuarioBuscado = this.validarUsuario(usuarioId);
+    public UsuarioDTOResponse atualizarUsuarioPorId(Integer usuarioId, UsuarioDTORequestAtualizar usuarioDTORequestAtualizar) {
+        Usuario usuario = this.validarUsuario(usuarioId);
 
-        if (usuarioBuscado != null) {
-            modelMapper.map(usuarioDTORequestAtualizar, usuarioBuscado);
-            Usuario usuarioRecebido = usuarioRepository.save(usuarioBuscado);
-            return modelMapper.map(usuarioRecebido, UsuarioDTOResponseAtualizar.class);
+        if (usuario != null) {
+            usuario.setNome(usuarioDTORequestAtualizar.getNome());
+            usuario.setTelefone(usuarioDTORequestAtualizar.getTelefone());
+
+            //limpa vinculos antigos
+            usuario.getMedicamentos().clear();
+
+            if (usuarioDTORequestAtualizar.getMedicamentosId() != null && !usuarioDTORequestAtualizar.getMedicamentosId().isEmpty()) {
+                List<Medicamento> medicamentos = medicamentoRepository.findAllById(usuarioDTORequestAtualizar.getMedicamentosId());
+                for (Medicamento m : medicamentos) {
+                    m.setUsuario(usuario); // vincula bidirecional
+                    usuario.getMedicamentos().add(m);
+                }
+            }
+
+            Usuario usuarioSave = usuarioRepository.save(usuario);
+            return modelMapper.map(usuarioSave, UsuarioDTOResponse.class);
         } else {
             return null;
         }
@@ -79,6 +108,7 @@ public class UsuarioService {
         }
         return usuario;
     }
+
 
     //METODO PARA TESTE DE ENDPOINT
     //LISTAR USUÁRIOS CANCELADOS

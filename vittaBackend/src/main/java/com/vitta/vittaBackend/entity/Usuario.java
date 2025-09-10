@@ -1,12 +1,11 @@
 package com.vitta.vittaBackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vitta.vittaBackend.enums.OrderStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario")
@@ -31,6 +30,12 @@ public class Usuario {
 
     @Column(name = "usuario_status")
     private Integer status;
+
+
+    //para trazer a tabela Medicamento para Usuario
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Medicamento> medicamentos = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -79,5 +84,15 @@ public class Usuario {
 
     public void setStatusEnum(OrderStatus status) {
         this.status = (status != null) ? status.getCode() : null;
+    }
+
+
+    //GET E SET - TABELA ESTRANGEIRA
+    public List<Medicamento> getMedicamentos() {
+        return medicamentos;
+    }
+
+    public void setMedicamentos(List<Medicamento> medicamentos) {
+        this.medicamentos = medicamentos;
     }
 }

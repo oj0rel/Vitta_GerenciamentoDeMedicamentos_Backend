@@ -1,10 +1,13 @@
 package com.vitta.vittaBackend.dto.request.usuario;
 
+import java.util.List;
+
 public class UsuarioDTORequest {
     private String nome;
     private String telefone;
     private String email;
     private String senha;
+    private List<Integer> medicamentosId;
 
     public String getNome() {
         return nome;
@@ -38,4 +41,11 @@ public class UsuarioDTORequest {
         this.senha = senha;
     }
 
+    public List<Integer> getMedicamentosId() {
+        return medicamentosId;
+    }
+
+    public void setMedicamentosId(List<Integer> medicamentosId) {
+        this.medicamentosId = medicamentosId;
+    }
 }

@@ -1,5 +1,6 @@
 package com.vitta.vittaBackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import org.hibernate.query.Order;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -37,10 +39,10 @@ public class Medicamento {
     private String instrucoes;
 
     @Column(name = "medicamento_data_de_inicio")
-    private Date dataDeInicio;
+    private LocalDateTime dataDeInicio;
 
     @Column(name = "medicamento_data_de_termino")
-    private Date dataDeTermino;
+    private LocalDateTime dataDeTermino;
 
     @Column(name = "medicamento_status")
     private Integer status;
@@ -48,8 +50,11 @@ public class Medicamento {
     @Transient
     private OrderStatus statusTipo;
 
-    @Column(name = "usuario_id")
-    private Integer usuarioId;
+    //isso aki é para enviar a tabela Medicamento para Usuario
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnoreProperties("medicamentos")
+    private Usuario usuario;
 
     public Integer getId() {
         return id;
@@ -102,19 +107,27 @@ public class Medicamento {
         this.instrucoes = instrucoes;
     }
 
-    public Date getDataDeInicio() {
+    public Integer getTipoUnidadeCodigo() {
+        return tipoUnidadeCodigo;
+    }
+
+    public void setTipoUnidadeCodigo(Integer tipoUnidadeCodigo) {
+        this.tipoUnidadeCodigo = tipoUnidadeCodigo;
+    }
+
+    public LocalDateTime getDataDeInicio() {
         return dataDeInicio;
     }
 
-    public void setDataDeInicio(Date dataDeInicio) {
+    public void setDataDeInicio(LocalDateTime dataDeInicio) {
         this.dataDeInicio = dataDeInicio;
     }
 
-    public Date getDataDeTermino() {
+    public LocalDateTime getDataDeTermino() {
         return dataDeTermino;
     }
 
-    public void setDataDeTermino(Date dataDeTermino) {
+    public void setDataDeTermino(LocalDateTime dataDeTermino) {
         this.dataDeTermino = dataDeTermino;
     }
 
@@ -125,5 +138,15 @@ public class Medicamento {
 
     public void setStatusTipo(OrderStatus status) {
         this.status = status != null ? status.getCode() : null;
+    }
+
+
+    //GET E SET - TABELA ESTRANGEIRA
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }

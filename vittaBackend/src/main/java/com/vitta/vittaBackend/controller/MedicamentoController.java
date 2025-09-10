@@ -2,11 +2,7 @@ package com.vitta.vittaBackend.controller;
 
 import com.vitta.vittaBackend.dto.request.medicamento.MedicamentoDTORequest;
 import com.vitta.vittaBackend.dto.request.medicamento.MedicamentoDTORequestAtualizar;
-import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
-import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequestAtualizar;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponseAtualizar;
 import com.vitta.vittaBackend.service.MedicamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

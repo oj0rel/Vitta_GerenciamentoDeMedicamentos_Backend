@@ -3,8 +3,6 @@ package com.vitta.vittaBackend.controller;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequestAtualizar;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponseAtualizar;
-import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,10 +46,10 @@ public class UsuarioController {
 
     @PutMapping("/atualizar/{usuarioId}")
     @Operation(summary = "Atualizar todos os dados do Usuário.", description = "Endpoint para atualizar o registro do Usuário, pelo ID.")
-    public ResponseEntity<UsuarioDTOResponseAtualizar> atualizarUsuarioPorId(
+    public ResponseEntity<UsuarioDTOResponse> atualizarUsuarioPorId(
             @PathVariable("usuarioId") Integer usuarioId,
             @RequestBody @Valid UsuarioDTORequestAtualizar usuarioDTO) {
-        UsuarioDTOResponseAtualizar usuarioAtualizado = usuarioService.atualizarUsuarioPorId(usuarioId, usuarioDTO);
+        UsuarioDTOResponse usuarioAtualizado = usuarioService.atualizarUsuarioPorId(usuarioId, usuarioDTO);
         return ResponseEntity.ok(usuarioAtualizado);
     }
 
