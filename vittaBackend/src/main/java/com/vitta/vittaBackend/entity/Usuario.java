@@ -74,7 +74,7 @@ public class Usuario {
 
     // Métodos para status
     public OrderStatus getStatusEnum() {
-        return OrderStatus.fromCode(this.status);
+        return OrderStatus.fromCodigo(this.status);
     }
 
     public void setStatusEnum(OrderStatus status) {

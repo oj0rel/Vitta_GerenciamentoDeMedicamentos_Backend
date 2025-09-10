@@ -31,7 +31,7 @@ public class UsuarioController {
     @GetMapping("/listarUsuarioPorId/{usuarioId}")
     @Operation(summary = "Listar Usuário pelo ID dele.", description = "Endpoint para listar um Usuário, pelo ID.")
     public ResponseEntity<UsuarioDTOResponse> buscarUsuarioPorId(@PathVariable("usuarioId") Integer usuarioId) {
-        UsuarioDTOResponse usuarioDTOResponse = usuarioService.listarUsuarioPorId(usuarioId);
+        UsuarioDTOResponse usuarioDTOResponse = usuarioService.buscarUsuarioPorId(usuarioId);
 
         if (usuarioId == null) {
             return ResponseEntity.noContent().build();
@@ -61,6 +61,7 @@ public class UsuarioController {
         usuarioService.deletarUsuario(usuarioId);
         return ResponseEntity.noContent().build();
     }
+
 
     @GetMapping("/listar/cancelados")
     @Operation(summary = "Listar Usuários cancelados.", description = "Endpoint para listar todos os Usuários cancelados.")

@@ -17,7 +17,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
+
     private final UsuarioRepository usuarioRepository;
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -34,7 +36,7 @@ public class UsuarioService {
     }
 
     //LISTAR 1 USUÁRIO, PEGANDO PELO ID
-    public UsuarioDTOResponse listarUsuarioPorId(Integer usuarioId) {
+    public UsuarioDTOResponse buscarUsuarioPorId(Integer usuarioId) {
         Usuario usuario = usuarioRepository.obterUsuarioPeloId(usuarioId);
 
         return modelMapper.map(usuario, UsuarioDTOResponse.class);

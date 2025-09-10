@@ -15,13 +15,12 @@ public enum OrderStatus {
         return code;
     }
 
-    public static OrderStatus fromCode(Integer code) {
-        for (OrderStatus value : OrderStatus.values()) {
-            if (value.code == code) {
-                return value;
+    public static OrderStatus fromCodigo(int code) {
+        for (OrderStatus status : OrderStatus.values()) {
+            if (status.getCode() == code) {
+                return status;
             }
         }
-
-        throw new IllegalArgumentException("Invalid OrderStatus code");
+        throw new IllegalArgumentException("Código inválido: " + code);
     }
 }

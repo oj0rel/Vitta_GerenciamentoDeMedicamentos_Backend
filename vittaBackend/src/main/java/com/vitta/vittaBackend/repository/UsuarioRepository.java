@@ -12,6 +12,7 @@ import java.util.List;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer>{
+
     @Modifying
     @Transactional
     @Query("UPDATE Usuario u SET u.status = -1 WHERE u.id = :id")
