@@ -6,6 +6,7 @@ import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
 import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 import com.vitta.vittaBackend.repository.MedicamentoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
@@ -49,7 +50,23 @@ public class MedicamentoService {
     //CADASTRAR MEDICAMENTO
     @Transactional
     public MedicamentoDTOResponse cadastrarMedicamento(MedicamentoDTORequest medicamentoDTORequest) {
-        Medicamento medicamento = modelMapper.map(medicamentoDTORequest, Medicamento.class);
+        Medicamento medicamento = new Medicamento();
+
+        // Preenche manualmente os campos que não precisam de conversão especial
+        medicamento.setNome(medicamentoDTORequest.getNome());
+        medicamento.setDosagem(medicamentoDTORequest.getDosagem());
+
+        // converte o Integer que vem do DTORequest para o Enum TipoUnidadeDeMedida
+        if (medicamentoDTORequest.getTipoUnidadeDeMedida() != null) {
+            medicamento.setTipoUnidadeDeMedida(
+                    TipoUnidadeDeMedida.fromCodigo(medicamentoDTORequest.getTipoUnidadeDeMedida())
+            );
+        }
+
+        medicamento.setFrequencia(medicamentoDTORequest.getFrequencia());
+        medicamento.setInstrucoes(medicamentoDTORequest.getInstrucoes());
+        medicamento.setDataDeInicio(medicamentoDTORequest.getDataDeInicio());
+        medicamento.setDataDeTermino(medicamentoDTORequest.getDataDeTermino());
 
         if (medicamentoDTORequest.getUsuarioId() != null) {
             Usuario usuario = usuarioRepository.findById(medicamentoDTORequest.getUsuarioId())
@@ -57,7 +74,7 @@ public class MedicamentoService {
 
             // Faz o vínculo bidirecional
             medicamento.setUsuario(usuario);
-            usuario.getMedicamentos().add(medicamento);
+            //usuario.getMedicamentos().add(medicamento);
 
             // Salva explicitamente o medicamento
             Medicamento medicamentoSalvo = medicamentoRepository.save(medicamento);
