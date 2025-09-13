@@ -1,6 +1,6 @@
 package com.vitta.vittaBackend.dto.response.usuario;
 
-import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.enums.OrderStatus;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public class UsuarioDTOResponse {
     private String email;
     private OrderStatus status;
 
-    private List<MedicamentoDTOResponse> medicamentos;
+    private List<MedicamentoResumoDTOResponse> medicamentos;
 
     public Integer getId() {
         return id;
@@ -54,11 +54,11 @@ public class UsuarioDTOResponse {
         this.status = status;
     }
 
-    public List<MedicamentoDTOResponse> getMedicamentos() {
+    public List<MedicamentoResumoDTOResponse> getMedicamentos() {
         return medicamentos;
     }
 
-    public void setMedicamentos(List<MedicamentoDTOResponse> medicamentos) {
+    public void setMedicamentos(List<MedicamentoResumoDTOResponse> medicamentos) {
         this.medicamentos = medicamentos;
     }
 }

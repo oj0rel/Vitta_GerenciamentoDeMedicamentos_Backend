@@ -3,6 +3,7 @@ package com.vitta.vittaBackend.service;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequestAtualizar;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
 import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Usuario;
@@ -43,8 +44,8 @@ public class UsuarioService {
                             .map(usuario);
 
                     // popula medicamentos manualmente
-                    List<MedicamentoDTOResponse> medicamentosDTO = usuario.getMedicamentos().stream()
-                            .map(med -> modelMapper.map(med, MedicamentoDTOResponse.class))
+                    List<MedicamentoResumoDTOResponse> medicamentosDTO = usuario.getMedicamentos().stream()
+                            .map(med -> modelMapper.map(med, MedicamentoResumoDTOResponse.class))
                             .collect(Collectors.toList());
 
                     usuarioDTOResponse.setMedicamentos(medicamentosDTO);

@@ -1,12 +1,11 @@
 package com.vitta.vittaBackend.dto.response.medicamento;
 
-import com.vitta.vittaBackend.dto.response.UsuarioDTOResponse;
+import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class MedicamentoDTOResponse {
     private Integer id;
