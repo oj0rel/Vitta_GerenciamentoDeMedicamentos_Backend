@@ -2,6 +2,7 @@ package com.vitta.vittaBackend.service;
 
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequestAtualizar;
+import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
 import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Usuario;
@@ -34,9 +35,25 @@ public class UsuarioService {
     public List<UsuarioDTOResponse> listarUsuarios() {
         return this.usuarioRepository.listarUsuarios()
                 .stream()
-                .map(usuario -> modelMapper.map(usuario, UsuarioDTOResponse.class))
+                .map(usuario -> {
+                    // ignora medicamentos no mapeamento automático
+                    UsuarioDTOResponse usuarioDTOResponse = modelMapper
+                            .typeMap(Usuario.class, UsuarioDTOResponse.class)
+                            .addMappings(mapper -> mapper.skip(UsuarioDTOResponse::setMedicamentos))
+                            .map(usuario);
+
+                    // popula medicamentos manualmente
+                    List<MedicamentoDTOResponse> medicamentosDTO = usuario.getMedicamentos().stream()
+                            .map(med -> modelMapper.map(med, MedicamentoDTOResponse.class))
+                            .collect(Collectors.toList());
+
+                    usuarioDTOResponse.setMedicamentos(medicamentosDTO);
+                    return usuarioDTOResponse;
+                })
                 .collect(Collectors.toList());
     }
+
+
 
     //LISTAR 1 USUÁRIO, PEGANDO PELO ID
     public UsuarioDTOResponse buscarUsuarioPorId(Integer usuarioId) {
