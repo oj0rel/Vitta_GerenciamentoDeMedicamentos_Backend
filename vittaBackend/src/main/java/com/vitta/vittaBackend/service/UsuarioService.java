@@ -74,14 +74,6 @@ public class UsuarioService {
         usuario.setEmail(usuarioDTORequest.getEmail());
         usuario.setSenha(usuarioDTORequest.getSenha());
 
-        if (usuarioDTORequest.getMedicamentosId() != null && !usuarioDTORequest.getMedicamentosId().isEmpty()) {
-            List<Medicamento> medicamentos = medicamentoRepository.findAllById(usuarioDTORequest.getMedicamentosId());
-            for (Medicamento m : medicamentos) {
-                m.setUsuario(usuario); // vincula bidirecional
-                usuario.getMedicamentos().add(m);
-            }
-        }
-
         Usuario usuarioSave = usuarioRepository.save(usuario);
         return modelMapper.map(usuarioSave, UsuarioDTOResponse.class);
     }
@@ -94,17 +86,6 @@ public class UsuarioService {
         if (usuario != null) {
             usuario.setNome(usuarioDTORequestAtualizar.getNome());
             usuario.setTelefone(usuarioDTORequestAtualizar.getTelefone());
-
-            //limpa vinculos antigos
-            usuario.getMedicamentos().clear();
-
-            if (usuarioDTORequestAtualizar.getMedicamentosId() != null && !usuarioDTORequestAtualizar.getMedicamentosId().isEmpty()) {
-                List<Medicamento> medicamentos = medicamentoRepository.findAllById(usuarioDTORequestAtualizar.getMedicamentosId());
-                for (Medicamento m : medicamentos) {
-                    m.setUsuario(usuario); // vincula bidirecional
-                    usuario.getMedicamentos().add(m);
-                }
-            }
 
             Usuario usuarioSave = usuarioRepository.save(usuario);
             return modelMapper.map(usuarioSave, UsuarioDTOResponse.class);

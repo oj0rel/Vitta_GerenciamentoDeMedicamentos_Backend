@@ -111,7 +111,7 @@ public class MedicamentoService {
     private Medicamento validarMedicamento(Integer medicamentoId) {
         Medicamento medicamento = medicamentoRepository.obterMedicamentoPeloId(medicamentoId);
         if (medicamento == null) {
-            throw new RuntimeException("MEDICAMENTO não encontrado ou inativo.");
+            throw new RuntimeException("Medicamento não encontrado ou inativo.");
         }
         return medicamento;
     }

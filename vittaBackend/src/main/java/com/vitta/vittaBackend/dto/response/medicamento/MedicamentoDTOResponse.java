@@ -1,11 +1,13 @@
 package com.vitta.vittaBackend.dto.response.medicamento;
 
+import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class MedicamentoDTOResponse {
     private Integer id;
@@ -17,7 +19,10 @@ public class MedicamentoDTOResponse {
     private LocalDateTime dataDeInicio;
     private LocalDateTime dataDeTermino;
     private OrderStatus status;
+
     private UsuarioDTOResponse usuario;
+
+    private List<MedicamentoHistoricoResumoDTOResponse> medicamentosHistoricos;
 
     public Integer getId() {
         return id;
@@ -97,5 +102,13 @@ public class MedicamentoDTOResponse {
 
     public void setUsuario(UsuarioDTOResponse usuario) {
         this.usuario = usuario;
+    }
+
+    public List<MedicamentoHistoricoResumoDTOResponse> getMedicamentosHistoricos() {
+        return medicamentosHistoricos;
+    }
+
+    public void setMedicamentosHistoricos(List<MedicamentoHistoricoResumoDTOResponse> medicamentosHistoricos) {
+        this.medicamentosHistoricos = medicamentosHistoricos;
     }
 }

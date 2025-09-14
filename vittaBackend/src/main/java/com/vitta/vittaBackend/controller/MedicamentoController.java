@@ -23,11 +23,11 @@ public class MedicamentoController {
     public MedicamentoController(MedicamentoService medicamentoService) { this.medicamentoService = medicamentoService; }
 
     @GetMapping("/listar")
-    @Operation(summary = "Listar Medicamentos.", description = "Endpoint para listar todos os Medicamentos.")
+    @Operation(summary = "Listar Medicamentos", description = "Endpoint para listar todos os Medicamentos.")
     public ResponseEntity<List<MedicamentoDTOResponse>> listarMedicamentos() { return ResponseEntity.ok(medicamentoService.listarMedicamentos()); }
 
     @GetMapping("/listarMedicamentoPorId/{medicamentoId}")
-    @Operation(summary = "Listar Medicamento pelo ID dele.", description = "Endpoint para listar um Medicamento, pelo ID.")
+    @Operation(summary = "Listar Medicamento pelo ID dele", description = "Endpoint para listar um Medicamento, pelo ID.")
     public ResponseEntity<MedicamentoDTOResponse> buscarMedicamentoPorId(@PathVariable("medicamentoId") Integer medicamentoId) {
         MedicamentoDTOResponse medicamentoDTOResponse = medicamentoService.buscarMedicamentoPorId(medicamentoId);
 
@@ -39,13 +39,13 @@ public class MedicamentoController {
     }
 
     @PostMapping("/cadastrar")
-    @Operation(summary = "Criar novo Medicamento.", description = "Endpoint para criar um novo registro de Medicamento.")
+    @Operation(summary = "Criar novo Medicamento", description = "Endpoint para criar um novo registro de Medicamento.")
     public ResponseEntity<MedicamentoDTOResponse> cadastrarMedicamento(@Valid @RequestBody MedicamentoDTORequest medicamentoDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(medicamentoService.cadastrarMedicamento(medicamentoDTO));
     }
 
     @PutMapping("/atualizar/{medicamentoId}")
-    @Operation(summary = "Atualizar todos os dados do Medicamento.", description = "Endpoint para atualizar o registro do Medicamento, pelo ID.")
+    @Operation(summary = "Atualizar todos os dados do Medicamento", description = "Endpoint para atualizar o registro do Medicamento, pelo ID.")
     public ResponseEntity<MedicamentoDTOResponse> atualizarMedicamentoPorId(
             @PathVariable("medicamentoId") Integer medicamentoId,
             @RequestBody @Valid MedicamentoDTORequestAtualizar medicamentoDTO) {
@@ -54,7 +54,7 @@ public class MedicamentoController {
     }
 
     @DeleteMapping("/deletar/{medicamentoId}")
-    @Operation(summary = "Deletar todos os dados do Medicamento.", description = "Endpoint para deletar o registro do Medicamento, pelo ID.")
+    @Operation(summary = "Deletar todos os dados do Medicamento", description = "Endpoint para deletar o registro do Medicamento, pelo ID.")
     public ResponseEntity<Void> deletarMedicamento(@PathVariable("medicamentoId") Integer medicamentoId) {
         medicamentoService.deletarMedicamento(medicamentoId);
         return ResponseEntity.noContent().build();
@@ -62,6 +62,6 @@ public class MedicamentoController {
 
 
     @GetMapping("/listar/inativos")
-    @Operation(summary = "Listar Medicamentos inativos.", description = "Endpoint para listar todos os Medicamentos inativos.")
+    @Operation(summary = "Listar Medicamentos inativos", description = "Endpoint para listar todos os Medicamentos inativos.")
     public ResponseEntity <List<MedicamentoDTOResponse>> listarMedicamentosInativos() { return ResponseEntity.ok(medicamentoService.listarMedicamentosInativos()); }
 }

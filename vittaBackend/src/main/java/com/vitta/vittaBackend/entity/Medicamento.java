@@ -1,5 +1,6 @@
 package com.vitta.vittaBackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "medicamento")
@@ -57,6 +59,11 @@ public class Medicamento {
             this.status = status.ATIVO;
         }
     }
+
+    //para trazer a tabela MedicamentoHistorico para Medicamento
+    @OneToMany(mappedBy = "medicamento")
+    @JsonIgnore
+    private List<MedicamentoHistorico> medicamentosHistoricos;
 
     public Integer getId() {
         return id;
@@ -138,5 +145,13 @@ public class Medicamento {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public List<MedicamentoHistorico> getMedicamentosHistoricos() {
+        return medicamentosHistoricos;
+    }
+
+    public void setMedicamentosHistoricos(List<MedicamentoHistorico> medicamentosHistoricos) {
+        this.medicamentosHistoricos = medicamentosHistoricos;
     }
 }
