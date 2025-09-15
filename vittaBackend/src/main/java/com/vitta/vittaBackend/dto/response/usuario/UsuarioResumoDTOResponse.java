@@ -1,8 +1,9 @@
-package com.vitta.vittaBackend.dto.response.medicamento;
+package com.vitta.vittaBackend.dto.response.usuario;
 
 import com.vitta.vittaBackend.enums.OrderStatus;
 
-public class MedicamentoResumoDTOResponse {
+public class UsuarioResumoDTOResponse {
+
     private Integer id;
     private String nome;
     private OrderStatus status;

@@ -1,16 +1,13 @@
 package com.vitta.vittaBackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 import jakarta.persistence.*;
-import org.hibernate.query.Order;
+import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -62,6 +59,7 @@ public class Medicamento {
 
     //para trazer a tabela MedicamentoHistorico para Medicamento
     @OneToMany(mappedBy = "medicamento")
+    @Where(clause = "uso_de_medicamento_historico_status = 1")
     @JsonIgnore
     private List<MedicamentoHistorico> medicamentosHistoricos;
 

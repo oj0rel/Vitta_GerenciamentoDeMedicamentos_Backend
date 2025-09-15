@@ -1,6 +1,7 @@
 package com.vitta.vittaBackend.dto.response.medicamentoHistorico;
 
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.enums.medicamentoHistorico.UsoMedicamentoStatus;
 
 import java.math.BigDecimal;
@@ -12,7 +13,7 @@ public class MedicamentoHistoricoDTOResponse {
     private BigDecimal doseTomada;
     private String observacao;
     private UsoMedicamentoStatus historicoStatus;
-    private MedicamentoDTOResponse medicamento;
+    private MedicamentoResumoDTOResponse medicamento;
 
     public Integer getId() {
         return id;
@@ -54,11 +55,11 @@ public class MedicamentoHistoricoDTOResponse {
         this.historicoStatus = historicoStatus;
     }
 
-    public MedicamentoDTOResponse getMedicamento() {
+    public MedicamentoResumoDTOResponse getMedicamento() {
         return medicamento;
     }
 
-    public void setMedicamento(MedicamentoDTOResponse medicamento) {
+    public void setMedicamento(MedicamentoResumoDTOResponse medicamento) {
         this.medicamento = medicamento;
     }
 }

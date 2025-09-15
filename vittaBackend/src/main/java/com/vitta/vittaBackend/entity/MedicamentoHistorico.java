@@ -25,19 +25,12 @@ public class MedicamentoHistorico {
     private String observacao;
 
     @Column(name = "uso_de_medicamento_historico_status")
-    private UsoMedicamentoStatus historicoStatus;
+    private UsoMedicamentoStatus historicoStatus = UsoMedicamentoStatus.ATIVO;
 
     //isso aki é para enviar a tabela UsoMedicamentoHistorico para Medicamento
     @ManyToOne
     @JoinColumn(name = "medicamento_id")
     private Medicamento medicamento;
-
-    @PrePersist
-    public void prePersist() {
-        if (this.historicoStatus == null) {
-            this.historicoStatus = historicoStatus.ATIVO;
-        }
-    }
 
     public Integer getId() {
         return id;

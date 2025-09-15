@@ -6,6 +6,7 @@ import com.vitta.vittaBackend.enums.OrderStatus;
 import java.util.List;
 
 public class UsuarioDTOResponse {
+
     private Integer id;
     private String nome;
     private String telefone;
