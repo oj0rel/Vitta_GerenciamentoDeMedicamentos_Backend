@@ -3,6 +3,7 @@ package com.vitta.vittaBackend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,11 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario")
     @JsonIgnore
     private List<Medicamento> medicamentos;
+
+    //para trazer a tabela Agendamento para Usuario
+    @OneToMany(mappedBy = "medicamento")
+    @JsonIgnore
+    private List<Agendamento> agendamentos;
 
     @PrePersist
     public void prePersist() {

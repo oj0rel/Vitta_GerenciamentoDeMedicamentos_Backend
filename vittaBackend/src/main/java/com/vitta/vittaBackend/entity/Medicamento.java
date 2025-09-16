@@ -59,9 +59,14 @@ public class Medicamento {
 
     //para trazer a tabela MedicamentoHistorico para Medicamento
     @OneToMany(mappedBy = "medicamento")
-    @Where(clause = "uso_de_medicamento_historico_status = 1")
     @JsonIgnore
     private List<MedicamentoHistorico> medicamentosHistoricos;
+
+    //para trazer a tabela Agendamento para Medicamento
+    @OneToMany(mappedBy = "medicamento")
+    @Where(clause = "agendamento_status = 1")
+    @JsonIgnore
+    private List<Agendamento> agendamentos;
 
     public Integer getId() {
         return id;
@@ -151,5 +156,13 @@ public class Medicamento {
 
     public void setMedicamentosHistoricos(List<MedicamentoHistorico> medicamentosHistoricos) {
         this.medicamentosHistoricos = medicamentosHistoricos;
+    }
+
+    public List<Agendamento> getAgendamentos() {
+        return agendamentos;
+    }
+
+    public void setAgendamentos(List<Agendamento> agendamentos) {
+        this.agendamentos = agendamentos;
     }
 }

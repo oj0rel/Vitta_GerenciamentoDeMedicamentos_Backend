@@ -1,7 +1,6 @@
 package com.vitta.vittaBackend.dto.response.medicamento;
 
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
