@@ -1,7 +1,6 @@
 package com.vitta.vittaBackend.dto.request.agendamento;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 
 import java.time.Instant;
 
@@ -12,7 +11,6 @@ public class AgendamentoDTORequest {
     private Integer tipoDeAlerta;
     private Integer medicamentoId;
     private Integer usuarioId;
-
 
     public Instant getHorarioDoAgendamento() {
         return horarioDoAgendamento;

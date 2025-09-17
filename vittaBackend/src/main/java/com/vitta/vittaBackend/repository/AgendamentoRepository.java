@@ -15,16 +15,15 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
 
     @Modifying
     @Transactional
-    @Query("UPDATE Agendamento a SET a.status = -1 WHERE a.id = :id")
+    @Query("UPDATE Agendamento a SET a.status = 0 WHERE a.id = :id")
     void apagadoLogicoAgendamento(@Param("id") Integer agendamentoId);
 
-    @Query("SELECT a FROM Agendamento a WHERE a.status >= 0")
+    @Query("SELECT a FROM Agendamento a WHERE a.status > 0")
     List<Agendamento> listarAgendamentos();
 
     @Query("SELECT a FROM Agendamento a WHERE a.id = :id AND a.status >= 0")
     Agendamento obterAgendamentoPeloId(@Param("id") Integer agendamentoId);
 
-    //TESTE PARA LISTAR Agendamentos CANCELADOS
-    @Query("SELECT a FROM Agendamento a WHERE a.status = -1")
-    List<Agendamento> listarAgendamentosCancelados();
+    @Query("SELECT a FROM Agendamento a WHERE a.status = 0")
+    List<Agendamento> listarAgendamentosInativos();
 }

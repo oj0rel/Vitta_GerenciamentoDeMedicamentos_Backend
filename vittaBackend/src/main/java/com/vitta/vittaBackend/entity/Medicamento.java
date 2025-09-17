@@ -1,10 +1,9 @@
 package com.vitta.vittaBackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.enums.GeralStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -42,20 +41,13 @@ public class Medicamento {
     private LocalDateTime dataDeTermino;
 
     @Column(name = "medicamento_status")
-    private OrderStatus status;
+    private GeralStatus status;
 
 
     //isso aki é para enviar a tabela Medicamento para Usuario
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
-
-    @PrePersist
-    public void prePersist() {
-        if (this.status == null) {
-            this.status = status.ATIVO;
-        }
-    }
 
     //para trazer a tabela MedicamentoHistorico para Medicamento
     @OneToMany(mappedBy = "medicamento")
@@ -64,7 +56,6 @@ public class Medicamento {
 
     //para trazer a tabela Agendamento para Medicamento
     @OneToMany(mappedBy = "medicamento")
-    @Where(clause = "agendamento_status = 1")
     @JsonIgnore
     private List<Agendamento> agendamentos;
 
@@ -133,11 +124,11 @@ public class Medicamento {
         this.dataDeTermino = dataDeTermino;
     }
 
-    public OrderStatus getStatus() {
+    public GeralStatus getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(GeralStatus status) {
         this.status = status;
     }
 

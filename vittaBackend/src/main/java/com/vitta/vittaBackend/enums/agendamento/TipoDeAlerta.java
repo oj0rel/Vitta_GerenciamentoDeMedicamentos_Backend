@@ -4,7 +4,7 @@ import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 
 public enum TipoDeAlerta {
     NOTIFICACAO_PUSH(1),
-    ALARME(2)
+    ALARME(2);
 
     private final int codigo;
 

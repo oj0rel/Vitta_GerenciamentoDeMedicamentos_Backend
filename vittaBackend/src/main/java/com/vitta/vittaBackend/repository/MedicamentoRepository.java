@@ -15,13 +15,13 @@ public interface MedicamentoRepository extends JpaRepository<Medicamento, Intege
 
     @Modifying
     @Transactional
-    @Query("UPDATE Medicamento m SET m.status = -1 WHERE m.id = :id")
+    @Query("UPDATE Medicamento m SET m.status = 0 WHERE m.id = :id")
     void apagadoLogicoMedicamento(@Param("id") Integer medicamentoId);
 
     @Query("SELECT m FROM Medicamento m WHERE m.status > 0")
     List<Medicamento> listarMedicamentos();
 
-    @Query("SELECT m FROM Medicamento m WHERE m.id = :id AND m.status > 0")
+    @Query("SELECT m FROM Medicamento m WHERE m.id = :id AND m.status >= 0")
     Medicamento obterMedicamentoPeloId(@Param("id") Integer medicamentoId);
 
     @Query("SELECT m FROM Medicamento m WHERE m.status = 0")

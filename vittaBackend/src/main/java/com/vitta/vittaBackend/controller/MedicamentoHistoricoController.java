@@ -1,10 +1,7 @@
 package com.vitta.vittaBackend.controller;
 
-import com.vitta.vittaBackend.dto.request.medicamento.MedicamentoDTORequest;
-import com.vitta.vittaBackend.dto.request.medicamento.MedicamentoDTORequestAtualizar;
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequest;
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequestAtualizar;
-import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
 import com.vitta.vittaBackend.service.MedicamentoHistoricoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/medicamentoHistorico")
 @Tag(name = "Uso de Medicamento Historico", description = "API para gerenciamento dos históricos de uso de mendicamentos.")
 public class MedicamentoHistoricoController {
 

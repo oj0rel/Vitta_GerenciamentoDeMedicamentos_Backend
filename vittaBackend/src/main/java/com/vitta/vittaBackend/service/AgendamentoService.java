@@ -1,15 +1,12 @@
 package com.vitta.vittaBackend.service;
 
+import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
-import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequest;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
-import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.entity.Medicamento;
-import com.vitta.vittaBackend.entity.MedicamentoHistorico;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
-import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 import com.vitta.vittaBackend.repository.AgendamentoRepository;
 import com.vitta.vittaBackend.repository.MedicamentoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
@@ -85,5 +82,33 @@ public class AgendamentoService {
 
         Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
         return modelMapper.map(agendamentoSalvo, AgendamentoDTOResponse.class);
+    }
+
+    //ATUALIZAR 1 AGENDAMENTO, PEGANDO PELO ID
+    @Transactional
+    public AgendamentoDTOResponse atualizarAgendamento(Integer agendamentoId, AgendamentoAtualizarDTORequest agendamentoAtualizarDTORequest) {
+        Agendamento agendamentoBuscado = this.validarAgendamento(agendamentoId);
+
+        if (agendamentoBuscado != null) {
+            modelMapper.map(agendamentoAtualizarDTORequest, agendamentoBuscado);
+            Agendamento agendamentoRecebido = agendamentoRepository.save(agendamentoBuscado);
+            return modelMapper.map(agendamentoRecebido, AgendamentoDTOResponse.class);
+        } else {
+            return null;
+        }
+    }
+
+    //DELETAR 1 AGENDAMENTO, PEGANDO PELO ID
+    @Transactional
+    public void deletarAgendamento(Integer agendamentoId) { agendamentoRepository.apagadoLogicoAgendamento(agendamentoId); }
+
+
+    //METODO PRIVADO PARA VALIDAR SE O AGENDAMENTO, PEGANDO PELO ID - para utilizar em outros métodos
+    private Agendamento validarAgendamento(Integer agendamentoId) {
+        Agendamento agendamento = agendamentoRepository.obterAgendamentoPeloId(agendamentoId);
+        if (agendamento == null) {
+            throw new RuntimeException("Agendamento não encontrado ou inativo.");
+        }
+        return agendamento;
     }
 }

@@ -2,12 +2,9 @@ package com.vitta.vittaBackend.service;
 
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequestAtualizar;
-import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
-import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Usuario;
-import com.vitta.vittaBackend.enums.OrderStatus;
 import com.vitta.vittaBackend.repository.MedicamentoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;

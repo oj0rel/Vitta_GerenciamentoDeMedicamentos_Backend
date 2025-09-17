@@ -1,6 +1,6 @@
 package com.vitta.vittaBackend.entity;
 
-import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.enums.GeralStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 import jakarta.persistence.*;
 
@@ -22,7 +22,7 @@ public class Agendamento {
     private TipoDeAlerta tipoDeAlerta;
 
     @Column(name = "agendamento_status")
-    private OrderStatus status;
+    private GeralStatus status = GeralStatus.ATIVO;
 
     //isso aki é para enviar a tabela Agendamento para Medicamento
     @ManyToOne
@@ -59,11 +59,11 @@ public class Agendamento {
         this.tipoDeAlerta = tipoDeAlerta;
     }
 
-    public OrderStatus getStatus() {
+    public GeralStatus getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(GeralStatus status) {
         this.status = status;
     }
 

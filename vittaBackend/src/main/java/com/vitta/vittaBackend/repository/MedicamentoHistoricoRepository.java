@@ -16,15 +16,12 @@ public interface MedicamentoHistoricoRepository extends JpaRepository<Medicament
 
     @Modifying
     @Transactional
-    // CORREÇÃO: trocado "m.status" por "m.historicoStatus"
     @Query("UPDATE MedicamentoHistorico m SET m.historicoStatus = 0 WHERE m.id = :id")
     void apagadoLogicoMedicamentoHistorico(@Param("id") Integer medicamentoHistoricoId);
 
-    // CORREÇÃO: trocado "m.status" por "m.historicoStatus"
     @Query("SELECT m FROM MedicamentoHistorico m WHERE m.historicoStatus > 0")
     List<MedicamentoHistorico> listarMedicamentosHistoricos();
 
-    // CORREÇÃO: trocado "m.status" por "m.historicoStatus"
-    @Query("SELECT m FROM MedicamentoHistorico m WHERE m.id = :id AND m.historicoStatus > 0")
+    @Query("SELECT m FROM MedicamentoHistorico m WHERE m.id = :id AND m.historicoStatus >= 0")
     MedicamentoHistorico obterMedicamentoHistoricoPeloId(@Param("id") Integer medicamentoHistoricoId);
 }

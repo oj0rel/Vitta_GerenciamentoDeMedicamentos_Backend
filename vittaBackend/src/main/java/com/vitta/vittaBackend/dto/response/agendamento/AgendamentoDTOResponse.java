@@ -1,19 +1,18 @@
 package com.vitta.vittaBackend.dto.response.agendamento;
 
-import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
-import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.enums.GeralStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 
 import java.time.Instant;
-import java.util.List;
 
 public class AgendamentoDTOResponse {
 
     private Instant horarioDoAgendamento;
     private TipoDeAlerta tipoDeAlerta;
-    private OrderStatus status;
-    private List<MedicamentoHistoricoResumoDTOResponse> medicamentosHistoricos;
+    private GeralStatus status;
+    private MedicamentoResumoDTOResponse medicamento;
     private UsuarioResumoDTOResponse usuario;
 
 
@@ -33,20 +32,20 @@ public class AgendamentoDTOResponse {
         this.tipoDeAlerta = tipoDeAlerta;
     }
 
-    public OrderStatus getStatus() {
+    public GeralStatus getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(GeralStatus status) {
         this.status = status;
     }
 
-    public List<MedicamentoHistoricoResumoDTOResponse> getMedicamentosHistoricos() {
-        return medicamentosHistoricos;
+    public MedicamentoResumoDTOResponse getMedicamento() {
+        return medicamento;
     }
 
-    public void setMedicamentosHistoricos(List<MedicamentoHistoricoResumoDTOResponse> medicamentosHistoricos) {
-        this.medicamentosHistoricos = medicamentosHistoricos;
+    public void setMedicamento(MedicamentoResumoDTOResponse medicamento) {
+        this.medicamento = medicamento;
     }
 
     public UsuarioResumoDTOResponse getUsuario() {

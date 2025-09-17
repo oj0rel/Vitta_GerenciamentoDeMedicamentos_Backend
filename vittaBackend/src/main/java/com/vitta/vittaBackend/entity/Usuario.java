@@ -1,11 +1,9 @@
 package com.vitta.vittaBackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.enums.UsuarioStatus;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Where;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,7 +28,7 @@ public class Usuario {
     private String senha;
 
     @Column(name = "usuario_status")
-    private OrderStatus status;
+    private UsuarioStatus status;
 
 
     //para trazer a tabela Medicamento para Usuario
@@ -39,16 +37,9 @@ public class Usuario {
     private List<Medicamento> medicamentos;
 
     //para trazer a tabela Agendamento para Usuario
-    @OneToMany(mappedBy = "medicamento")
+    @OneToMany(mappedBy = "usuario")
     @JsonIgnore
     private List<Agendamento> agendamentos;
-
-    @PrePersist
-    public void prePersist() {
-        if (this.status == null) {
-            this.status = status.ATIVO;
-        }
-    }
 
     public Integer getId() {
         return id;
@@ -86,11 +77,11 @@ public class Usuario {
         this.senha = senha;
     }
 
-    public OrderStatus getStatus() {
+    public UsuarioStatus getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(UsuarioStatus status) {
         this.status = status;
     }
 
@@ -101,5 +92,13 @@ public class Usuario {
 
     public void setMedicamentos(List<Medicamento> medicamentos) {
         this.medicamentos = medicamentos;
+    }
+
+    public List<Agendamento> getAgendamentos() {
+        return agendamentos;
+    }
+
+    public void setAgendamentos(List<Agendamento> agendamentos) {
+        this.agendamentos = agendamentos;
     }
 }

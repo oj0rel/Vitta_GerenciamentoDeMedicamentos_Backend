@@ -1,28 +1,28 @@
 package com.vitta.vittaBackend.converter;
 
-import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.enums.UsuarioStatus;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
-public class StatusConverter implements AttributeConverter<OrderStatus, Integer> {
+public class StatusConverter implements AttributeConverter<UsuarioStatus, Integer> {
 
     @Override
-    public Integer convertToDatabaseColumn(OrderStatus status) {
+    public Integer convertToDatabaseColumn(UsuarioStatus status) {
         return status != null ? status.getCode() : null;
     }
 
     @Override
-    public OrderStatus convertToEntityAttribute(Integer codigo) {
+    public UsuarioStatus convertToEntityAttribute(Integer codigo) {
         if (codigo == null) {
-            return OrderStatus.INATIVO;
+            return UsuarioStatus.INATIVO;
         }
-        for (OrderStatus status : OrderStatus.values()) {
+        for (UsuarioStatus status : UsuarioStatus.values()) {
             if (status.getCode().equals(codigo)) {
                 return status;
             }
         }
 
-        return OrderStatus.INATIVO;
+        return UsuarioStatus.INATIVO;
     }
 }

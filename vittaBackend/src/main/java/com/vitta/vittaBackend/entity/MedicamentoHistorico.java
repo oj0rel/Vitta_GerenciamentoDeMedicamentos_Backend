@@ -1,6 +1,6 @@
 package com.vitta.vittaBackend.entity;
 
-import com.vitta.vittaBackend.enums.medicamentoHistorico.UsoMedicamentoStatus;
+import com.vitta.vittaBackend.enums.GeralStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -25,7 +25,7 @@ public class MedicamentoHistorico {
     private String observacao;
 
     @Column(name = "uso_de_medicamento_historico_status")
-    private UsoMedicamentoStatus historicoStatus = UsoMedicamentoStatus.ATIVO;
+    private GeralStatus historicoStatus = GeralStatus.ATIVO;
 
     //isso aki é para enviar a tabela UsoMedicamentoHistorico para Medicamento
     @ManyToOne
@@ -64,11 +64,11 @@ public class MedicamentoHistorico {
         this.observacao = observacao;
     }
 
-    public UsoMedicamentoStatus getHistoricoStatus() {
+    public GeralStatus getHistoricoStatus() {
         return historicoStatus;
     }
 
-    public void setHistoricoStatus(UsoMedicamentoStatus historicoStatus) {
+    public void setHistoricoStatus(GeralStatus historicoStatus) {
         this.historicoStatus = historicoStatus;
     }
 

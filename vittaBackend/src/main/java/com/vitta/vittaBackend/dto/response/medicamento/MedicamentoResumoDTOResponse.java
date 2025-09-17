@@ -1,11 +1,11 @@
 package com.vitta.vittaBackend.dto.response.medicamento;
 
-import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.enums.GeralStatus;
 
 public class MedicamentoResumoDTOResponse {
     private Integer id;
     private String nome;
-    private OrderStatus status;
+    private GeralStatus status;
 
     public Integer getId() {
         return id;
@@ -23,11 +23,11 @@ public class MedicamentoResumoDTOResponse {
         this.nome = nome;
     }
 
-    public OrderStatus getStatus() {
+    public GeralStatus getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(GeralStatus status) {
         this.status = status;
     }
 }

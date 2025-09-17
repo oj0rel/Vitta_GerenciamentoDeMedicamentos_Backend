@@ -1,8 +1,9 @@
 package com.vitta.vittaBackend.dto.response.medicamento;
 
+import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
-import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.enums.GeralStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 
 import java.math.BigDecimal;
@@ -18,11 +19,12 @@ public class MedicamentoDTOResponse {
     private String instrucoes;
     private LocalDateTime dataDeInicio;
     private LocalDateTime dataDeTermino;
-    private OrderStatus status;
+    private GeralStatus status;
 
     private UsuarioResumoDTOResponse usuario;
 
     private List<MedicamentoHistoricoResumoDTOResponse> medicamentosHistoricos;
+    private List<AgendamentoResumoDTOResponse> agendamentos;
 
     public Integer getId() {
         return id;
@@ -88,11 +90,11 @@ public class MedicamentoDTOResponse {
         this.dataDeTermino = dataDeTermino;
     }
 
-    public OrderStatus getStatus() {
+    public GeralStatus getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(GeralStatus status) {
         this.status = status;
     }
 
@@ -110,5 +112,13 @@ public class MedicamentoDTOResponse {
 
     public void setMedicamentosHistoricos(List<MedicamentoHistoricoResumoDTOResponse> medicamentosHistoricos) {
         this.medicamentosHistoricos = medicamentosHistoricos;
+    }
+
+    public List<AgendamentoResumoDTOResponse> getAgendamentos() {
+        return agendamentos;
+    }
+
+    public void setAgendamentos(List<AgendamentoResumoDTOResponse> agendamentos) {
+        this.agendamentos = agendamentos;
     }
 }

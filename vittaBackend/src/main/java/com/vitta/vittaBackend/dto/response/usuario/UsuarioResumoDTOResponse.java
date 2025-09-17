@@ -1,12 +1,12 @@
 package com.vitta.vittaBackend.dto.response.usuario;
 
-import com.vitta.vittaBackend.enums.OrderStatus;
+import com.vitta.vittaBackend.enums.UsuarioStatus;
 
 public class UsuarioResumoDTOResponse {
 
     private Integer id;
     private String nome;
-    private OrderStatus status;
+    private UsuarioStatus status;
 
     public Integer getId() {
         return id;
@@ -24,11 +24,11 @@ public class UsuarioResumoDTOResponse {
         this.nome = nome;
     }
 
-    public OrderStatus getStatus() {
+    public UsuarioStatus getStatus() {
         return status;
     }
 
-    public void setStatus(OrderStatus status) {
+    public void setStatus(UsuarioStatus status) {
         this.status = status;
     }
 }
