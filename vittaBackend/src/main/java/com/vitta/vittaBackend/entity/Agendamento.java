@@ -1,10 +1,12 @@
 package com.vitta.vittaBackend.entity;
 
 import com.vitta.vittaBackend.enums.GeralStatus;
+import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "agendamento")
@@ -16,13 +18,13 @@ public class Agendamento {
     private Integer id;
 
     @Column(name = "agendamento_horario_do_agendamento")
-    private Instant horarioDoAgendamento;
+    private LocalDateTime horarioDoAgendamento;
 
     @Column(name = "agendamento_tipo_de_alerta")
     private TipoDeAlerta tipoDeAlerta;
 
     @Column(name = "agendamento_status")
-    private GeralStatus status = GeralStatus.ATIVO;
+    private AgendamentoStatus status = AgendamentoStatus.PENDENTE;
 
     //isso aki é para enviar a tabela Agendamento para Medicamento
     @ManyToOne
@@ -43,11 +45,11 @@ public class Agendamento {
         this.id = id;
     }
 
-    public Instant getHorarioDoAgendamento() {
+    public LocalDateTime getHorarioDoAgendamento() {
         return horarioDoAgendamento;
     }
 
-    public void setHorarioDoAgendamento(Instant horarioDoAgendamento) {
+    public void setHorarioDoAgendamento(LocalDateTime horarioDoAgendamento) {
         this.horarioDoAgendamento = horarioDoAgendamento;
     }
 
@@ -59,11 +61,11 @@ public class Agendamento {
         this.tipoDeAlerta = tipoDeAlerta;
     }
 
-    public GeralStatus getStatus() {
+    public AgendamentoStatus getStatus() {
         return status;
     }
 
-    public void setStatus(GeralStatus status) {
+    public void setStatus(AgendamentoStatus status) {
         this.status = status;
     }
 

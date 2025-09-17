@@ -6,6 +6,7 @@ import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Usuario;
+import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 import com.vitta.vittaBackend.repository.AgendamentoRepository;
 import com.vitta.vittaBackend.repository.MedicamentoRepository;
@@ -38,11 +39,15 @@ public class AgendamentoService {
     }
 
     //LISTAR OS AGENDAMENTOS
-    public List<AgendamentoDTOResponse> listarAgendamentos() {
-        return this.agendamentoRepository.listarAgendamentos()
-                .stream()
-                .map(agendamento -> modelMapper.map(agendamento, AgendamentoDTOResponse.class))
-                .collect(Collectors.toList());
+//    public List<AgendamentoDTOResponse> listarAgendamentos() {
+//        return this.agendamentoRepository.listarAgendamentos()
+//                .stream()
+//                .map(agendamento -> modelMapper.map(agendamento, AgendamentoDTOResponse.class))
+//                .collect(Collectors.toList());
+//    }
+
+    public List<Agendamento> listarTodos() {
+        return agendamentoRepository.findAll();
     }
 
     //LISTAR 1 AGENDAMENTO, PEGANDO PELO ID
@@ -90,7 +95,16 @@ public class AgendamentoService {
         Agendamento agendamentoBuscado = this.validarAgendamento(agendamentoId);
 
         if (agendamentoBuscado != null) {
+
+            // converte o Integer que vem do AtualizarDTORequest para o Enum AgendamentoStatus
+            if (agendamentoAtualizarDTORequest.getStatus() != null) {
+                agendamentoBuscado.setStatus(
+                        AgendamentoStatus.fromCodigo(agendamentoAtualizarDTORequest.getStatus())
+                );
+            }
+
             modelMapper.map(agendamentoAtualizarDTORequest, agendamentoBuscado);
+
             Agendamento agendamentoRecebido = agendamentoRepository.save(agendamentoBuscado);
             return modelMapper.map(agendamentoRecebido, AgendamentoDTOResponse.class);
         } else {

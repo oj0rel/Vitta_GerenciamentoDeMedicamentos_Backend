@@ -1,7 +1,5 @@
 package com.vitta.vittaBackend.enums.agendamento;
 
-import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
-
 public enum TipoDeAlerta {
     NOTIFICACAO_PUSH(1),
     ALARME(2);

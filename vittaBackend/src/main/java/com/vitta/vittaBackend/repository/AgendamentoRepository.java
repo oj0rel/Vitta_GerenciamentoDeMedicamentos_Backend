@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -18,6 +19,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
     @Query("UPDATE Agendamento a SET a.status = 0 WHERE a.id = :id")
     void apagadoLogicoAgendamento(@Param("id") Integer agendamentoId);
 
+    //deixar essa query para listar 1 tipo de status especifico
     @Query("SELECT a FROM Agendamento a WHERE a.status > 0")
     List<Agendamento> listarAgendamentos();
 
@@ -26,4 +28,19 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
 
     @Query("SELECT a FROM Agendamento a WHERE a.status = 0")
     List<Agendamento> listarAgendamentosInativos();
+
+    /**
+     * Busca todos os agendamentos para um usuário específico dentro de um
+     * intervalo de data e hora.
+     * @param usuarioId O ID do usuário.
+     * @param inicioDoDia A data e hora de início do período (ex: hoje às 00:00:00).
+     * @param fimDoDia A data e hora de fim do período (ex: hoje às 23:59:59).
+     * @return Uma lista de agendamentos.
+     */
+    @Query("SELECT a FROM Agendamento a JOIN FETCH a.medicamento JOIN FETCH a.usuario WHERE a.usuario.id = :usuarioId AND a.horarioDoAgendamento BETWEEN :inicioDoDia AND :fimDoDia ORDER BY a.horarioDoAgendamento ASC")
+    List<Agendamento> findByUsuarioIdAndData(
+            @Param("usuarioId") int usuarioId,
+            @Param("inicioDoDia") LocalDateTime inicioDoDia,
+            @Param("fimDoDia") LocalDateTime fimDoDia
+    );
 }

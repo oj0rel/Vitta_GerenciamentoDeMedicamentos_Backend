@@ -3,20 +3,20 @@ package com.vitta.vittaBackend.dto.request.agendamento;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class AgendamentoDTORequest {
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private Instant horarioDoAgendamento;
+    private LocalDateTime horarioDoAgendamento;
     private Integer tipoDeAlerta;
     private Integer medicamentoId;
     private Integer usuarioId;
 
-    public Instant getHorarioDoAgendamento() {
+    public LocalDateTime getHorarioDoAgendamento() {
         return horarioDoAgendamento;
     }
 
-    public void setHorarioDoAgendamento(Instant horarioDoAgendamento) {
+    public void setHorarioDoAgendamento(LocalDateTime horarioDoAgendamento) {
         this.horarioDoAgendamento = horarioDoAgendamento;
     }
 

@@ -3,24 +3,35 @@ package com.vitta.vittaBackend.dto.response.agendamento;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.enums.GeralStatus;
+import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class AgendamentoDTOResponse {
 
-    private Instant horarioDoAgendamento;
+    private Integer id;
+    private LocalDateTime horarioDoAgendamento;
     private TipoDeAlerta tipoDeAlerta;
-    private GeralStatus status;
+    private AgendamentoStatus status;
     private MedicamentoResumoDTOResponse medicamento;
     private UsuarioResumoDTOResponse usuario;
 
 
-    public Instant getHorarioDoAgendamento() {
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getHorarioDoAgendamento() {
         return horarioDoAgendamento;
     }
 
-    public void setHorarioDoAgendamento(Instant horarioDoAgendamento) {
+    public void setHorarioDoAgendamento(LocalDateTime horarioDoAgendamento) {
         this.horarioDoAgendamento = horarioDoAgendamento;
     }
 
@@ -32,11 +43,11 @@ public class AgendamentoDTOResponse {
         this.tipoDeAlerta = tipoDeAlerta;
     }
 
-    public GeralStatus getStatus() {
+    public AgendamentoStatus getStatus() {
         return status;
     }
 
-    public void setStatus(GeralStatus status) {
+    public void setStatus(AgendamentoStatus status) {
         this.status = status;
     }
 

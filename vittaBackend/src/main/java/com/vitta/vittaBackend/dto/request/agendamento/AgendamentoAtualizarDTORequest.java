@@ -10,6 +10,8 @@ public class AgendamentoAtualizarDTORequest {
     private Instant horarioDoAgendamento;
     private Integer tipoDeAlerta;
 
+    private Integer status;
+
     public Instant getHorarioDoAgendamento() {
         return horarioDoAgendamento;
     }
@@ -24,5 +26,13 @@ public class AgendamentoAtualizarDTORequest {
 
     public void setTipoDeAlerta(Integer tipoDeAlerta) {
         this.tipoDeAlerta = tipoDeAlerta;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }
