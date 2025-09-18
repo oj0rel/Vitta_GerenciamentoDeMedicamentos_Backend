@@ -71,12 +71,12 @@ public class UsuarioController {
     @Operation(summary = "Listar Usuários cancelados.", description = "Endpoint para listar todos os Usuários cancelados.")
     public ResponseEntity <List<UsuarioDTOResponse>> listarUsuariosCancelados() { return ResponseEntity.ok(usuarioService.listarUsuariosCancelados()); }
 
-    @GetMapping("/{usuarioId}/agenda-do-dia")
-    public ResponseEntity<List<AgendaDoDiaDTOResponse>> getAgendaDoDia(@PathVariable int id) {
-        List<AgendaDoDiaDTOResponse> agenda = agendaService.getAgendaDoDia(id);
+    @GetMapping("/{usuarioId}/agendaDoDia")
+    public ResponseEntity<List<AgendaDoDiaDTOResponse>> getAgendaDoDia(@PathVariable Integer usuarioId) {
+        List<AgendaDoDiaDTOResponse> agenda = agendaService.getAgendaDoDia(usuarioId);
         if (agenda.isEmpty()) {
-            return ResponseEntity.noContent().build(); // Retorna 204 No Content se a agenda estiver vazia
+            return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(agenda); // Retorna 200 OK com a lista
+        return ResponseEntity.ok(agenda);
     }
 }

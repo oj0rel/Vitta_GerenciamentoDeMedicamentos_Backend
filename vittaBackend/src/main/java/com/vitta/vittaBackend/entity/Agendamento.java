@@ -36,6 +36,9 @@ public class Agendamento {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    @OneToOne(mappedBy = "agendamento", cascade = CascadeType.ALL)
+    private MedicamentoHistorico medicamentoHistorico;
+
 
     public Integer getId() {
         return id;
@@ -83,5 +86,13 @@ public class Agendamento {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public MedicamentoHistorico getMedicamentoHistorico() {
+        return medicamentoHistorico;
+    }
+
+    public void setMedicamentoHistorico(MedicamentoHistorico medicamentoHistorico) {
+        this.medicamentoHistorico = medicamentoHistorico;
     }
 }

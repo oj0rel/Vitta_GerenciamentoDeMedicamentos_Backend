@@ -1,11 +1,21 @@
 package com.vitta.vittaBackend.dto.response.medicamento;
 
+import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.enums.GeralStatus;
 
 public class MedicamentoResumoDTOResponse {
     private Integer id;
     private String nome;
     private GeralStatus status;
+
+    public MedicamentoResumoDTOResponse() {
+    }
+
+    public MedicamentoResumoDTOResponse(Medicamento medicamentoEntity) {
+        this.id = medicamentoEntity.getId();
+        this.nome = medicamentoEntity.getNome();
+        this.status = medicamentoEntity.getStatus();
+    }
 
     public Integer getId() {
         return id;

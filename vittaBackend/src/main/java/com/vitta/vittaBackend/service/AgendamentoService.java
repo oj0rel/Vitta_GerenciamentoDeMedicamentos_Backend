@@ -39,15 +39,11 @@ public class AgendamentoService {
     }
 
     //LISTAR OS AGENDAMENTOS
-//    public List<AgendamentoDTOResponse> listarAgendamentos() {
-//        return this.agendamentoRepository.listarAgendamentos()
-//                .stream()
-//                .map(agendamento -> modelMapper.map(agendamento, AgendamentoDTOResponse.class))
-//                .collect(Collectors.toList());
-//    }
-
-    public List<Agendamento> listarTodos() {
-        return agendamentoRepository.findAll();
+    public List<AgendamentoDTOResponse> listarAgendamentos() {
+        return this.agendamentoRepository.listarAgendamentos()
+                .stream()
+                .map(agendamento -> modelMapper.map(agendamento, AgendamentoDTOResponse.class))
+                .collect(Collectors.toList());
     }
 
     //LISTAR 1 AGENDAMENTO, PEGANDO PELO ID

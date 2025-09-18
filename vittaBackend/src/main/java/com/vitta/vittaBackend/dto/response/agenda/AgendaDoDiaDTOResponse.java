@@ -1,5 +1,6 @@
 package com.vitta.vittaBackend.dto.response.agenda;
 
+import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ public class AgendaDoDiaDTOResponse {
     private String nomeMedicamento;
     private BigDecimal dosagem;
     private String instrucoes;
+    private MedicamentoHistoricoDTOResponse historico;
     private AgendamentoStatus statusDoAgendamento;
 
     public Integer getAgendamentoId() {
@@ -60,5 +62,13 @@ public class AgendaDoDiaDTOResponse {
 
     public void setStatusDoAgendamento(AgendamentoStatus statusDoAgendamento) {
         this.statusDoAgendamento = statusDoAgendamento;
+    }
+
+    public MedicamentoHistoricoDTOResponse getHistorico() {
+        return historico;
+    }
+
+    public void setHistorico(MedicamentoHistoricoDTOResponse historico) {
+        this.historico = historico;
     }
 }

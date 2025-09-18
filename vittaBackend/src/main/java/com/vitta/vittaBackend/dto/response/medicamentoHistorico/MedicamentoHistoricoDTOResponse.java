@@ -1,6 +1,7 @@
 package com.vitta.vittaBackend.dto.response.medicamentoHistorico;
 
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
+import com.vitta.vittaBackend.entity.MedicamentoHistorico;
 import com.vitta.vittaBackend.enums.GeralStatus;
 
 import java.math.BigDecimal;
@@ -14,51 +15,19 @@ public class MedicamentoHistoricoDTOResponse {
     private GeralStatus historicoStatus;
     private MedicamentoResumoDTOResponse medicamento;
 
-    public Integer getId() {
-        return id;
+    public MedicamentoHistoricoDTOResponse() {
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    public MedicamentoHistoricoDTOResponse(MedicamentoHistorico historicoEntity) {
+        this.id = historicoEntity.getId();
+        this.horaDoUso = historicoEntity.getHoraDoUso();
+        this.doseTomada = historicoEntity.getDoseTomada();
+        this.observacao = historicoEntity.getObservacao();
+        this.historicoStatus = historicoEntity.getHistoricoStatus();
 
-    public LocalDateTime getHoraDoUso() {
-        return horaDoUso;
-    }
-
-    public void setHoraDoUso(LocalDateTime horaDoUso) {
-        this.horaDoUso = horaDoUso;
-    }
-
-    public BigDecimal getDoseTomada() {
-        return doseTomada;
-    }
-
-    public void setDoseTomada(BigDecimal doseTomada) {
-        this.doseTomada = doseTomada;
-    }
-
-    public String getObservacao() {
-        return observacao;
-    }
-
-    public void setObservacao(String observacao) {
-        this.observacao = observacao;
-    }
-
-    public GeralStatus getHistoricoStatus() {
-        return historicoStatus;
-    }
-
-    public void setHistoricoStatus(GeralStatus historicoStatus) {
-        this.historicoStatus = historicoStatus;
-    }
-
-    public MedicamentoResumoDTOResponse getMedicamento() {
-        return medicamento;
-    }
-
-    public void setMedicamento(MedicamentoResumoDTOResponse medicamento) {
-        this.medicamento = medicamento;
+        // Converte também o medicamento aninhado
+        if (historicoEntity.getMedicamento() != null) {
+            this.medicamento = new MedicamentoResumoDTOResponse(historicoEntity.getMedicamento());
+        }
     }
 }

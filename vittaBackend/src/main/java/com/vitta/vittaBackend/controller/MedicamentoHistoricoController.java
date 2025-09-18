@@ -2,6 +2,7 @@ package com.vitta.vittaBackend.controller;
 
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequest;
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequestAtualizar;
+import com.vitta.vittaBackend.dto.request.medicamentoHistorico.RegistrarUsoDTORequest;
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
 import com.vitta.vittaBackend.service.MedicamentoHistoricoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,5 +59,11 @@ public class MedicamentoHistoricoController {
     public ResponseEntity<Void> deletarMedicamentoHistorico(@PathVariable("medicamentoHistoricoId") Integer medicamentoHistoricoId) {
         medicamentoHistoricoService.deletarMedicamentoHistorico(medicamentoHistoricoId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/registrarUso")
+    public ResponseEntity<Void> registrarUso(@Valid @RequestBody RegistrarUsoDTORequest requestDTO) {
+        medicamentoHistoricoService.registrarUsoDoMedicamento(requestDTO);
+        return ResponseEntity.ok().build(); // Retorna 200 OK com corpo vazio em caso de sucesso
     }
 }

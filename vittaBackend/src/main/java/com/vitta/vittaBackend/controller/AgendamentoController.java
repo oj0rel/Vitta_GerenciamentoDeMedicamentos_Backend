@@ -28,12 +28,7 @@ public class AgendamentoController {
 
     @GetMapping("/listar")
     @Operation(summary = "Listar os Agendamentos", description = "Endpoint para Listar os Agendamentos.")
-//    public ResponseEntity<List<AgendamentoDTOResponse>> listarAgendamentos() { return ResponseEntity.ok(agendamentoService.); }
-    public ResponseEntity<List<Agendamento>> listarTodos() {
-        List<Agendamento> agendamentos = agendamentoService.listarTodos();
-        return ResponseEntity.ok(agendamentos);
-    }
-
+    public ResponseEntity<List<AgendamentoDTOResponse>> listarAgendamentos() { return ResponseEntity.ok(agendamentoService.listarAgendamentos()); }
     @GetMapping("/listarAgendamentoPorId/{agendamentoId}")
     @Operation(summary = "Listar o Agendamento pelo ID dele", description = "Endpoint para listar um Agendamento, pelo ID.")
     public ResponseEntity<AgendamentoDTOResponse> buscarAgendamentoPorId(@PathVariable("agendamentoId") Integer agendamentoId) {

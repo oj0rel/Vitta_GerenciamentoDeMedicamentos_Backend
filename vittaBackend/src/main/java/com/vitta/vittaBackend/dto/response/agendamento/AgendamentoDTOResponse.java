@@ -1,6 +1,7 @@
 package com.vitta.vittaBackend.dto.response.agendamento;
 
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.enums.GeralStatus;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
@@ -17,6 +18,7 @@ public class AgendamentoDTOResponse {
     private AgendamentoStatus status;
     private MedicamentoResumoDTOResponse medicamento;
     private UsuarioResumoDTOResponse usuario;
+    private MedicamentoHistoricoDTOResponse historico;
 
 
     public Integer getId() {
@@ -65,5 +67,13 @@ public class AgendamentoDTOResponse {
 
     public void setUsuario(UsuarioResumoDTOResponse usuario) {
         this.usuario = usuario;
+    }
+
+    public MedicamentoHistoricoDTOResponse getHistorico() {
+        return historico;
+    }
+
+    public void setHistorico(MedicamentoHistoricoDTOResponse historico) {
+        this.historico = historico;
     }
 }

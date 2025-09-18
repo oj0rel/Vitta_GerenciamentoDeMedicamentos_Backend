@@ -19,8 +19,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
     @Query("UPDATE Agendamento a SET a.status = 0 WHERE a.id = :id")
     void apagadoLogicoAgendamento(@Param("id") Integer agendamentoId);
 
-    //deixar essa query para listar 1 tipo de status especifico
-    @Query("SELECT a FROM Agendamento a WHERE a.status > 0")
+    @Query("SELECT a FROM Agendamento a WHERE a.status >= 0")
     List<Agendamento> listarAgendamentos();
 
     @Query("SELECT a FROM Agendamento a WHERE a.id = :id AND a.status >= 0")

@@ -1,5 +1,6 @@
 package com.vitta.vittaBackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vitta.vittaBackend.enums.GeralStatus;
 import jakarta.persistence.*;
 
@@ -31,6 +32,11 @@ public class MedicamentoHistorico {
     @ManyToOne
     @JoinColumn(name = "medicamento_id")
     private Medicamento medicamento;
+
+    @OneToOne
+    @JoinColumn(name = "agendamento_id", referencedColumnName = "id")
+    @JsonIgnore
+    private Agendamento agendamento;
 
     public Integer getId() {
         return id;
@@ -78,5 +84,13 @@ public class MedicamentoHistorico {
 
     public void setMedicamento(Medicamento medicamento) {
         this.medicamento = medicamento;
+    }
+
+    public Agendamento getAgendamento() {
+        return agendamento;
+    }
+
+    public void setAgendamento(Agendamento agendamento) {
+        this.agendamento = agendamento;
     }
 }
