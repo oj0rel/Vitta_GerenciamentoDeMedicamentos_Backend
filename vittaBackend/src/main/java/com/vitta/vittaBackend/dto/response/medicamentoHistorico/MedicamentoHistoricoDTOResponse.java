@@ -30,4 +30,52 @@ public class MedicamentoHistoricoDTOResponse {
             this.medicamento = new MedicamentoResumoDTOResponse(historicoEntity.getMedicamento());
         }
     }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getHoraDoUso() {
+        return horaDoUso;
+    }
+
+    public void setHoraDoUso(LocalDateTime horaDoUso) {
+        this.horaDoUso = horaDoUso;
+    }
+
+    public BigDecimal getDoseTomada() {
+        return doseTomada;
+    }
+
+    public void setDoseTomada(BigDecimal doseTomada) {
+        this.doseTomada = doseTomada;
+    }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
+    }
+
+    public GeralStatus getHistoricoStatus() {
+        return historicoStatus;
+    }
+
+    public void setHistoricoStatus(GeralStatus historicoStatus) {
+        this.historicoStatus = historicoStatus;
+    }
+
+    public MedicamentoResumoDTOResponse getMedicamento() {
+        return medicamento;
+    }
+
+    public void setMedicamento(MedicamentoResumoDTOResponse medicamento) {
+        this.medicamento = medicamento;
+    }
 }

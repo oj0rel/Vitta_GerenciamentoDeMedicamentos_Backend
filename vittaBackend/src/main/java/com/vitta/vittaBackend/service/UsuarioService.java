@@ -2,6 +2,7 @@ package com.vitta.vittaBackend.service;
 
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequestAtualizar;
+import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
 import com.vitta.vittaBackend.entity.Usuario;
@@ -34,18 +35,18 @@ public class UsuarioService {
         return this.usuarioRepository.listarUsuarios()
                 .stream()
                 .map(usuario -> {
-                    // ignora medicamentos no mapeamento automático
-                    UsuarioDTOResponse usuarioDTOResponse = modelMapper
-                            .typeMap(Usuario.class, UsuarioDTOResponse.class)
-                            .addMappings(mapper -> mapper.skip(UsuarioDTOResponse::setMedicamentos))
-                            .map(usuario);
+                    UsuarioDTOResponse usuarioDTOResponse = modelMapper.map(usuario, UsuarioDTOResponse.class);
 
-                    // popula medicamentos manualmente
                     List<MedicamentoResumoDTOResponse> medicamentosDTO = usuario.getMedicamentos().stream()
                             .map(med -> modelMapper.map(med, MedicamentoResumoDTOResponse.class))
                             .collect(Collectors.toList());
 
+                    List<AgendamentoResumoDTOResponse> agendamentoDTO = usuario.getAgendamentos().stream()
+                                    .map(age -> modelMapper.map(age, AgendamentoResumoDTOResponse.class))
+                                            .collect(Collectors.toList());
+
                     usuarioDTOResponse.setMedicamentos(medicamentosDTO);
+                    usuarioDTOResponse.setAgendamentos(agendamentoDTO);
                     return usuarioDTOResponse;
                 })
                 .collect(Collectors.toList());
@@ -57,7 +58,20 @@ public class UsuarioService {
     public UsuarioDTOResponse buscarUsuarioPorId(Integer usuarioId) {
         Usuario usuario = usuarioRepository.obterUsuarioPeloId(usuarioId);
 
-        return modelMapper.map(usuario, UsuarioDTOResponse.class);
+        UsuarioDTOResponse usuarioDTOResponse = modelMapper.map(usuario, UsuarioDTOResponse.class);
+
+        List<MedicamentoResumoDTOResponse> medicamentosDTO = usuario.getMedicamentos().stream()
+                .map(med -> modelMapper.map(med, MedicamentoResumoDTOResponse.class))
+                .collect(Collectors.toList());
+
+        List<AgendamentoResumoDTOResponse> agendamentoDTO = usuario.getAgendamentos().stream()
+                .map(age -> modelMapper.map(age, AgendamentoResumoDTOResponse.class))
+                .collect(Collectors.toList());
+
+        usuarioDTOResponse.setMedicamentos(medicamentosDTO);
+        usuarioDTOResponse.setAgendamentos(agendamentoDTO);
+
+        return usuarioDTOResponse;
     }
 
 

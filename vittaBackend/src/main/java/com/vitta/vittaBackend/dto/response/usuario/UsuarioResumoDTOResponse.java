@@ -1,5 +1,6 @@
 package com.vitta.vittaBackend.dto.response.usuario;
 
+import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.UsuarioStatus;
 
 public class UsuarioResumoDTOResponse {
@@ -7,6 +8,15 @@ public class UsuarioResumoDTOResponse {
     private Integer id;
     private String nome;
     private UsuarioStatus status;
+
+    public UsuarioResumoDTOResponse() {
+    }
+
+    public UsuarioResumoDTOResponse(Usuario usuarioEntity) {
+        this.id = usuarioEntity.getId();
+        this.nome = usuarioEntity.getNome();
+        this.status = usuarioEntity.getStatus();
+    }
 
     public Integer getId() {
         return id;

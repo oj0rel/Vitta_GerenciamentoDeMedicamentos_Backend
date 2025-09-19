@@ -15,7 +15,7 @@ public class MedicamentoDTOResponse {
     private String nome;
     private BigDecimal dosagem;
     private TipoUnidadeDeMedida tipoUnidadeDeMedida;
-    private Integer frequencia;
+    private Integer frequenciaPorDia;
     private String instrucoes;
     private LocalDateTime dataDeInicio;
     private LocalDateTime dataDeTermino;
@@ -58,12 +58,12 @@ public class MedicamentoDTOResponse {
         this.tipoUnidadeDeMedida = tipoUnidadeDeMedida;
     }
 
-    public Integer getFrequencia() {
-        return frequencia;
+    public Integer getFrequenciaPorDia() {
+        return frequenciaPorDia;
     }
 
-    public void setFrequencia(Integer frequencia) {
-        this.frequencia = frequencia;
+    public void setFrequenciaPorDia(Integer frequenciaPorDia) {
+        this.frequenciaPorDia = frequenciaPorDia;
     }
 
     public String getInstrucoes() {

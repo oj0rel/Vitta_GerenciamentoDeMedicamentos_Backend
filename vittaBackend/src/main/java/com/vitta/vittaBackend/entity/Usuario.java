@@ -28,7 +28,7 @@ public class Usuario {
     private String senha;
 
     @Column(name = "usuario_status")
-    private UsuarioStatus status;
+    private UsuarioStatus status = UsuarioStatus.ATIVO;
 
 
     //para trazer a tabela Medicamento para Usuario

@@ -62,7 +62,7 @@ public class MedicamentoService {
             );
         }
 
-        medicamento.setFrequencia(medicamentoDTORequest.getFrequencia());
+        medicamento.setFrequenciaPorDia(medicamentoDTORequest.getFrequencia());
         medicamento.setInstrucoes(medicamentoDTORequest.getInstrucoes());
         medicamento.setDataDeInicio(medicamentoDTORequest.getDataDeInicio());
         medicamento.setDataDeTermino(medicamentoDTORequest.getDataDeTermino());

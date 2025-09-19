@@ -27,9 +27,8 @@ public class Medicamento {
     @Column(name = "medicamento_tipo_unidade_de_medida")
     private TipoUnidadeDeMedida tipoUnidadeDeMedida;
 
-
     @Column(name = "medicamento_frequencia")
-    private Integer frequencia;
+    private Integer frequenciaPorDia;
 
     @Column(name = "medicamento_instrucoes")
     private String instrucoes;
@@ -41,7 +40,7 @@ public class Medicamento {
     private LocalDateTime dataDeTermino;
 
     @Column(name = "medicamento_status")
-    private GeralStatus status;
+    private GeralStatus status = GeralStatus.ATIVO;
 
 
     //isso aki é para enviar a tabela Medicamento para Usuario
@@ -91,12 +90,12 @@ public class Medicamento {
         this.tipoUnidadeDeMedida = tipoUnidadeDeMedida;
     }
 
-    public Integer getFrequencia() {
-        return frequencia;
+    public Integer getFrequenciaPorDia() {
+        return frequenciaPorDia;
     }
 
-    public void setFrequencia(Integer frequencia) {
-        this.frequencia = frequencia;
+    public void setFrequenciaPorDia(Integer frequenciaPorDia) {
+        this.frequenciaPorDia = frequenciaPorDia;
     }
 
     public String getInstrucoes() {

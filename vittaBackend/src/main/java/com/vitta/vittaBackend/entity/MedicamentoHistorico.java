@@ -34,7 +34,7 @@ public class MedicamentoHistorico {
     private Medicamento medicamento;
 
     @OneToOne
-    @JoinColumn(name = "agendamento_id", referencedColumnName = "id")
+    @JoinColumn(name = "agendamento_id", referencedColumnName = "agendamento_id")
     @JsonIgnore
     private Agendamento agendamento;
 

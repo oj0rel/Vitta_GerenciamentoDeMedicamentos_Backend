@@ -3,6 +3,8 @@ package com.vitta.vittaBackend.service;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
+import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Usuario;
@@ -82,7 +84,22 @@ public class AgendamentoService {
         }
 
         Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
-        return modelMapper.map(agendamentoSalvo, AgendamentoDTOResponse.class);
+
+        AgendamentoDTOResponse responseDTO = new AgendamentoDTOResponse();
+
+        responseDTO.setId(agendamentoSalvo.getId());
+        responseDTO.setHorarioDoAgendamento(agendamentoSalvo.getHorarioDoAgendamento());
+        responseDTO.setStatus(agendamentoSalvo.getStatus());
+        responseDTO.setTipoDeAlerta(agendamentoSalvo.getTipoDeAlerta());
+
+        if (agendamentoSalvo.getUsuario() != null) {
+            responseDTO.setUsuario(new UsuarioResumoDTOResponse(agendamentoSalvo.getUsuario()));
+        }
+        if (agendamentoSalvo.getMedicamento() != null) {
+            responseDTO.setMedicamento(new MedicamentoResumoDTOResponse(agendamentoSalvo.getMedicamento()));
+        }
+
+        return responseDTO;
     }
 
     //ATUALIZAR 1 AGENDAMENTO, PEGANDO PELO ID

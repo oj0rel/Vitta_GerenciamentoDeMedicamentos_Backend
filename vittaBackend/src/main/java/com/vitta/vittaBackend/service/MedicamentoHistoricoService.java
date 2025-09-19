@@ -3,7 +3,11 @@ package com.vitta.vittaBackend.service;
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequest;
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequestAtualizar;
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.RegistrarUsoDTORequest;
+import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
+import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.MedicamentoHistorico;
@@ -106,32 +110,53 @@ public class MedicamentoHistoricoService {
         return medicamentoHistorico;
     }
 
-    @Transactional // Garante que toda a operação seja atômica
-    public void registrarUsoDoMedicamento(RegistrarUsoDTORequest registroDoUso) {
-        // 1. Encontrar o agendamento que o usuário está confirmando.
-        Agendamento agendamento = agendamentoRepository.findById(registroDoUso.getAgendamentoId())
-                .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado com o ID: " + registroDoUso.getAgendamentoId()));
+    @Transactional
+    public AgendamentoDTOResponse registrarUsoDoMedicamento(RegistrarUsoDTORequest registroDoUso) {
 
-        // 2. [Regra de negócio] Verificar se o agendamento já não foi concluído.
+        Agendamento agendamento = agendamentoRepository.findById(registroDoUso.getAgendamentoId())
+                .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado..."));
+
         if (agendamento.getStatus() != AgendamentoStatus.PENDENTE) {
             throw new IllegalStateException("Este agendamento já foi concluído ou cancelado.");
         }
 
-        // 3. Atualizar o status do agendamento para TOMADO.
-        agendamento.setStatus(AgendamentoStatus.TOMADO); // Supondo que você tenha um Enum TOMADO
-        agendamentoRepository.save(agendamento);
-
-        // 4. Criar o novo registro no histórico.
         MedicamentoHistorico novoHistorico = new MedicamentoHistorico();
-
-        novoHistorico.setMedicamento(agendamento.getMedicamento()); // Pega o medicamento do agendamento
+        novoHistorico.setMedicamento(agendamento.getMedicamento());
         novoHistorico.setHoraDoUso(registroDoUso.getHoraDoUso());
         novoHistorico.setDoseTomada(registroDoUso.getDoseTomada());
         novoHistorico.setObservacao(registroDoUso.getObservacao());
 
         novoHistorico.setAgendamento(agendamento);
+        agendamento.setMedicamentoHistorico(novoHistorico);
 
-        medicamentoHistoricoRepository.save(novoHistorico);
+        agendamento.setStatus(AgendamentoStatus.TOMADO);
+
+        Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
+
+        return converterAgendamentoParaDTO(agendamentoSalvo);
+    }
+
+    private AgendamentoDTOResponse converterAgendamentoParaDTO(Agendamento agendamento) {
+        AgendamentoDTOResponse dto = new AgendamentoDTOResponse();
+        dto.setId(agendamento.getId());
+        dto.setHorarioDoAgendamento(agendamento.getHorarioDoAgendamento());
+        dto.setTipoDeAlerta(agendamento.getTipoDeAlerta());
+        dto.setStatus(agendamento.getStatus());
+
+        if (agendamento.getUsuario() != null) {
+            dto.setUsuario(new UsuarioResumoDTOResponse(agendamento.getUsuario()));
+        }
+        if (agendamento.getMedicamento() != null) {
+            dto.setMedicamento(new MedicamentoResumoDTOResponse(agendamento.getMedicamento()));
+        }
+
+        if (agendamento.getMedicamentoHistorico() != null) {
+            dto.setHistoricoDoMedicamentoTomado(
+                    new MedicamentoHistoricoResumoDTOResponse(agendamento.getMedicamentoHistorico())
+            );
+        }
+
+        return dto;
     }
 
 }
