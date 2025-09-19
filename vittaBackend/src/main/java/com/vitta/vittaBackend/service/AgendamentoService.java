@@ -72,14 +72,11 @@ public class AgendamentoService {
         if (agendamentoDTORequest.getMedicamentoId() != null )  {
             Medicamento medicamento = medicamentoRepository.findById(agendamentoDTORequest.getMedicamentoId())
                     .orElseThrow(() -> new RuntimeException("Medicamento não encontrado"));
-
             agendamento.setMedicamento(medicamento);
         }
-
         if (agendamentoDTORequest.getUsuarioId() != null )  {
             Usuario usuario = usuarioRepository.findById(agendamentoDTORequest.getUsuarioId())
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
             agendamento.setUsuario(usuario);
         }
 
@@ -96,7 +93,8 @@ public class AgendamentoService {
             responseDTO.setUsuario(new UsuarioResumoDTOResponse(agendamentoSalvo.getUsuario()));
         }
         if (agendamentoSalvo.getMedicamento() != null) {
-            responseDTO.setMedicamento(new MedicamentoResumoDTOResponse(agendamentoSalvo.getMedicamento()));
+            MedicamentoResumoDTOResponse medDTO = new MedicamentoResumoDTOResponse(agendamentoSalvo.getMedicamento());
+            responseDTO.setMedicamento(medDTO);
         }
 
         return responseDTO;
