@@ -4,9 +4,11 @@ import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTOReq
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.entity.Medicamento;
+import com.vitta.vittaBackend.entity.MedicamentoHistorico;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
@@ -42,9 +44,37 @@ public class AgendamentoService {
 
     //LISTAR OS AGENDAMENTOS
     public List<AgendamentoDTOResponse> listarAgendamentos() {
-        return this.agendamentoRepository.listarAgendamentos()
-                .stream()
-                .map(agendamento -> modelMapper.map(agendamento, AgendamentoDTOResponse.class))
+        List<Agendamento> todosAgendamentos = agendamentoRepository.listarAgendamentos();
+
+        return todosAgendamentos.stream()
+                .map(agendamento -> {
+
+                    AgendamentoDTOResponse dto = new AgendamentoDTOResponse();
+                    dto.setId(agendamento.getId());
+                    dto.setHorarioDoAgendamento(agendamento.getHorarioDoAgendamento());
+                    dto.setTipoDeAlerta(agendamento.getTipoDeAlerta());
+                    dto.setStatus(agendamento.getStatus());
+
+                    if (agendamento.getUsuario() != null) {
+                        dto.setUsuario(new UsuarioResumoDTOResponse(agendamento.getUsuario()));
+                    }
+                    if (agendamento.getMedicamento() != null) {
+                        dto.setMedicamento(new MedicamentoResumoDTOResponse(agendamento.getMedicamento()));
+                    }
+
+                    if (agendamento.getMedicamentoHistorico() != null) {
+                        MedicamentoHistorico historicoEntity = agendamento.getMedicamentoHistorico();
+
+                        MedicamentoHistoricoResumoDTOResponse resumoDTO = new MedicamentoHistoricoResumoDTOResponse(historicoEntity);
+
+                        dto.setHistoricoDoMedicamentoTomado(resumoDTO);
+
+                    } else {
+                        System.out.println("--- O HISTÓRICO PARA O AGENDAMENTO ID " + agendamento.getId() + " É NULO ---");
+                    }
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 

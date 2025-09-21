@@ -1,6 +1,5 @@
 package com.vitta.vittaBackend.dto.response.medicamentoHistorico;
 
-import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.entity.MedicamentoHistorico;
 import com.vitta.vittaBackend.enums.GeralStatus;
 

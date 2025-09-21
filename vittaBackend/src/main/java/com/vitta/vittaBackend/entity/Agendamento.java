@@ -17,6 +17,11 @@ public class Agendamento {
     @Column(name = "agendamento_id")
     private Integer id;
 
+    //isso aki é para enviar a tabela Agendamento para Tratamento
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tratamento_id")
+    private Tratamento tratamento;
+
     @Column(name = "agendamento_horario_do_agendamento")
     private LocalDateTime horarioDoAgendamento;
 
@@ -26,19 +31,9 @@ public class Agendamento {
     @Column(name = "agendamento_status")
     private AgendamentoStatus status = AgendamentoStatus.PENDENTE;
 
-    //isso aki é para enviar a tabela Agendamento para Medicamento
-    @ManyToOne
-    @JoinColumn(name = "medicamento_id")
-    private Medicamento medicamento;
-
-    //isso aki é para enviar a tabela Agendamento para Usuario
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
-
+    //isso aki é para trazer a tabela MedicamentoHistorico
     @OneToOne(mappedBy = "agendamento", cascade = CascadeType.ALL)
     private MedicamentoHistorico medicamentoHistorico;
-
 
     public Integer getId() {
         return id;
@@ -46,6 +41,14 @@ public class Agendamento {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Tratamento getTratamento() {
+        return tratamento;
+    }
+
+    public void setTratamento(Tratamento tratamento) {
+        this.tratamento = tratamento;
     }
 
     public LocalDateTime getHorarioDoAgendamento() {
@@ -72,22 +75,6 @@ public class Agendamento {
         this.status = status;
     }
 
-    public Medicamento getMedicamento() {
-        return medicamento;
-    }
-
-    public void setMedicamento(Medicamento medicamento) {
-        this.medicamento = medicamento;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
     public MedicamentoHistorico getMedicamentoHistorico() {
         return medicamentoHistorico;
     }
@@ -95,4 +82,5 @@ public class Agendamento {
     public void setMedicamentoHistorico(MedicamentoHistorico medicamentoHistorico) {
         this.medicamentoHistorico = medicamentoHistorico;
     }
+
 }

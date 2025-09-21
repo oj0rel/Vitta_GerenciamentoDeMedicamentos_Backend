@@ -30,16 +30,9 @@ public class Usuario {
     @Column(name = "usuario_status")
     private UsuarioStatus status = UsuarioStatus.ATIVO;
 
-
-    //para trazer a tabela Medicamento para Usuario
+    //isso aki é para trazer a tabela Tratamentos
     @OneToMany(mappedBy = "usuario")
-    @JsonIgnore
-    private List<Medicamento> medicamentos;
-
-    //para trazer a tabela Agendamento para Usuario
-    @OneToMany(mappedBy = "usuario")
-    @JsonIgnore
-    private List<Agendamento> agendamentos;
+    private List<Tratamento> tratamentos;
 
     public Integer getId() {
         return id;
@@ -85,20 +78,11 @@ public class Usuario {
         this.status = status;
     }
 
-    //GET E SET - TABELA ESTRANGEIRA
-    public List<Medicamento> getMedicamentos() {
-        return medicamentos;
+    public List<Tratamento> getTratamentos() {
+        return tratamentos;
     }
 
-    public void setMedicamentos(List<Medicamento> medicamentos) {
-        this.medicamentos = medicamentos;
-    }
-
-    public List<Agendamento> getAgendamentos() {
-        return agendamentos;
-    }
-
-    public void setAgendamentos(List<Agendamento> agendamentos) {
-        this.agendamentos = agendamentos;
+    public void setTratamentos(List<Tratamento> tratamentos) {
+        this.tratamentos = tratamentos;
     }
 }
