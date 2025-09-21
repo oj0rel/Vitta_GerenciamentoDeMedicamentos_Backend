@@ -1,26 +1,39 @@
 package com.vitta.vittaBackend.dto.request.medicamento;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Date;
-
+/**
+ * DTO para receber os dados na criação de um novo Medicamento no catálogo.
+ */
 public class MedicamentoDTORequest {
+
+    /**
+     * Nome comercial ou popular do medicamento.
+     * Campo obrigatório.
+     */
+    @NotBlank(message = "O nome do medicamento não pode ser vazio.")
     private String nome;
-    private BigDecimal dosagem;
+
+    /**
+     * Nome da substância farmacológica principal do medicamento.
+     * Campo obrigatório.
+     */
+    @NotBlank(message = "O princípio ativo não pode ser vazio.")
+    private String principioAtivo;
+
+    /**
+     * Nome do laboratório ou fabricante do medicamento.
+     * Campo opcional.
+     */
+    private String laboratorio;
+
+    /**
+     * Código numérico que representa a forma do medicamento (ex: 1 para Comprimido, 2 para Cápsula).
+     * @see com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida
+     */
+    @NotNull
     private Integer tipoUnidadeDeMedida;
-    private Integer frequencia;
-    private String instrucoes;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private LocalDateTime dataDeInicio;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
-    private LocalDateTime dataDeTermino;
-
-    private Integer usuarioId;
 
     public String getNome() {
         return nome;
@@ -30,12 +43,20 @@ public class MedicamentoDTORequest {
         this.nome = nome;
     }
 
-    public BigDecimal getDosagem() {
-        return dosagem;
+    public String getPrincipioAtivo() {
+        return principioAtivo;
     }
 
-    public void setDosagem(BigDecimal dosagem) {
-        this.dosagem = dosagem;
+    public void setPrincipioAtivo(String principioAtivo) {
+        this.principioAtivo = principioAtivo;
+    }
+
+    public String getLaboratorio() {
+        return laboratorio;
+    }
+
+    public void setLaboratorio(String laboratorio) {
+        this.laboratorio = laboratorio;
     }
 
     public Integer getTipoUnidadeDeMedida() {
@@ -44,45 +65,5 @@ public class MedicamentoDTORequest {
 
     public void setTipoUnidadeDeMedida(Integer tipoUnidadeDeMedida) {
         this.tipoUnidadeDeMedida = tipoUnidadeDeMedida;
-    }
-
-    public Integer getFrequencia() {
-        return frequencia;
-    }
-
-    public void setFrequencia(Integer frequencia) {
-        this.frequencia = frequencia;
-    }
-
-    public String getInstrucoes() {
-        return instrucoes;
-    }
-
-    public void setInstrucoes(String instrucoes) {
-        this.instrucoes = instrucoes;
-    }
-
-    public LocalDateTime getDataDeInicio() {
-        return dataDeInicio;
-    }
-
-    public void setDataDeInicio(LocalDateTime dataDeInicio) {
-        this.dataDeInicio = dataDeInicio;
-    }
-
-    public LocalDateTime getDataDeTermino() {
-        return dataDeTermino;
-    }
-
-    public void setDataDeTermino(LocalDateTime dataDeTermino) {
-        this.dataDeTermino = dataDeTermino;
-    }
-
-    public Integer getUsuarioId() {
-        return usuarioId;
-    }
-
-    public void setUsuarioId(Integer usuarioId) {
-        this.usuarioId = usuarioId;
     }
 }

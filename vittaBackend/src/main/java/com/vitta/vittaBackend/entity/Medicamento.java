@@ -1,6 +1,7 @@
 package com.vitta.vittaBackend.entity;
 
 import com.vitta.vittaBackend.enums.GeralStatus;
+import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class Medicamento {
     private String laboratorio;
 
     @Column(name = "medicamento_tipo_unidade_de_medida")
-    private Integer tipoUnidadeDeMedida; // Considere criar um Enum para isto
+    private TipoUnidadeDeMedida tipoUnidadeDeMedida; // Considere criar um Enum para isto
 
     @Column(name = "medicamento_status")
     private GeralStatus status = GeralStatus.ATIVO;
@@ -64,11 +65,11 @@ public class Medicamento {
         this.laboratorio = laboratorio;
     }
 
-    public Integer getTipoUnidadeDeMedida() {
+    public TipoUnidadeDeMedida getTipoUnidadeDeMedida() {
         return tipoUnidadeDeMedida;
     }
 
-    public void setTipoUnidadeDeMedida(Integer tipoUnidadeDeMedida) {
+    public void setTipoUnidadeDeMedida(TipoUnidadeDeMedida tipoUnidadeDeMedida) {
         this.tipoUnidadeDeMedida = tipoUnidadeDeMedida;
     }
 

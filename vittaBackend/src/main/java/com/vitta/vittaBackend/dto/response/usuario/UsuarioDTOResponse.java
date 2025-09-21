@@ -2,20 +2,74 @@ package com.vitta.vittaBackend.dto.response.usuario;
 
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
+import com.vitta.vittaBackend.dto.response.tratamento.TratamentoResumoDTOResponse;
+import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.UsuarioStatus;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * DTO para representar a resposta completa dos dados de um Usuário,
+ * incluindo uma lista resumida de seus tratamentos.
+ */
 public class UsuarioDTOResponse {
 
+    /**
+     * O ID único do usuário no banco de dados.
+     */
     private Integer id;
+
+    /**
+     * O nome completo do usuário.
+     */
     private String nome;
+
+    /**
+     * O número de telefone do usuário.
+     */
     private String telefone;
+
+    /**
+     * O endereço de e-mail do usuário.
+     */
     private String email;
+
+    /**
+     * O status atual da conta do usuário (ex: ATIVO, INATIVO).
+     */
     private UsuarioStatus status;
 
-    private List<MedicamentoResumoDTOResponse> medicamentos;
-    private List<AgendamentoResumoDTOResponse> agendamentos;
+    /**
+     * Lista resumida dos tratamentos associados a este usuário.
+     */
+    private List<TratamentoResumoDTOResponse> tratamentos;
+
+    /**
+     * Construtor vazio.
+     */
+    public UsuarioDTOResponse() {
+    }
+
+    /**
+     * Construtor de mapeamento a partir da entidade Usuário.
+     * Facilita a conversão da entidade {@link com.vitta.vittaBackend.entity.Usuario} e suas relações para este DTO.
+     * @param usuarioEntity A entidade vinda do banco de dados.
+     */
+    public UsuarioDTOResponse(Usuario usuarioEntity) {
+        this.id = usuarioEntity.getId();
+        this.nome = usuarioEntity.getNome();
+        this.telefone = usuarioEntity.getTelefone();
+        this.email = usuarioEntity.getEmail();
+        this.status = usuarioEntity.getStatus();
+
+        //converte a lista de entidades Tratamento para uma lista de DTOs de resumo
+        if (usuarioEntity.getTratamentos() != null) {
+            this.tratamentos = usuarioEntity.getTratamentos().stream()
+                    .map(TratamentoResumoDTOResponse::new)
+                    .collect(Collectors.toList());
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -57,19 +111,11 @@ public class UsuarioDTOResponse {
         this.status = status;
     }
 
-    public List<MedicamentoResumoDTOResponse> getMedicamentos() {
-        return medicamentos;
+    public List<TratamentoResumoDTOResponse> getTratamentos() {
+        return tratamentos;
     }
 
-    public void setMedicamentos(List<MedicamentoResumoDTOResponse> medicamentos) {
-        this.medicamentos = medicamentos;
-    }
-
-    public List<AgendamentoResumoDTOResponse> getAgendamentos() {
-        return agendamentos;
-    }
-
-    public void setAgendamentos(List<AgendamentoResumoDTOResponse> agendamentos) {
-        this.agendamentos = agendamentos;
+    public void setTratamentos(List<TratamentoResumoDTOResponse> tratamentos) {
+        this.tratamentos = tratamentos;
     }
 }

@@ -1,30 +1,65 @@
 package com.vitta.vittaBackend.dto.response.medicamento;
 
-import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoResumoDTOResponse;
-import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
+import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.enums.GeralStatus;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
+/**
+ * DTO para representar a resposta completa dos dados de um Medicamento.
+ * Usado em listagens ou ao buscar um medicamento específico.
+ */
 public class MedicamentoDTOResponse {
+
+    /**
+     * O ID único do medicamento no banco de dados.
+     */
     private Integer id;
+
+    /**
+     * O nome comercial do medicamento.
+     */
     private String nome;
-    private BigDecimal dosagem;
+
+    /**
+     * O princípio ativo do medicamento.
+     */
+    private String principioAtivo;
+
+    /**
+     * O laboratório fabricante do medicamento.
+     */
+    private String laboratorio;
+
+    /**
+     * A forma farmacêutica do medicamento (ex: COMPRIMIDO, CAPSULA).
+     */
     private TipoUnidadeDeMedida tipoUnidadeDeMedida;
-    private Integer frequenciaPorDia;
-    private String instrucoes;
-    private LocalDateTime dataDeInicio;
-    private LocalDateTime dataDeTermino;
+
+    /**
+     * O status atual do medicamento no catálogo (ex: ATIVO, INATIVO).
+     */
     private GeralStatus status;
 
-    private UsuarioResumoDTOResponse usuario;
+    /**
+     * Construtor vazio.
+     * Necessário para compatibilidade com alguns frameworks de serialização.
+     */
+    public MedicamentoDTOResponse() {
+    }
 
-    private List<MedicamentoHistoricoResumoDTOResponse> medicamentosHistoricos;
-    private List<AgendamentoResumoDTOResponse> agendamentos;
+    /**
+     * Construtor de mapeamento.
+     * Facilita a conversão da entidade Medicamento para este DTO.
+     * @param medicamentoEntity A entidade vinda do banco de dados.
+     */
+    public MedicamentoDTOResponse(Medicamento medicamentoEntity) {
+        this.id = medicamentoEntity.getId();
+        this.nome = medicamentoEntity.getNome();
+        this.principioAtivo = medicamentoEntity.getPrincipioAtivo();
+        this.laboratorio = medicamentoEntity.getLaboratorio();
+        this.tipoUnidadeDeMedida = medicamentoEntity.getTipoUnidadeDeMedida();
+        this.status = medicamentoEntity.getStatus();
+    }
 
     public Integer getId() {
         return id;
@@ -42,12 +77,20 @@ public class MedicamentoDTOResponse {
         this.nome = nome;
     }
 
-    public BigDecimal getDosagem() {
-        return dosagem;
+    public String getPrincipioAtivo() {
+        return principioAtivo;
     }
 
-    public void setDosagem(BigDecimal dosagem) {
-        this.dosagem = dosagem;
+    public void setPrincipioAtivo(String principioAtivo) {
+        this.principioAtivo = principioAtivo;
+    }
+
+    public String getLaboratorio() {
+        return laboratorio;
+    }
+
+    public void setLaboratorio(String laboratorio) {
+        this.laboratorio = laboratorio;
     }
 
     public TipoUnidadeDeMedida getTipoUnidadeDeMedida() {
@@ -58,67 +101,11 @@ public class MedicamentoDTOResponse {
         this.tipoUnidadeDeMedida = tipoUnidadeDeMedida;
     }
 
-    public Integer getFrequenciaPorDia() {
-        return frequenciaPorDia;
-    }
-
-    public void setFrequenciaPorDia(Integer frequenciaPorDia) {
-        this.frequenciaPorDia = frequenciaPorDia;
-    }
-
-    public String getInstrucoes() {
-        return instrucoes;
-    }
-
-    public void setInstrucoes(String instrucoes) {
-        this.instrucoes = instrucoes;
-    }
-
-    public LocalDateTime getDataDeInicio() {
-        return dataDeInicio;
-    }
-
-    public void setDataDeInicio(LocalDateTime dataDeInicio) {
-        this.dataDeInicio = dataDeInicio;
-    }
-
-    public LocalDateTime getDataDeTermino() {
-        return dataDeTermino;
-    }
-
-    public void setDataDeTermino(LocalDateTime dataDeTermino) {
-        this.dataDeTermino = dataDeTermino;
-    }
-
     public GeralStatus getStatus() {
         return status;
     }
 
     public void setStatus(GeralStatus status) {
         this.status = status;
-    }
-
-    public UsuarioResumoDTOResponse getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(UsuarioResumoDTOResponse usuario) {
-        this.usuario = usuario;
-    }
-
-    public List<MedicamentoHistoricoResumoDTOResponse> getMedicamentosHistoricos() {
-        return medicamentosHistoricos;
-    }
-
-    public void setMedicamentosHistoricos(List<MedicamentoHistoricoResumoDTOResponse> medicamentosHistoricos) {
-        this.medicamentosHistoricos = medicamentosHistoricos;
-    }
-
-    public List<AgendamentoResumoDTOResponse> getAgendamentos() {
-        return agendamentos;
-    }
-
-    public void setAgendamentos(List<AgendamentoResumoDTOResponse> agendamentos) {
-        this.agendamentos = agendamentos;
     }
 }
