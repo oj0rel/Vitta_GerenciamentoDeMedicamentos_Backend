@@ -43,7 +43,6 @@ public class MedicamentoService {
      * Busca um medicamento pelo seu ID.
      * @param medicamentoId O ID do medicamento a ser buscado.
      * @return O {@link MedicamentoDTOResponse} correspondente ao ID.
-     * @throws EntityNotFoundException se nenhum medicamento for encontrado com o ID fornecido.
      */
     public MedicamentoDTOResponse buscarMedicamentoPorId(Integer medicamentoId) {
         Medicamento medicamento = this.validarMedicamento(medicamentoId);
@@ -135,8 +134,6 @@ public class MedicamentoService {
      *
      * @param medicamentoId O ID do medicamento a ser validado e buscado.
      * @return A entidade {@link Medicamento} encontrada.
-     * @throws EntityNotFoundException se nenhum medicamento for encontrado com o ID fornecido,
-     * garantindo que os métodos que o chamam não recebam um valor nulo.
      */
     private Medicamento validarMedicamento(Integer medicamentoId) {
         Medicamento medicamento = medicamentoRepository.obterMedicamentoPeloId(medicamentoId);

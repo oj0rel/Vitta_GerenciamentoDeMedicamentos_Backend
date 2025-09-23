@@ -5,22 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * DTO para receber os dados necessários para a criação de um novo Tratamento.
- * Representa o corpo da requisição para o endpoint de cadastro de tratamento.
- */
-public class TratamentoDTORequest {
-
-    /**
-     * ID do medicamento que fará parte deste tratamento.
-     * Deve corresponder a um medicamento existente no catálogo.
-     */
-    private Integer medicamentoId;
-
-    /**
-     * ID do usuário ao qual este tratamento pertence.
-     */
-    private Integer usuarioId;
+public class TratamentoAtualizarDTORequest {
 
     /**
      * Dosagem a ser administrada em cada toma (ex: 1.00 para um comprimido).
@@ -83,20 +68,18 @@ public class TratamentoDTORequest {
         return false;
     }
 
-    public Integer getMedicamentoId() {
-        return medicamentoId;
-    }
+    /**
+     * Valida se a data de término não é anterior à data de início, caso ambas sejam fornecidas.
+     */
+    @JsonIgnore
+    public boolean isDatasValidas() {
 
-    public void setMedicamentoId(Integer medicamentoId) {
-        this.medicamentoId = medicamentoId;
-    }
+        // isso aki obrigado que 2 datas estejam preenchidas
+        if (dataDeInicio != null && dataDeTermino != null) {
+            return !dataDeTermino.isBefore(dataDeInicio);
+        }
 
-    public Integer getUsuarioId() {
-        return usuarioId;
-    }
-
-    public void setUsuarioId(Integer usuarioId) {
-        this.usuarioId = usuarioId;
+        return true; // se nenhuma data for fornecida, a validação não se aplica.
     }
 
     public BigDecimal getDosagem() {

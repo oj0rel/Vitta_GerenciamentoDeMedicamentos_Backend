@@ -1,6 +1,7 @@
 package com.vitta.vittaBackend.repository;
 
 import com.vitta.vittaBackend.entity.Agendamento;
+import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -46,4 +47,13 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
             @Param("inicioDoDia") LocalDateTime inicioDoDia,
             @Param("fimDoDia") LocalDateTime fimDoDia
     );
+
+    /**
+     * Deleta todos os agendamentos de um tratamento que estão com status PENDENTE
+     * e cuja data/hora é futura em relação ao momento atual.
+     * @param tratamentoId O ID do tratamento.
+     * @param agora O momento atual, para garantir que apenas agendamentos futuros sejam apagados.
+     */
+    @Modifying
+    void deleteByTratamentoIdAndStatusAndHorarioDoAgendamentoAfter(Integer tratamentoId, AgendamentoStatus status, LocalDateTime agora);
 }

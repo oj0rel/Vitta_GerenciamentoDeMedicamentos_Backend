@@ -8,49 +8,96 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Entidade central que representa um tratamento para um usuário.
+ * Contém todas as regras de uma prescrição, como dosagem, frequência e duração,
+ * e serve como base para a geração dos agendamentos individuais.
+ */
 @Entity
 @Table(name = "tratamento")
 public class Tratamento {
 
+    /**
+     * Identificador único do tratamento, gerado automaticamente.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tratamento_id")
     private Integer id;
 
+    /**
+     * A dosagem a ser administrada em cada toma (ex: 1.00 para um comprimido, 10.50 para 10.5 ml).
+     */
     @Column(name = "tratamento_dosagem")
     private BigDecimal dosagem;
 
+    /**
+     * Instruções de uso em formato de texto livre (ex: "Tomar com um copo de água, após as refeições").
+     */
     @Column(name = "tratamento_instrucoes")
     private String instrucoes;
+
+    /**
+     * Data em que o tratamento se inicia.
+     */
 
     @Column(name = "tratamento_data_de_inicio")
     private LocalDate dataDeInicio;
 
+    /**
+     * Data em que o tratamento termina.
+     */
     @Column(name = "tratamento_data_de_termino")
     private LocalDate dataDeTermino;
 
+    /**
+     * Define o tipo de regra para a frequência das doses.
+     */
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "tratamento_tipo_de_frequencia")
     private TipoFrequencia tipoDeFrequencia;
 
+    /**
+     * Intervalo em horas entre as doses.
+     * Este campo só é utilizado se o tipoDeFrequencia for {@link TipoFrequencia#INTERVALO_HORAS}.
+     */
     @Column(name = "tratamento_intervalo_em_horas")
     private Integer intervaloEmHoras;
 
+    /**
+     * String contendo os horários específicos para as tomas, separados por vírgula (ex: "08:00,16:00,23:00").
+     * Este campo só é utilizado se o tipoDeFrequencia for {@link TipoFrequencia#HORARIOS_ESPECIFICOS}.
+     */
     @Column(name = "tratamento_horarios_especificos")
     private String horariosEspecificos;
 
+    /**
+     * Status atual do tratamento (ex: ATIVO, CONCLUIDO, CANCELADO).
+     * O valor padrão para um novo tratamento é ATIVO.
+     */
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "tratamento_status")
     private TratamentoStatus status = TratamentoStatus.ATIVO;
 
+    /**
+     * O usuário ao qual este tratamento pertence.
+     * Relacionamento Muitos-para-Um com a entidade Usuario.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
+    /**
+     * O medicamento que faz parte deste tratamento.
+     * Relacionamento Muitos-para-Um com a entidade Medicamento.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medicamento_id")
     private Medicamento medicamento;
 
+    /**
+     * A lista de todos os agendamentos individuais que foram gerados a partir deste tratamento.
+     */
     @OneToMany(mappedBy = "tratamento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Agendamento> agendamentos;
 

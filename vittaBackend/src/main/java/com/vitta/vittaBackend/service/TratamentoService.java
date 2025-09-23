@@ -1,6 +1,9 @@
 package com.vitta.vittaBackend.service;
 
+import com.vitta.vittaBackend.dto.request.tratamento.TratamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.tratamento.TratamentoDTORequest;
+import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
+import com.vitta.vittaBackend.dto.response.tratamento.TratamentoDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Tratamento;
@@ -12,6 +15,7 @@ import com.vitta.vittaBackend.repository.AgendamentoRepository;
 import com.vitta.vittaBackend.repository.MedicamentoRepository;
 import com.vitta.vittaBackend.repository.TratamentoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +26,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * Camada de serviço para gerenciar a lógica de negócio dos Tratamentos.
+ * Responsável por criar tratamentos e gerar os agendamentos correspondentes.
+ */
 @Service
 public class TratamentoService {
 
@@ -44,6 +53,27 @@ public class TratamentoService {
         this.agendamentoRepository = agendamentoRepository;
         this.medicamentoRepository = medicamentoRepository;
         this.usuarioRepository = usuarioRepository;
+    }
+
+    /**
+     * Retorna uma lista de todos os tratamentos com status ATIVO.
+     * @return Uma lista de {@link TratamentoDTOResponse}.
+     */
+    public List<TratamentoDTOResponse> listarTratamentos() {
+        return tratamentoRepository.listarTratamentos()
+                .stream()
+                .map(TratamentoDTOResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca um tratamento pelo seu ID.
+     * @param tratamentoId O ID do tratamento a ser buscado.
+     * @return O {@link TratamentoDTOResponse} correspondente ao ID.
+     */
+    public TratamentoDTOResponse buscarTratamentoPorId(Integer tratamentoId) {
+        Tratamento tratamento = this.validarTratamento(tratamentoId);
+        return new TratamentoDTOResponse(tratamento);
     }
 
     @Transactional
@@ -77,6 +107,75 @@ public class TratamentoService {
         agendamentoRepository.saveAll(agendamentos);
 
         return tratamentoSalvo;
+    }
+
+    @Transactional
+    public TratamentoDTOResponse atualizarTratamento(Integer tratamentoId, TratamentoAtualizarDTORequest tratamentoAtualizarDTORequest) {
+        Tratamento tratamentoExistente = validarTratamento(tratamentoId);
+
+        //flag para saber se será necessário regerar os agendamentos
+        boolean regerarAgendamentos = false;
+
+        if (tratamentoAtualizarDTORequest.getDosagem() != null) {
+            tratamentoExistente.setDosagem(tratamentoAtualizarDTORequest.getDosagem());
+        }
+
+        if (tratamentoAtualizarDTORequest.getInstrucoes() != null) {
+            tratamentoExistente.setInstrucoes(tratamentoAtualizarDTORequest.getInstrucoes());
+        }
+
+        if (tratamentoAtualizarDTORequest.getDataDeInicio() != null && !tratamentoAtualizarDTORequest.getDataDeInicio().equals(tratamentoExistente.getDataDeInicio())) {
+            tratamentoExistente.setDataDeInicio(tratamentoAtualizarDTORequest.getDataDeInicio());
+            regerarAgendamentos = true;
+        }
+        if (tratamentoAtualizarDTORequest.getDataDeTermino() != null && !tratamentoAtualizarDTORequest.getDataDeTermino().equals(tratamentoExistente.getDataDeTermino())) {
+            tratamentoExistente.setDataDeTermino(tratamentoAtualizarDTORequest.getDataDeTermino());
+            regerarAgendamentos = true;
+        }
+        if (tratamentoAtualizarDTORequest.getTipoDeFrequencia() != null) {
+            TipoFrequencia novaFrequencia = TipoFrequencia.fromCodigo(tratamentoAtualizarDTORequest.getTipoDeFrequencia());
+            if (novaFrequencia != tratamentoExistente.getTipoDeFrequencia()) {
+                tratamentoExistente.setTipoDeFrequencia(novaFrequencia);
+                regerarAgendamentos = true;
+            }
+            tratamentoExistente.setIntervaloEmHoras(tratamentoAtualizarDTORequest.getIntervaloEmHoras());
+            tratamentoExistente.setHorariosEspecificos(tratamentoAtualizarDTORequest.getHorariosEspecificos());
+        }
+
+        if (regerarAgendamentos) {
+            agendamentoRepository.deleteByTratamentoIdAndStatusAndHorarioDoAgendamentoAfter(
+                    tratamentoId,
+                    AgendamentoStatus.PENDENTE,
+                    LocalDateTime.now()
+            );
+
+            List<Agendamento> novosAgendamentos = gerarAgendamentosParaTratamento(tratamentoExistente);
+
+            tratamentoExistente.getAgendamentos().clear();
+            tratamentoExistente.getAgendamentos().addAll(novosAgendamentos);
+        }
+
+        Tratamento tratamentoAtualizado = tratamentoRepository.save(tratamentoExistente);
+
+        return new TratamentoDTOResponse(tratamentoAtualizado);
+    }
+
+    /**
+     * Valida a existência de um tratamento pelo seu ID e o retorna.
+     * Este é um método auxiliar privado para evitar a repetição de código nos
+     * métodos públicos que precisam de buscar uma entidade antes de realizar uma ação.
+     *
+     * @param tratamentoId o ID do tratamento a ser validado e buscado.
+     * @return A entidade {@link Tratamento} encontrada.
+     */
+    private Tratamento validarTratamento(Integer tratamentoId) {
+        Tratamento tratamento = tratamentoRepository.obterTratamentoPeloId(tratamentoId);
+
+        if (tratamento == null) {
+            throw new EntityNotFoundException("Tratamento não encontrado com o ID: " + tratamentoId);
+        }
+
+        return tratamento;
     }
 
     private List<Agendamento> gerarAgendamentosParaTratamento(Tratamento tratamento) {
