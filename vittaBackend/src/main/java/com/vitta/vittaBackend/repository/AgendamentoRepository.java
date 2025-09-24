@@ -1,7 +1,6 @@
 package com.vitta.vittaBackend.repository;
 
 import com.vitta.vittaBackend.entity.Agendamento;
-import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Integer> {
@@ -43,23 +43,19 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
     void apagadoLogicoAgendamento(@Param("id") Integer agendamentoId);
 
     /**
-     * Busca todos os agendamentos para um usuário específico dentro de um
-     * intervalo de data e hora.
-     * @param usuarioId O ID do usuário.
-     * @param inicioDoDia A data e hora de início do período (ex: hoje às 00:00:00).
-     * @param fimDoDia A data e hora de fim do período (ex: hoje às 23:59:59).
-     * @return Uma lista de agendamentos.
+     * Encontra o primeiro agendamento associado a um ID de tratamento específico.
+     * "findFirst" - Limita o resultado ao primeiro encontrado (equivalente a "findTop").
+     * "ByTratamentoId" - Filtra pela propriedade 'id' da entidade relacionada 'tratamento'.
+     *
+     * @param tratamentoId o ID do tratamento a ser buscado.
+     * @return um Optional contendo o primeiro agendamento encontrado, ou um Optional vazio se nenhum for encontrado.
      */
-//    @Query("SELECT a FROM Agendamento a JOIN FETCH a.medicamento JOIN FETCH a.usuario WHERE a.usuario.id = :usuarioId AND a.horarioDoAgendamento BETWEEN :inicioDoDia AND :fimDoDia ORDER BY a.horarioDoAgendamento ASC")
-//    List<Agendamento> findByUsuarioIdAndData(
-//            @Param("usuarioId") int usuarioId,
-//            @Param("inicioDoDia") LocalDateTime inicioDoDia,
-//            @Param("fimDoDia") LocalDateTime fimDoDia
-//    );
+    Optional<Agendamento> findFirstByTratamentoId(Integer tratamentoId);
 
     /**
      * Deleta todos os agendamentos de um tratamento que estão com status PENDENTE
      * e cuja data/hora é futura em relação ao momento atual.
+     *
      * @param tratamentoId O ID do tratamento.
      * @param agora O momento atual, para garantir que apenas agendamentos futuros sejam apagados.
      */

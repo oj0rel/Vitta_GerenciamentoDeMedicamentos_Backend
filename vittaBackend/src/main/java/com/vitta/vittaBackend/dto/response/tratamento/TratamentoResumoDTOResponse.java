@@ -2,7 +2,7 @@ package com.vitta.vittaBackend.dto.response.tratamento;
 
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.entity.Tratamento;
-import com.vitta.vittaBackend.enums.TratamentoStatus;
+import com.vitta.vittaBackend.enums.tratamento.TratamentoStatus;
 
 import java.time.LocalDate;
 

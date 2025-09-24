@@ -4,7 +4,7 @@ import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTORespo
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.entity.Tratamento;
 import com.vitta.vittaBackend.enums.TipoFrequencia;
-import com.vitta.vittaBackend.enums.TratamentoStatus;
+import com.vitta.vittaBackend.enums.tratamento.TratamentoStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

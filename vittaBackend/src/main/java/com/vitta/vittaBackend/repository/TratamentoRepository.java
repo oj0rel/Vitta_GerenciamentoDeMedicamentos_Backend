@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Repositório para gerenciar as operações de banco de dados para a entidade {@link Tratamento}.
@@ -28,8 +27,8 @@ public interface TratamentoRepository extends JpaRepository<Tratamento, Integer>
      * Busca um tratamento ativo pelo seu ID.
      * @param tratamentoId O ID do tratamento a ser buscado.
      */
-    @Query("SELECT t FROM Tratamento t WHERE t.id = :id AND t.status >= 0")
-    Tratamento obterTratamentoPeloId(@Param("tratamentoId") Integer tratamentoId);
+    @Query("SELECT t FROM Tratamento t WHERE t.id = :id")
+    Tratamento obterTratamentoPeloId(@Param("id") Integer tratamentoId);
 
     /**
      * Realiza a exclusão lógica de um tratamento diretamente no banco de dados.

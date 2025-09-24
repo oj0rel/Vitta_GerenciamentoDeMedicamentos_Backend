@@ -2,15 +2,13 @@ package com.vitta.vittaBackend.service;
 
 import com.vitta.vittaBackend.dto.request.tratamento.TratamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.tratamento.TratamentoDTORequest;
-import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
 import com.vitta.vittaBackend.dto.response.tratamento.TratamentoDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Tratamento;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.TipoFrequencia;
-import com.vitta.vittaBackend.enums.TratamentoStatus;
+import com.vitta.vittaBackend.enums.tratamento.TratamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 import com.vitta.vittaBackend.repository.AgendamentoRepository;
@@ -86,6 +84,7 @@ public class TratamentoService {
         Usuario usuario = usuarioRepository.findById(tratamentoDTORequest.getUsuarioId()).orElseThrow();
 
         Tratamento tratamento = new Tratamento();
+
         tratamento.setMedicamento(medicamento);
         tratamento.setUsuario(usuario);
         tratamento.setDosagem(tratamentoDTORequest.getDosagem());
@@ -102,11 +101,23 @@ public class TratamentoService {
         tratamento.setIntervaloEmHoras(tratamentoDTORequest.getIntervaloEmHoras());
         tratamento.setHorariosEspecificos(tratamentoDTORequest.getHorariosEspecificos());
 
+
+        //guardar o tipoDeAlerta em uma variável local para ser usada como parâmetro em outro método
+        TipoDeAlerta tipoDeAlertaEscolhido;
+        if (tratamentoDTORequest.getTipoDeAlerta() != null) {
+            tipoDeAlertaEscolhido = TipoDeAlerta.fromCodigo(tratamentoDTORequest.getTipoDeAlerta());
+        } else {
+            //se nenhum código for enviado, usa um enum padrão
+            tipoDeAlertaEscolhido = TipoDeAlerta.NOTIFICACAO_PUSH;
+        }
+
         Tratamento tratamentoSalvo = tratamentoRepository.save(tratamento);
 
         // gerar e salvar os agendamentos
-        List<Agendamento> agendamentos = gerarAgendamentosParaTratamento(tratamentoSalvo);
-        agendamentoRepository.saveAll(agendamentos);
+        List<Agendamento> agendamentos = gerarAgendamentosParaTratamento(tratamentoSalvo, tipoDeAlertaEscolhido);
+        if (agendamentos != null && !agendamentos.isEmpty()) {
+            agendamentoRepository.saveAll(agendamentos);
+        }
 
         return new TratamentoDTOResponse(tratamentoSalvo);
     }
@@ -121,17 +132,17 @@ public class TratamentoService {
     public TratamentoDTOResponse atualizarTratamento(Integer tratamentoId, TratamentoAtualizarDTORequest tratamentoAtualizarDTORequest) {
         Tratamento tratamentoExistente = validarTratamento(tratamentoId);
 
-        //flag para saber se será necessário regerar os agendamentos
         boolean regerarAgendamentos = false;
+        TipoDeAlerta tipoDeAlertaParaRegeracao = null;
 
         if (tratamentoAtualizarDTORequest.getDosagem() != null) {
             tratamentoExistente.setDosagem(tratamentoAtualizarDTORequest.getDosagem());
         }
-
         if (tratamentoAtualizarDTORequest.getInstrucoes() != null) {
             tratamentoExistente.setInstrucoes(tratamentoAtualizarDTORequest.getInstrucoes());
         }
 
+        // fazer verificação para ver se a estrutura do agendamento mudou (datas, frequência)
         if (tratamentoAtualizarDTORequest.getDataDeInicio() != null && !tratamentoAtualizarDTORequest.getDataDeInicio().equals(tratamentoExistente.getDataDeInicio())) {
             tratamentoExistente.setDataDeInicio(tratamentoAtualizarDTORequest.getDataDeInicio());
             regerarAgendamentos = true;
@@ -146,8 +157,22 @@ public class TratamentoService {
                 tratamentoExistente.setTipoDeFrequencia(novaFrequencia);
                 regerarAgendamentos = true;
             }
+            // sempre atualiza os campos de frequência se o tipo for enviado
             tratamentoExistente.setIntervaloEmHoras(tratamentoAtualizarDTORequest.getIntervaloEmHoras());
             tratamentoExistente.setHorariosEspecificos(tratamentoAtualizarDTORequest.getHorariosEspecificos());
+        }
+
+        // verificar se o tipo de alerta mudou (isso também força a regeração)
+        if (tratamentoAtualizarDTORequest.getTipoDeAlerta() != null) {
+            tipoDeAlertaParaRegeracao = TipoDeAlerta.fromCodigo(tratamentoAtualizarDTORequest.getTipoDeAlerta());
+            regerarAgendamentos = true; // se o alerta muda, os futuros agendamentos precisam ser recriados
+        } else if (regerarAgendamentos) {
+            // se precisa regerar, mas o alerta não foi alterado, precisamos buscar o alerta atual
+            // para manter a consistência.
+            tipoDeAlertaParaRegeracao = agendamentoRepository
+                    .findFirstByTratamentoId(tratamentoId)
+                    .map(Agendamento::getTipoDeAlerta)
+                    .orElse(TipoDeAlerta.NOTIFICACAO_PUSH); // Fallback para um padrão, caso não encontre nenhum
         }
 
         if (regerarAgendamentos) {
@@ -157,14 +182,14 @@ public class TratamentoService {
                     LocalDateTime.now()
             );
 
-            List<Agendamento> novosAgendamentos = gerarAgendamentosParaTratamento(tratamentoExistente);
+            List<Agendamento> novosAgendamentos = gerarAgendamentosParaTratamento(tratamentoExistente, tipoDeAlertaParaRegeracao);
 
-            tratamentoExistente.getAgendamentos().clear();
-            tratamentoExistente.getAgendamentos().addAll(novosAgendamentos);
+            if (novosAgendamentos != null && !novosAgendamentos.isEmpty()) {
+                agendamentoRepository.saveAll(novosAgendamentos);
+            }
         }
 
         Tratamento tratamentoAtualizado = tratamentoRepository.save(tratamentoExistente);
-
         return new TratamentoDTOResponse(tratamentoAtualizado);
     }
 
@@ -211,32 +236,51 @@ public class TratamentoService {
      * @param tratamento A entidade {@link Tratamento} já salva, contendo as regras de agendamento.
      * @return Uma lista de novas entidades {@link Agendamento}, prontas para serem salvas no banco de dados.
      */
-    private List<Agendamento> gerarAgendamentosParaTratamento(Tratamento tratamento) {
+    private List<Agendamento> gerarAgendamentosParaTratamento(Tratamento tratamento, TipoDeAlerta tipoDeAlerta) {
         List<Agendamento> agendamentos = new ArrayList<>();
+
+        if (tratamento.getDataDeTermino() == null || tratamento.getDataDeTermino().isBefore(tratamento.getDataDeInicio())) {
+            return agendamentos;
+        }
+
         LocalDate dataCorrente = tratamento.getDataDeInicio();
 
         while (!dataCorrente.isAfter(tratamento.getDataDeTermino())) {
             if (tratamento.getTipoDeFrequencia() == TipoFrequencia.INTERVALO_HORAS) {
-                // lógica para intervalo de horas (ex: a cada 8 horas, começando às 8h)
-                LocalTime proximoHorario = LocalTime.of(8, 0); // horário de início padrão
-                while (proximoHorario.isBefore(LocalTime.MAX)) {
-                    LocalDateTime dataHoraAgendamento = LocalDateTime.of(dataCorrente, proximoHorario);
-                    agendamentos.add(criarAgendamento(tratamento, dataHoraAgendamento));
-                    proximoHorario = proximoHorario.plusHours(tratamento.getIntervaloEmHoras());
+
+                // define o primeiro horário do dia
+                LocalDateTime proximoAgendamento = dataCorrente.atTime(8, 0);
+
+                // loop para gerar agendamentos ENQUANTO eles pertencerem à dataCorrente
+                while (proximoAgendamento.toLocalDate().isEqual(dataCorrente)) {
+                    // adiciona o agendamento apenas se ele não ultrapassar a data e hora de término do tratamento
+                    if (tratamento.getDataDeTermino() != null) {
+                        LocalDateTime dataHoraTermino = tratamento.getDataDeTermino().atTime(LocalTime.MAX);
+                        if (proximoAgendamento.isAfter(dataHoraTermino)) {
+                            break; // para o loop se o próximo agendamento já passou do fim do tratamento
+                        }
+                    }
+
+                    agendamentos.add(criarAgendamento(tratamento, proximoAgendamento, tipoDeAlerta));
+
+                    proximoAgendamento = proximoAgendamento.plusHours(tratamento.getIntervaloEmHoras());
                 }
+
             } else if (tratamento.getTipoDeFrequencia() == TipoFrequencia.HORARIOS_ESPECIFICOS) {
-                // lógica para horários específicos (ex: "08:00,14:00,22:00")
                 String[] horarios = tratamento.getHorariosEspecificos().split(",");
                 for (String horaStr : horarios) {
                     LocalTime horario = LocalTime.parse(horaStr.trim());
                     LocalDateTime dataHoraAgendamento = LocalDateTime.of(dataCorrente, horario);
-                    agendamentos.add(criarAgendamento(tratamento, dataHoraAgendamento));
+
+                    // passa o tipoDeAlerta para o método criador
+                    agendamentos.add(criarAgendamento(tratamento, dataHoraAgendamento, tipoDeAlerta));
                 }
             }
             dataCorrente = dataCorrente.plusDays(1);
         }
         return agendamentos;
     }
+
 
     /**
      * Método auxiliar (factory) para criar e configurar uma única instância da entidade {@link Agendamento}.
@@ -247,11 +291,14 @@ public class TratamentoService {
      * @param dataHora   A data e hora exata em que este agendamento deve ocorrer.
      * @return A nova entidade {@link Agendamento}, pronta para ser adicionada à lista de geração.
      */
-    private Agendamento criarAgendamento(Tratamento tratamento, LocalDateTime dataHora) {
+    private Agendamento criarAgendamento(Tratamento tratamento, LocalDateTime dataHora, TipoDeAlerta tipoDeAlerta) {
         Agendamento agendamento = new Agendamento();
+
         agendamento.setTratamento(tratamento);
         agendamento.setHorarioDoAgendamento(dataHora);
         agendamento.setStatus(AgendamentoStatus.PENDENTE);
+        agendamento.setTipoDeAlerta(tipoDeAlerta);
+        agendamento.setUsuario(tratamento.getUsuario());
 
         return agendamento;
     }

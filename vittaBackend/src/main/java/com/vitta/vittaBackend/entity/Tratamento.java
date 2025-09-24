@@ -1,7 +1,7 @@
 package com.vitta.vittaBackend.entity;
 
 import com.vitta.vittaBackend.enums.TipoFrequencia;
-import com.vitta.vittaBackend.enums.TratamentoStatus;
+import com.vitta.vittaBackend.enums.tratamento.TratamentoStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -75,7 +75,6 @@ public class Tratamento {
      * Status atual do tratamento (ex: ATIVO, CONCLUIDO, CANCELADO).
      * O valor padrão para um novo tratamento é ATIVO.
      */
-    @Enumerated(EnumType.ORDINAL)
     @Column(name = "tratamento_status")
     private TratamentoStatus status = TratamentoStatus.ATIVO;
 

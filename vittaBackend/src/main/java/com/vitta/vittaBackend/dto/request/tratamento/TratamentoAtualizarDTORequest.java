@@ -47,6 +47,13 @@ public class TratamentoAtualizarDTORequest {
     private String horariosEspecificos;
 
     /**
+     * Código numérico que define o tipo de alerta (Enum) para os agendamentos.
+     * Este campo no DTO é para registrar a informação e poder gerar os agendamentos,
+     * a partir do tratamento criado.
+     */
+    private Integer tipoDeAlerta;
+
+    /**
      * Validação customizada que verifica a consistência entre o tipo de frequência
      * e os campos de intervalo/horários.
      */
@@ -165,5 +172,13 @@ public class TratamentoAtualizarDTORequest {
 
     public void setHorariosEspecificos(String horariosEspecificos) {
         this.horariosEspecificos = horariosEspecificos;
+    }
+
+    public Integer getTipoDeAlerta() {
+        return tipoDeAlerta;
+    }
+
+    public void setTipoDeAlerta(Integer tipoDeAlerta) {
+        this.tipoDeAlerta = tipoDeAlerta;
     }
 }
