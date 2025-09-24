@@ -1,7 +1,5 @@
 package com.vitta.vittaBackend.dto.response.usuario;
 
-import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoResumoDTOResponse;
-import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.tratamento.TratamentoResumoDTOResponse;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.UsuarioStatus;

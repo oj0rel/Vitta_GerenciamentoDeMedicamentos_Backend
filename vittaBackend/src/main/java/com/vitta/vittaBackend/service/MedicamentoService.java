@@ -4,8 +4,10 @@ import com.vitta.vittaBackend.dto.request.medicamento.MedicamentoDTORequest;
 import com.vitta.vittaBackend.dto.request.medicamento.MedicamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
 import com.vitta.vittaBackend.entity.Medicamento;
+import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.medicamento.TipoUnidadeDeMedida;
 import com.vitta.vittaBackend.repository.MedicamentoRepository;
+import com.vitta.vittaBackend.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +23,15 @@ import java.util.stream.Collectors;
 public class MedicamentoService {
 
     private final MedicamentoRepository medicamentoRepository;
+    private final UsuarioRepository usuarioRepository;
 
     @Autowired
-    public MedicamentoService(MedicamentoRepository medicamentoRepository) {
+    public MedicamentoService(
+            MedicamentoRepository medicamentoRepository,
+            UsuarioRepository usuarioRepository
+    ) {
         this.medicamentoRepository = medicamentoRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     /**
@@ -56,6 +63,9 @@ public class MedicamentoService {
      */
     @Transactional
     public MedicamentoDTOResponse cadastrarMedicamento(MedicamentoDTORequest medicamentoDTORequest) {
+
+        Usuario usuario = usuarioRepository.findById(medicamentoDTORequest.getUsuarioId()).orElseThrow();
+
         Medicamento novoMedicamento = new Medicamento();
 
         novoMedicamento.setNome(medicamentoDTORequest.getNome());
@@ -67,6 +77,8 @@ public class MedicamentoService {
                     TipoUnidadeDeMedida.fromCodigo(medicamentoDTORequest.getTipoUnidadeDeMedida())
             );
         }
+
+        novoMedicamento.setUsuario(usuario);
 
         Medicamento medicamentoSalvo = medicamentoRepository.save(novoMedicamento);
 

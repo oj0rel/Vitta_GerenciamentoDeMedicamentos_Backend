@@ -62,12 +62,12 @@ public class MedicamentoHistoricoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/registrarUso")
-    public ResponseEntity<AgendamentoDTOResponse> registrarUso(
-            @Valid @RequestBody RegistrarUsoDTORequest requestDTO) {
-
-        AgendamentoDTOResponse respostaDTO = medicamentoHistoricoService.registrarUsoDoMedicamento(requestDTO);
-
-        return ResponseEntity.ok(respostaDTO);
-    }
+//    @PostMapping("/registrarUso")
+//    public ResponseEntity<AgendamentoDTOResponse> registrarUso(
+//            @Valid @RequestBody RegistrarUsoDTORequest requestDTO) {
+//
+//        AgendamentoDTOResponse respostaDTO = medicamentoHistoricoService.registrarUsoDoMedicamento(requestDTO);
+//
+//        return ResponseEntity.ok(respostaDTO);
+//    }
 }

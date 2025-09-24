@@ -14,14 +14,14 @@ public class ModelMapperConfig {
         ModelMapper modelMapper = new ModelMapper();
 
         // Configuração para ignorar campos nulos
-        modelMapper.getConfiguration().setSkipNullEnabled(true);
+//        modelMapper.getConfiguration().setSkipNullEnabled(true);
 
         //ele vai ignorar os campos uma única vez aqui
-        modelMapper.typeMap(Usuario.class, UsuarioDTOResponse.class)
-                .addMappings(mapper -> {
-                    mapper.skip(UsuarioDTOResponse::setMedicamentos);
-                    mapper.skip(UsuarioDTOResponse::setAgendamentos);
-                });
+//        modelMapper.typeMap(Usuario.class, UsuarioDTOResponse.class)
+//                .addMappings(mapper -> {
+//                    mapper.skip(UsuarioDTOResponse::setMedicamentos);
+//                    mapper.skip(UsuarioDTOResponse::setAgendamentos);
+//                });
 
         return modelMapper;
     }

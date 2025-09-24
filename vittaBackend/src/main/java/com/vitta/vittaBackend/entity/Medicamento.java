@@ -33,6 +33,14 @@ public class Medicamento {
     @OneToMany(mappedBy = "medicamento")
     private List<Tratamento> tratamentos;
 
+    /**
+     * O usuário ao qual este medicamento pertence.
+     * Relacionamento Muitos-para-Um com a entidade Usuario.
+     */
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", referencedColumnName = "usuario_id")
+    private Usuario usuario;
+
     public Integer getId() {
         return id;
     }
@@ -87,5 +95,13 @@ public class Medicamento {
 
     public void setTratamentos(List<Tratamento> tratamentos) {
         this.tratamentos = tratamentos;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }

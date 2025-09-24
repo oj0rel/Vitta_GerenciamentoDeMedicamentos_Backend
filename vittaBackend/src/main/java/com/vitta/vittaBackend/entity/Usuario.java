@@ -62,6 +62,27 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario")
     private List<Tratamento> tratamentos;
 
+    /**
+     * Lista de todos os medicamentos que pertencem a este utilizador.
+     * Este é o lado "um" da relação um-para-muitos com a entidade Medicamento.
+     */
+    @OneToMany(mappedBy = "usuario")
+    private List<Medicamento> medicamentos;
+
+    /**
+     * Lista de todos os agendamentos que pertencem a este utilizador.
+     * Este é o lado "um" da relação um-para-muitos com a entidade Agendamento.
+     */
+    @OneToMany(mappedBy = "usuario")
+    private List<Agendamento> agendamentos;
+
+    /**
+     * Lista de todos os históricos que pertencem a este utilizador.
+     * Este é o lado "um" da relação um-para-muitos com a entidade MedicamentoHistorico.
+     */
+    @OneToMany(mappedBy = "usuario")
+    private List<MedicamentoHistorico> historicos;
+
     public Integer getId() {
         return id;
     }
@@ -112,5 +133,29 @@ public class Usuario {
 
     public void setTratamentos(List<Tratamento> tratamentos) {
         this.tratamentos = tratamentos;
+    }
+
+    public List<Medicamento> getMedicamentos() {
+        return medicamentos;
+    }
+
+    public void setMedicamentos(List<Medicamento> medicamentos) {
+        this.medicamentos = medicamentos;
+    }
+
+    public List<Agendamento> getAgendamentos() {
+        return agendamentos;
+    }
+
+    public void setAgendamentos(List<Agendamento> agendamentos) {
+        this.agendamentos = agendamentos;
+    }
+
+    public List<MedicamentoHistorico> getHistoricos() {
+        return historicos;
+    }
+
+    public void setHistoricos(List<MedicamentoHistorico> historicos) {
+        this.historicos = historicos;
     }
 }

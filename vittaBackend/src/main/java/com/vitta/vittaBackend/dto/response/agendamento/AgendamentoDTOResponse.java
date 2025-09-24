@@ -1,10 +1,8 @@
 package com.vitta.vittaBackend.dto.response.agendamento;
 
-import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
-import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
-import com.vitta.vittaBackend.enums.GeralStatus;
+import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 
@@ -17,10 +15,30 @@ public class AgendamentoDTOResponse {
     private LocalDateTime horarioDoAgendamento;
     private TipoDeAlerta tipoDeAlerta;
     private AgendamentoStatus status;
-    private MedicamentoResumoDTOResponse medicamento;
     private UsuarioResumoDTOResponse usuario;
     private MedicamentoHistoricoResumoDTOResponse historicoDoMedicamentoTomado;
 
+    public AgendamentoDTOResponse() {
+    }
+
+    /**
+     * Construtor de mapeamento a partir da entidade Agendamento.
+     * @param agendamentoEntity A entidade vinda do banco de dados.
+     */
+    public AgendamentoDTOResponse(Agendamento agendamentoEntity) {
+        this.id = agendamentoEntity.getId();
+        this.horarioDoAgendamento = agendamentoEntity.getHorarioDoAgendamento();
+        this.tipoDeAlerta = agendamentoEntity.getTipoDeAlerta();
+        this.status = agendamentoEntity.getStatus();
+
+        if (agendamentoEntity.getUsuario() != null) {
+            this.usuario = new UsuarioResumoDTOResponse(agendamentoEntity.getUsuario());
+        }
+
+        if (agendamentoEntity.getMedicamentoHistorico() != null) {
+            this.historicoDoMedicamentoTomado = new MedicamentoHistoricoResumoDTOResponse(agendamentoEntity.getMedicamentoHistorico());
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -52,14 +70,6 @@ public class AgendamentoDTOResponse {
 
     public void setStatus(AgendamentoStatus status) {
         this.status = status;
-    }
-
-    public MedicamentoResumoDTOResponse getMedicamento() {
-        return medicamento;
-    }
-
-    public void setMedicamento(MedicamentoResumoDTOResponse medicamento) {
-        this.medicamento = medicamento;
     }
 
     public UsuarioResumoDTOResponse getUsuario() {

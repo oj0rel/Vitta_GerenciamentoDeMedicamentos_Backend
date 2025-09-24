@@ -1,6 +1,5 @@
 package com.vitta.vittaBackend.repository;
 
-import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.MedicamentoHistorico;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;

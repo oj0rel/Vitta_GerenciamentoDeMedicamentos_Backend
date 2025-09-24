@@ -1,5 +1,6 @@
 package com.vitta.vittaBackend.dto.response.medicamentoHistorico;
 
+import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.entity.MedicamentoHistorico;
 import com.vitta.vittaBackend.enums.GeralStatus;
@@ -13,7 +14,7 @@ public class MedicamentoHistoricoDTOResponse {
     private BigDecimal doseTomada;
     private String observacao;
     private GeralStatus historicoStatus;
-    private MedicamentoResumoDTOResponse medicamento;
+    private AgendamentoResumoDTOResponse agendamento;
 
     public MedicamentoHistoricoDTOResponse() {
     }
@@ -26,8 +27,8 @@ public class MedicamentoHistoricoDTOResponse {
         this.historicoStatus = historicoEntity.getHistoricoStatus();
 
         // Converte também o medicamento aninhado
-        if (historicoEntity.getMedicamento() != null) {
-            this.medicamento = new MedicamentoResumoDTOResponse(historicoEntity.getMedicamento());
+        if (historicoEntity.getAgendamento() != null) {
+            this.agendamento = new AgendamentoResumoDTOResponse(historicoEntity.getAgendamento());
         }
     }
 
@@ -71,11 +72,11 @@ public class MedicamentoHistoricoDTOResponse {
         this.historicoStatus = historicoStatus;
     }
 
-    public MedicamentoResumoDTOResponse getMedicamento() {
-        return medicamento;
+    public AgendamentoResumoDTOResponse getAgendamento() {
+        return agendamento;
     }
 
-    public void setMedicamento(MedicamentoResumoDTOResponse medicamento) {
-        this.medicamento = medicamento;
+    public void setAgendamento(AgendamentoResumoDTOResponse agendamento) {
+        this.agendamento = agendamento;
     }
 }

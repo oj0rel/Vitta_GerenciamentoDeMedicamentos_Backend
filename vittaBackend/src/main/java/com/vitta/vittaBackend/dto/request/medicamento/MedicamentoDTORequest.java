@@ -35,6 +35,8 @@ public class MedicamentoDTORequest {
     @NotNull
     private Integer tipoUnidadeDeMedida;
 
+    private Integer usuarioId;
+
     public String getNome() {
         return nome;
     }
@@ -65,5 +67,13 @@ public class MedicamentoDTORequest {
 
     public void setTipoUnidadeDeMedida(Integer tipoUnidadeDeMedida) {
         this.tipoUnidadeDeMedida = tipoUnidadeDeMedida;
+    }
+
+    public Integer getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Integer usuarioId) {
+        this.usuarioId = usuarioId;
     }
 }

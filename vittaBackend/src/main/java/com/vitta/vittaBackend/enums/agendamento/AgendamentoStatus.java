@@ -2,9 +2,10 @@ package com.vitta.vittaBackend.enums.agendamento;
 
 public enum AgendamentoStatus {
 
-    PENDENTE(0),
-    TOMADO(1),
-    ATRASADO(2);
+    INATIVO(0),
+    PENDENTE(1),
+    TOMADO(2),
+    ATRASADO(3);
 
     private final int codigo;
 

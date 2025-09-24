@@ -1,11 +1,10 @@
 package com.vitta.vittaBackend.entity;
 
-import com.vitta.vittaBackend.enums.GeralStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 import jakarta.persistence.*;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,11 +15,6 @@ public class Agendamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "agendamento_id")
     private Integer id;
-
-    //isso aki é para enviar a tabela Agendamento para Tratamento
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tratamento_id")
-    private Tratamento tratamento;
 
     @Column(name = "agendamento_horario_do_agendamento")
     private LocalDateTime horarioDoAgendamento;
@@ -35,20 +29,26 @@ public class Agendamento {
     @OneToOne(mappedBy = "agendamento", cascade = CascadeType.ALL)
     private MedicamentoHistorico medicamentoHistorico;
 
+    //isso aki é para enviar a tabela Agendamento para Tratamento
+    @ManyToOne
+    @JoinColumn(name = "tratamento_id", referencedColumnName = "tratamento_id")
+    @JsonIgnore
+    private Tratamento tratamento;
+
+    /**
+     * O usuário ao qual este agendamento pertence.
+     * Relacionamento Muitos-para-Um com a entidade Usuario.
+     */
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", referencedColumnName = "usuario_id")
+    private Usuario usuario;
+
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Tratamento getTratamento() {
-        return tratamento;
-    }
-
-    public void setTratamento(Tratamento tratamento) {
-        this.tratamento = tratamento;
     }
 
     public LocalDateTime getHorarioDoAgendamento() {
@@ -83,4 +83,19 @@ public class Agendamento {
         this.medicamentoHistorico = medicamentoHistorico;
     }
 
+    public Tratamento getTratamento() {
+        return tratamento;
+    }
+
+    public void setTratamento(Tratamento tratamento) {
+        this.tratamento = tratamento;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
 }

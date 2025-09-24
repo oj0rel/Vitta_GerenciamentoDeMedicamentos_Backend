@@ -22,7 +22,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
      * Utiliza LEFT JOIN FETCH para carregar os tratamentos associados de forma eficiente.
      * @return Uma lista de usuários ativos.
      */
-    @Query("SELECT u FROM Usuario u WHERE u.status >= 0")
+    @Query("SELECT u FROM Usuario u WHERE u.status > 0")
     List<Usuario> listarUsuariosAtivos();
 
     /**

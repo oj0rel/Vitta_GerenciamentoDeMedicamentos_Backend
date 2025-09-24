@@ -3,7 +3,7 @@ package com.vitta.vittaBackend.controller;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.response.agenda.AgendaDoDiaDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
+import com.vitta.vittaBackend.dto.response.usuario.*;
 import com.vitta.vittaBackend.service.AgendaService;
 import com.vitta.vittaBackend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,7 +43,7 @@ public class UsuarioController {
      * @return ResponseEntity contendo uma lista de usuários e o status HTTP 200 OK.
      */
     @GetMapping("/listar")
-    @Operation(summary = "Listar Usuários.", description = "Endpoint para listar todos os Usuários.")
+    @Operation(summary = "Listar Usuários", description = "Endpoint para listar todos os Usuários.")
     public ResponseEntity <List<UsuarioDTOResponse>> listarUsuarios() { return ResponseEntity.ok(usuarioService.listarUsuariosAtivos()); }
 
     /**
@@ -53,7 +53,7 @@ public class UsuarioController {
      * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
      */
     @GetMapping("/listarUsuarioPorId/{usuarioId}")
-    @Operation(summary = "Listar Usuário pelo ID dele.", description = "Endpoint para listar um Usuário, pelo ID.")
+    @Operation(summary = "Listar Usuário pelo ID dele", description = "Endpoint para listar um Usuário, pelo ID.")
     public ResponseEntity<UsuarioDTOResponse> buscarUsuarioPorId(@PathVariable("usuarioId") Integer usuarioId) {
         UsuarioDTOResponse usuarioDTOResponse = usuarioService.buscarUsuarioPorId(usuarioId);
 
@@ -65,13 +65,84 @@ public class UsuarioController {
     }
 
     /**
+     * Busca um usuário ativo específico, com seus agendamentos, pelo seu ID.
+     * @param usuarioId O ID do usuário a ser buscado.
+     * @return ResponseEntity com o DTO do usuário encontrado e status 200 OK.
+     * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
+     */
+    @GetMapping("/listarUsuarioAgendamentosPorId/{usuarioId}")
+    @Operation(summary = "Listar Usuário e agendamentos pelo ID dele", description = "Endpoint para listar um Usuário com os agendamentos dele, pelo ID.")
+    public ResponseEntity<UsuarioAgendamentosDTOResponse> buscarUsuarioAgendamentosPorId(@PathVariable("usuarioId") Integer usuarioId) {
+        UsuarioAgendamentosDTOResponse usuarioAgendamentosDTOResponse = usuarioService.buscarUsuarioAgendamentosPorId(usuarioId);
+
+        if (usuarioId == null) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(usuarioAgendamentosDTOResponse);
+        }
+    }
+
+    /**
+     * Busca um usuário ativo específico, com seus históricos, pelo seu ID.
+     * @param usuarioId O ID do usuário a ser buscado.
+     * @return ResponseEntity com o DTO do usuário encontrado e status 200 OK.
+     * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
+     */
+    @GetMapping("/listarUsuarioHistoricoPorId/{usuarioId}")
+    @Operation(summary = "Listar Usuário e históricos pelo ID dele", description = "Endpoint para listar um Usuário com os históricos dele, pelo ID.")
+    public ResponseEntity<UsuarioHistoricoDTOResponse> buscarUsuarioHistoricoPorId(@PathVariable("usuarioId") Integer usuarioId) {
+        UsuarioHistoricoDTOResponse usuarioHistoricoDTOResponse = usuarioService.buscarUsuarioHistoricosPorId(usuarioId);
+
+        if (usuarioId == null) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(usuarioHistoricoDTOResponse);
+        }
+    }
+
+    /**
+     * Busca um usuário ativo específico, com seus medicamentos, pelo seu ID.
+     * @param usuarioId O ID do usuário a ser buscado.
+     * @return ResponseEntity com o DTO do usuário encontrado e status 200 OK.
+     * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
+     */
+    @GetMapping("/listarUsuarioMedicamentosPorId/{usuarioId}")
+    @Operation(summary = "Listar Usuário e medicamentos pelo ID dele", description = "Endpoint para listar um Usuário com os medicamentos dele, pelo ID.")
+    public ResponseEntity<UsuarioMedicamentosDTOResponse> buscarUsuarioMedicamentosPorId(@PathVariable("usuarioId") Integer usuarioId) {
+        UsuarioMedicamentosDTOResponse usuarioMedicamentosDTOResponse = usuarioService.buscarUsuarioMedicamentosPorId(usuarioId);
+
+        if (usuarioId == null) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(usuarioMedicamentosDTOResponse);
+        }
+    }
+
+    /**
+     * Busca um usuário ativo específico, com seus tratamentos, pelo seu ID.
+     * @param usuarioId O ID do usuário a ser buscado.
+     * @return ResponseEntity com o DTO do usuário encontrado e status 200 OK.
+     * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
+     */
+    @GetMapping("/listarUsuarioTratamentosPorId/{usuarioId}")
+    @Operation(summary = "Listar Usuário e tratamentos pelo ID dele", description = "Endpoint para listar um Usuário com os tratamentos dele, pelo ID.")
+    public ResponseEntity<UsuarioTratamentosDTOResponse> buscarUsuarioTratamentosPorId(@PathVariable("usuarioId") Integer usuarioId) {
+        UsuarioTratamentosDTOResponse usuarioTratamentosDTOResponse = usuarioService.buscarUsuarioTratamentosPorId(usuarioId);
+
+        if (usuarioId == null) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(usuarioTratamentosDTOResponse);
+        }
+    }
+
+    /**
      * Cadastra um novo usuário no sistema.
-     * A senha será criptografada pelo serviço.
      * @param usuarioDTORequest DTO contendo os dados do novo usuário.
      * @return ResponseEntity com o DTO do usuário recém-criado e o status HTTP 201 Created.
      */
     @PostMapping("/cadastrar")
-    @Operation(summary = "Criar novo Usuário.", description = "Endpoint para criar um novo registro de Usuário.")
+    @Operation(summary = "Criar novo Usuário", description = "Endpoint para criar um novo registro de Usuário.")
     public ResponseEntity<UsuarioDTOResponse> cadastrarUsuario(@Valid @RequestBody UsuarioDTORequest usuarioDTORequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.cadastrarUsuario(usuarioDTORequest));
     }
@@ -83,7 +154,7 @@ public class UsuarioController {
      * @return ResponseEntity com o DTO do usuário atualizado e o status HTTP 200 OK.
      */
     @PutMapping("/atualizar/{usuarioId}")
-    @Operation(summary = "Atualizar todos os dados do Usuário.", description = "Endpoint para atualizar o registro do Usuário, pelo ID.")
+    @Operation(summary = "Atualizar todos os dados do Usuário", description = "Endpoint para atualizar o registro do Usuário, pelo ID.")
     public ResponseEntity<UsuarioDTOResponse> atualizarUsuarioPorId(
             @PathVariable("usuarioId") Integer usuarioId,
             @RequestBody @Valid UsuarioAtualizarDTORequest usuarioAtualizarDTORequest) {
@@ -97,7 +168,7 @@ public class UsuarioController {
      * @return ResponseEntity com o status HTTP 204 No Content, indicando sucesso.
      */
     @DeleteMapping("/deletar/{usuarioId}")
-    @Operation(summary = "Deletar todos os dados do Usuário.", description = "Endpoint para deletar o registro do Usuário, pelo ID.")
+    @Operation(summary = "Deletar todos os dados do Usuário", description = "Endpoint para deletar o registro do Usuário, pelo ID.")
     public ResponseEntity<Void> deletarUsuario(@PathVariable("usuarioId") Integer usuarioId) {
         usuarioService.deletarLogico(usuarioId);
         return ResponseEntity.noContent().build();
@@ -109,12 +180,12 @@ public class UsuarioController {
      * @return ResponseEntity com a lista de agendamentos do dia e status 200 OK,
      * ou status 204 No Content se não houver agendamentos para o dia.
      */
-    @GetMapping("/{usuarioId}/agendaDoDia")
-    public ResponseEntity<List<AgendaDoDiaDTOResponse>> getAgendaDoDia(@PathVariable Integer usuarioId) {
-        List<AgendaDoDiaDTOResponse> agenda = agendaService.getAgendaDoDia(usuarioId);
-        if (agenda.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(agenda);
-    }
+//    @GetMapping("/{usuarioId}/agendaDoDia")
+//    public ResponseEntity<List<AgendaDoDiaDTOResponse>> getAgendaDoDia(@PathVariable Integer usuarioId) {
+//        List<AgendaDoDiaDTOResponse> agenda = agendaService.getAgendaDoDia(usuarioId);
+//        if (agenda.isEmpty()) {
+//            return ResponseEntity.noContent().build();
+//        }
+//        return ResponseEntity.ok(agenda);
+//    }
 }

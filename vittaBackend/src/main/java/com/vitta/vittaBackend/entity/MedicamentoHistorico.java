@@ -28,10 +28,19 @@ public class MedicamentoHistorico {
     @Column(name = "uso_de_medicamento_historico_status")
     private GeralStatus historicoStatus = GeralStatus.ATIVO;
 
+    //isso aki é para enviar a tabela MedicamentoHistorico para Agendamento
     @OneToOne
     @JoinColumn(name = "agendamento_id", referencedColumnName = "agendamento_id")
     @JsonIgnore
     private Agendamento agendamento;
+
+    /**
+     * O usuário ao qual este histórico pertence.
+     * Relacionamento Muitos-para-Um com a entidade Usuario.
+     */
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", referencedColumnName = "usuario_id")
+    private Usuario usuario;
 
     public Integer getId() {
         return id;
@@ -79,5 +88,13 @@ public class MedicamentoHistorico {
 
     public void setAgendamento(Agendamento agendamento) {
         this.agendamento = agendamento;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }

@@ -2,11 +2,7 @@ package com.vitta.vittaBackend.controller;
 
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
-import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequest;
-import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequestAtualizar;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
-import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
-import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.service.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +25,7 @@ public class AgendamentoController {
     @GetMapping("/listar")
     @Operation(summary = "Listar os Agendamentos", description = "Endpoint para Listar os Agendamentos.")
     public ResponseEntity<List<AgendamentoDTOResponse>> listarAgendamentos() { return ResponseEntity.ok(agendamentoService.listarAgendamentos()); }
+
     @GetMapping("/listarAgendamentoPorId/{agendamentoId}")
     @Operation(summary = "Listar o Agendamento pelo ID dele", description = "Endpoint para listar um Agendamento, pelo ID.")
     public ResponseEntity<AgendamentoDTOResponse> buscarAgendamentoPorId(@PathVariable("agendamentoId") Integer agendamentoId) {

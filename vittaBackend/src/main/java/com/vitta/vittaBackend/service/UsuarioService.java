@@ -2,7 +2,7 @@ package com.vitta.vittaBackend.service;
 
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioAtualizarDTORequest;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
+import com.vitta.vittaBackend.dto.response.usuario.*;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.UsuarioStatus;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
@@ -42,11 +42,30 @@ public class UsuarioService {
      * Busca um usuário ativo pelo seu ID.
      * @param usuarioId O ID do usuário a ser buscado.
      * @return O {@link UsuarioDTOResponse} correspondente ao ID.
-     * @throws EntityNotFoundException se nenhum usuário ativo for encontrado com o ID fornecido.
      */
     public UsuarioDTOResponse buscarUsuarioPorId(Integer usuarioId) {
         Usuario usuario = this.validarUsuario(usuarioId);
         return new UsuarioDTOResponse(usuario);
+    }
+
+    public UsuarioAgendamentosDTOResponse buscarUsuarioAgendamentosPorId(Integer usuarioId) {
+        Usuario usuario = this.validarUsuario(usuarioId);
+        return new UsuarioAgendamentosDTOResponse(usuario);
+    }
+
+    public UsuarioHistoricoDTOResponse buscarUsuarioHistoricosPorId(Integer usuarioId) {
+        Usuario usuario = this.validarUsuario(usuarioId);
+        return new UsuarioHistoricoDTOResponse(usuario);
+    }
+
+    public UsuarioMedicamentosDTOResponse buscarUsuarioMedicamentosPorId(Integer usuarioId) {
+        Usuario usuario = this.validarUsuario(usuarioId);
+        return new UsuarioMedicamentosDTOResponse(usuario);
+    }
+
+    public UsuarioTratamentosDTOResponse buscarUsuarioTratamentosPorId(Integer usuarioId) {
+        Usuario usuario = this.validarUsuario(usuarioId);
+        return new UsuarioTratamentosDTOResponse(usuario);
     }
 
     /**
@@ -77,7 +96,6 @@ public class UsuarioService {
      * @param usuarioId O ID do usuário a ser atualizado.
      * @param usuarioAtualizarDTORequest O DTO com os novos dados.
      * @return O {@link UsuarioDTOResponse} da entidade atualizada.
-     * @throws EntityNotFoundException se o usuário não for encontrado.
      */
     @Transactional
     public UsuarioDTOResponse atualizarUsuario(Integer usuarioId, UsuarioAtualizarDTORequest usuarioAtualizarDTORequest) {
@@ -97,7 +115,6 @@ public class UsuarioService {
     /**
      * Realiza a exclusão lógica de um usuário, alterando seu status para INATIVO.
      * @param usuarioId O ID do usuário a ser desativado.
-     * @throws EntityNotFoundException se o usuário não for encontrado.
      */
     @Transactional
     public void deletarLogico(Integer usuarioId) {
@@ -107,6 +124,8 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
+
+
     /**
      * Valida a existência de um usuário pelo seu ID e o retorna.
      * Este é um método auxiliar privado para evitar a repetição de código nos
@@ -114,8 +133,6 @@ public class UsuarioService {
      *
      * @param usuarioId O ID do usuário a ser validado e buscado.
      * @return A entidade {@link Usuario} encontrada.
-     * @throws EntityNotFoundException se nenhum usuário for encontrado com o ID fornecido,
-     * garantindo que os métodos que o chamam não recebam um valor nulo.
      */
     private Usuario validarUsuario(Integer usuarioId) {
         Usuario usuario = usuarioRepository.obterUsuarioPeloId(usuarioId);

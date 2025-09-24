@@ -83,16 +83,16 @@ public class Tratamento {
      * O usuário ao qual este tratamento pertence.
      * Relacionamento Muitos-para-Um com a entidade Usuario.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id")
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", referencedColumnName = "usuario_id")
     private Usuario usuario;
 
     /**
      * O medicamento que faz parte deste tratamento.
      * Relacionamento Muitos-para-Um com a entidade Medicamento.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medicamento_id")
+    @ManyToOne
+    @JoinColumn(name = "medicamento_id", referencedColumnName = "medicamento_id")
     private Medicamento medicamento;
 
     /**

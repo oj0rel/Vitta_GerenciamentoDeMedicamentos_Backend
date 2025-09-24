@@ -1,6 +1,7 @@
 package com.vitta.vittaBackend.repository;
 
 import com.vitta.vittaBackend.entity.Agendamento;
+import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,23 +16,31 @@ import java.util.List;
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Integer> {
 
+    /**
+     * Retorna uma lista de todos os agendamentos considerados ativos.
+     * A consulta busca por agendamentos cujo status é maior que 0.
+     * @return Uma lista de entidades {@link Agendamento} ativas.
+     */
+    @Query("SELECT a FROM Agendamento a WHERE a.status > 0")
+    List<Agendamento> listarAgendamentos();
+
+    /**
+     * Busca um agendamento específico pelo seu ID.
+     * @param agendamentoId O ID do agendamento a ser buscado.
+     * @return A entidade {@link Agendamento} correspondente, ou {@code null} se não for encontrada.
+     */
+    @Query("SELECT a FROM Agendamento a WHERE a.id = :id AND a.status >= 0")
+    Agendamento obterAgendamentoPeloId(@Param("id") Integer agendamentoId);
+
+    /**
+     * Realiza a exclusão lógica de um agendamento diretamente no banco de dados.
+     * Esta consulta de atualização (UPDATE) altera o status do agendamento para 0 (inativo).
+     * @param agendamentoId O ID do agendamento a ser desativado.
+     */
     @Modifying
     @Transactional
     @Query("UPDATE Agendamento a SET a.status = 0 WHERE a.id = :id")
     void apagadoLogicoAgendamento(@Param("id") Integer agendamentoId);
-
-    @Query("SELECT a FROM Agendamento a " +
-            "LEFT JOIN FETCH a.usuario u " +
-            "LEFT JOIN FETCH a.medicamento m " +
-            "LEFT JOIN FETCH a.medicamentoHistorico mh " +
-            "WHERE a.status >= 0")
-    List<Agendamento> listarAgendamentos();
-
-    @Query("SELECT a FROM Agendamento a WHERE a.id = :id AND a.status >= 0")
-    Agendamento obterAgendamentoPeloId(@Param("id") Integer agendamentoId);
-
-    @Query("SELECT a FROM Agendamento a WHERE a.status = 0")
-    List<Agendamento> listarAgendamentosInativos();
 
     /**
      * Busca todos os agendamentos para um usuário específico dentro de um
@@ -41,12 +50,12 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
      * @param fimDoDia A data e hora de fim do período (ex: hoje às 23:59:59).
      * @return Uma lista de agendamentos.
      */
-    @Query("SELECT a FROM Agendamento a JOIN FETCH a.medicamento JOIN FETCH a.usuario WHERE a.usuario.id = :usuarioId AND a.horarioDoAgendamento BETWEEN :inicioDoDia AND :fimDoDia ORDER BY a.horarioDoAgendamento ASC")
-    List<Agendamento> findByUsuarioIdAndData(
-            @Param("usuarioId") int usuarioId,
-            @Param("inicioDoDia") LocalDateTime inicioDoDia,
-            @Param("fimDoDia") LocalDateTime fimDoDia
-    );
+//    @Query("SELECT a FROM Agendamento a JOIN FETCH a.medicamento JOIN FETCH a.usuario WHERE a.usuario.id = :usuarioId AND a.horarioDoAgendamento BETWEEN :inicioDoDia AND :fimDoDia ORDER BY a.horarioDoAgendamento ASC")
+//    List<Agendamento> findByUsuarioIdAndData(
+//            @Param("usuarioId") int usuarioId,
+//            @Param("inicioDoDia") LocalDateTime inicioDoDia,
+//            @Param("fimDoDia") LocalDateTime fimDoDia
+//    );
 
     /**
      * Deleta todos os agendamentos de um tratamento que estão com status PENDENTE

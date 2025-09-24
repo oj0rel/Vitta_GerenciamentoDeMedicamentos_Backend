@@ -9,7 +9,7 @@ public class AgendamentoDTORequest {
 
     private LocalDateTime horarioDoAgendamento;
     private Integer tipoDeAlerta;
-    private Integer medicamentoId;
+    private Integer tratamentoId;
     private Integer usuarioId;
 
     public LocalDateTime getHorarioDoAgendamento() {
@@ -28,12 +28,12 @@ public class AgendamentoDTORequest {
         this.tipoDeAlerta = tipoDeAlerta;
     }
 
-    public Integer getMedicamentoId() {
-        return medicamentoId;
+    public Integer getTratamentoId() {
+        return tratamentoId;
     }
 
-    public void setMedicamentoId(Integer medicamentoId) {
-        this.medicamentoId = medicamentoId;
+    public void setTratamentoId(Integer tratamentoId) {
+        this.tratamentoId = tratamentoId;
     }
 
     public Integer getUsuarioId() {
@@ -43,4 +43,5 @@ public class AgendamentoDTORequest {
     public void setUsuarioId(Integer usuarioId) {
         this.usuarioId = usuarioId;
     }
+
 }

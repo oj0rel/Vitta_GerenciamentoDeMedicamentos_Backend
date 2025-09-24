@@ -3,17 +3,14 @@ package com.vitta.vittaBackend.service;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
-import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
-import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
-import com.vitta.vittaBackend.entity.Medicamento;
-import com.vitta.vittaBackend.entity.MedicamentoHistorico;
+import com.vitta.vittaBackend.entity.Tratamento;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 import com.vitta.vittaBackend.repository.AgendamentoRepository;
-import com.vitta.vittaBackend.repository.MedicamentoRepository;
+import com.vitta.vittaBackend.repository.MedicamentoHistoricoRepository;
+import com.vitta.vittaBackend.repository.TratamentoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
@@ -27,107 +24,62 @@ import java.util.stream.Collectors;
 public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
-    private final MedicamentoRepository medicamentoRepository;
+    private final MedicamentoHistoricoRepository medicamentoHistoricoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final TratamentoRepository tratamentoRepository;
 
     @Autowired
     private ModelMapper modelMapper;
 
-    public AgendamentoService(AgendamentoRepository agendamentoRepository,
-                              MedicamentoRepository medicamentoRepository,
-                              UsuarioRepository usuarioRepository) {
-
+    public AgendamentoService(
+            AgendamentoRepository agendamentoRepository,
+            MedicamentoHistoricoRepository medicamentoHistoricoRepository,
+            UsuarioRepository usuarioRepository,
+            TratamentoRepository tratamentoRepository
+    ) {
         this.agendamentoRepository = agendamentoRepository;
-        this.medicamentoRepository = medicamentoRepository;
+        this.medicamentoHistoricoRepository = medicamentoHistoricoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.tratamentoRepository = tratamentoRepository;
     }
 
     //LISTAR OS AGENDAMENTOS
     public List<AgendamentoDTOResponse> listarAgendamentos() {
         List<Agendamento> todosAgendamentos = agendamentoRepository.listarAgendamentos();
 
-        return todosAgendamentos.stream()
-                .map(agendamento -> {
-
-                    AgendamentoDTOResponse dto = new AgendamentoDTOResponse();
-                    dto.setId(agendamento.getId());
-                    dto.setHorarioDoAgendamento(agendamento.getHorarioDoAgendamento());
-                    dto.setTipoDeAlerta(agendamento.getTipoDeAlerta());
-                    dto.setStatus(agendamento.getStatus());
-
-                    if (agendamento.getUsuario() != null) {
-                        dto.setUsuario(new UsuarioResumoDTOResponse(agendamento.getUsuario()));
-                    }
-                    if (agendamento.getMedicamento() != null) {
-                        dto.setMedicamento(new MedicamentoResumoDTOResponse(agendamento.getMedicamento()));
-                    }
-
-                    if (agendamento.getMedicamentoHistorico() != null) {
-                        MedicamentoHistorico historicoEntity = agendamento.getMedicamentoHistorico();
-
-                        MedicamentoHistoricoResumoDTOResponse resumoDTO = new MedicamentoHistoricoResumoDTOResponse(historicoEntity);
-
-                        dto.setHistoricoDoMedicamentoTomado(resumoDTO);
-
-                    } else {
-                        System.out.println("--- O HISTÓRICO PARA O AGENDAMENTO ID " + agendamento.getId() + " É NULO ---");
-                    }
-
-                    return dto;
-                })
+        return agendamentoRepository.listarAgendamentos()
+                .stream()
+                .map(AgendamentoDTOResponse::new)
                 .collect(Collectors.toList());
     }
 
     //LISTAR 1 AGENDAMENTO, PEGANDO PELO ID
     public AgendamentoDTOResponse buscarAgendamentoPorId(Integer agendamentoId) {
-        Agendamento agendamento = agendamentoRepository.obterAgendamentoPeloId(agendamentoId);
-
-        return modelMapper.map(agendamento, AgendamentoDTOResponse.class);
+        Agendamento agendamento = this.validarAgendamento(agendamentoId);
+        return new AgendamentoDTOResponse(agendamento);
     }
 
     //CADASTRAR AGENDAMENTO
     @Transactional
     public AgendamentoDTOResponse cadastrarAgendamento(AgendamentoDTORequest agendamentoDTORequest) {
+        Usuario usuario = usuarioRepository.findById(agendamentoDTORequest.getUsuarioId()).orElseThrow();
+        Tratamento tratamento = tratamentoRepository.findById(agendamentoDTORequest.getTratamentoId()).orElseThrow();
+
         Agendamento agendamento = new Agendamento();
 
         agendamento.setHorarioDoAgendamento(agendamentoDTORequest.getHorarioDoAgendamento());
 
-        // converte o Integer que vem do DTORequest para o Enum TipoDeAlerta
         if (agendamentoDTORequest.getTipoDeAlerta() != null) {
             agendamento.setTipoDeAlerta(
                     TipoDeAlerta.fromCodigo(agendamentoDTORequest.getTipoDeAlerta())
             );
         }
 
-        if (agendamentoDTORequest.getMedicamentoId() != null )  {
-            Medicamento medicamento = medicamentoRepository.findById(agendamentoDTORequest.getMedicamentoId())
-                    .orElseThrow(() -> new RuntimeException("Medicamento não encontrado"));
-            agendamento.setMedicamento(medicamento);
-        }
-        if (agendamentoDTORequest.getUsuarioId() != null )  {
-            Usuario usuario = usuarioRepository.findById(agendamentoDTORequest.getUsuarioId())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-            agendamento.setUsuario(usuario);
-        }
+        agendamento.setTratamento(tratamento);
+        agendamento.setUsuario(usuario);
 
         Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
-
-        AgendamentoDTOResponse responseDTO = new AgendamentoDTOResponse();
-
-        responseDTO.setId(agendamentoSalvo.getId());
-        responseDTO.setHorarioDoAgendamento(agendamentoSalvo.getHorarioDoAgendamento());
-        responseDTO.setStatus(agendamentoSalvo.getStatus());
-        responseDTO.setTipoDeAlerta(agendamentoSalvo.getTipoDeAlerta());
-
-        if (agendamentoSalvo.getUsuario() != null) {
-            responseDTO.setUsuario(new UsuarioResumoDTOResponse(agendamentoSalvo.getUsuario()));
-        }
-        if (agendamentoSalvo.getMedicamento() != null) {
-            MedicamentoResumoDTOResponse medDTO = new MedicamentoResumoDTOResponse(agendamentoSalvo.getMedicamento());
-            responseDTO.setMedicamento(medDTO);
-        }
-
-        return responseDTO;
+        return new AgendamentoDTOResponse(agendamentoSalvo);
     }
 
     //ATUALIZAR 1 AGENDAMENTO, PEGANDO PELO ID
@@ -137,6 +89,14 @@ public class AgendamentoService {
 
         if (agendamentoBuscado != null) {
 
+            agendamentoBuscado.setHorarioDoAgendamento(agendamentoAtualizarDTORequest.getHorarioDoAgendamento());
+
+            if (agendamentoAtualizarDTORequest.getTipoDeAlerta() != null) {
+                agendamentoBuscado.setTipoDeAlerta(
+                        TipoDeAlerta.fromCodigo(agendamentoAtualizarDTORequest.getTipoDeAlerta())
+                );
+            }
+
             // converte o Integer que vem do AtualizarDTORequest para o Enum AgendamentoStatus
             if (agendamentoAtualizarDTORequest.getStatus() != null) {
                 agendamentoBuscado.setStatus(
@@ -144,10 +104,8 @@ public class AgendamentoService {
                 );
             }
 
-            modelMapper.map(agendamentoAtualizarDTORequest, agendamentoBuscado);
-
             Agendamento agendamentoRecebido = agendamentoRepository.save(agendamentoBuscado);
-            return modelMapper.map(agendamentoRecebido, AgendamentoDTOResponse.class);
+            return new AgendamentoDTOResponse(agendamentoRecebido);
         } else {
             return null;
         }

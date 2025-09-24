@@ -1,6 +1,7 @@
 package com.vitta.vittaBackend.dto.request.tratamento;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.AssertTrue;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -80,6 +81,34 @@ public class TratamentoAtualizarDTORequest {
         }
 
         return true; // se nenhuma data for fornecida, a validação não se aplica.
+    }
+
+    /**
+     * Método de validação customizada para garantir a consistência dos dados de frequência.
+     * Esta validação é acionada pela anotação {@code @AssertTrue} e verifica a seguinte regra:
+     * Se o campo {@code tipoDeFrequencia} for fornecido na requisição de atualização, então o campo
+     * dependente correspondente ({@code intervaloEmHoras} ou {@code horariosEspecificos}) também
+     * deve ser fornecido e válido.
+     *
+     * @return {@code true} se os dados de frequência forem consistentes ou se não forem fornecidos,
+     * {@code false} caso contrário, o que irá acionar um erro de validação.
+     */
+    @JsonIgnore
+    @AssertTrue(message = "A informação de frequência (intervalo ou horários) é inconsistente para o tipo fornecido.")
+    public boolean isFrequenciaConsistente() {
+        if (tipoDeFrequencia == null) {
+            return true;
+        }
+
+        if (tipoDeFrequencia == 1) {
+            return intervaloEmHoras != null && intervaloEmHoras > 0;
+        }
+
+        if (tipoDeFrequencia == 2) {
+            return horariosEspecificos != null && !horariosEspecificos.trim().isEmpty();
+        }
+
+        return false;
     }
 
     public BigDecimal getDosagem() {

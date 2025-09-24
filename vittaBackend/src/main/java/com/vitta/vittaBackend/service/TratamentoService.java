@@ -4,11 +4,13 @@ import com.vitta.vittaBackend.dto.request.tratamento.TratamentoAtualizarDTOReque
 import com.vitta.vittaBackend.dto.request.tratamento.TratamentoDTORequest;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoDTOResponse;
 import com.vitta.vittaBackend.dto.response.tratamento.TratamentoDTOResponse;
+import com.vitta.vittaBackend.dto.response.usuario.UsuarioDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.Tratamento;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.TipoFrequencia;
+import com.vitta.vittaBackend.enums.TratamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 import com.vitta.vittaBackend.repository.AgendamentoRepository;
@@ -77,7 +79,7 @@ public class TratamentoService {
     }
 
     @Transactional
-    public Tratamento cadastrarTratamento(TratamentoDTORequest tratamentoDTORequest) {
+    public TratamentoDTOResponse cadastrarTratamento(TratamentoDTORequest tratamentoDTORequest) {
 
         // linkar com Medicamento e Usuario já cadastrados passando o ID no DTORequest
         Medicamento medicamento = medicamentoRepository.findById(tratamentoDTORequest.getMedicamentoId()).orElseThrow();
@@ -106,9 +108,15 @@ public class TratamentoService {
         List<Agendamento> agendamentos = gerarAgendamentosParaTratamento(tratamentoSalvo);
         agendamentoRepository.saveAll(agendamentos);
 
-        return tratamentoSalvo;
+        return new TratamentoDTOResponse(tratamentoSalvo);
     }
 
+    /**
+     * Atualiza os dados de um tratamento existente.
+     * @param tratamentoId O ID do tratamento a ser atualizado.
+     * @param tratamentoAtualizarDTORequest O DTO com os novos dados.
+     * @return O {@link TratamentoDTOResponse} da entidade atualizada.
+     */
     @Transactional
     public TratamentoDTOResponse atualizarTratamento(Integer tratamentoId, TratamentoAtualizarDTORequest tratamentoAtualizarDTORequest) {
         Tratamento tratamentoExistente = validarTratamento(tratamentoId);
@@ -161,6 +169,20 @@ public class TratamentoService {
     }
 
     /**
+     * Realiza a exclusão lógica de um tratamento, alterando seu status para CANCELADO.
+     * @param tratamentoId O ID do tratamento a ser desativado.
+     */
+    @Transactional
+    public void deletarLogico(Integer tratamentoId) {
+        Tratamento tratamento = this.validarTratamento(tratamentoId);
+
+        tratamento.setStatus(TratamentoStatus.CANCELADO);
+        tratamentoRepository.save(tratamento);
+    }
+
+
+
+    /**
      * Valida a existência de um tratamento pelo seu ID e o retorna.
      * Este é um método auxiliar privado para evitar a repetição de código nos
      * métodos públicos que precisam de buscar uma entidade antes de realizar uma ação.
@@ -178,6 +200,17 @@ public class TratamentoService {
         return tratamento;
     }
 
+    /**
+     * Lógica principal para gerar a lista completa de agendamentos com base nas regras de um tratamento.
+     * <p>
+     * Este método itera do primeiro ao último dia do tratamento e, para cada dia, calcula
+     * os horários das doses de acordo com o tipo de frequência definido (intervalo de horas
+     * ou horários específicos). Ele utiliza o método auxiliar {@link #criarAgendamento}
+     * para instanciar cada agendamento individual.
+     *
+     * @param tratamento A entidade {@link Tratamento} já salva, contendo as regras de agendamento.
+     * @return Uma lista de novas entidades {@link Agendamento}, prontas para serem salvas no banco de dados.
+     */
     private List<Agendamento> gerarAgendamentosParaTratamento(Tratamento tratamento) {
         List<Agendamento> agendamentos = new ArrayList<>();
         LocalDate dataCorrente = tratamento.getDataDeInicio();
@@ -205,6 +238,15 @@ public class TratamentoService {
         return agendamentos;
     }
 
+    /**
+     * Método auxiliar (factory) para criar e configurar uma única instância da entidade {@link Agendamento}.
+     * <p>
+     * Centraliza a criação do objeto, definindo os valores padrão como o status inicial {@code PENDENTE}.
+     *
+     * @param tratamento O tratamento "pai" ao qual este agendamento pertence.
+     * @param dataHora   A data e hora exata em que este agendamento deve ocorrer.
+     * @return A nova entidade {@link Agendamento}, pronta para ser adicionada à lista de geração.
+     */
     private Agendamento criarAgendamento(Tratamento tratamento, LocalDateTime dataHora) {
         Agendamento agendamento = new Agendamento();
         agendamento.setTratamento(tratamento);
