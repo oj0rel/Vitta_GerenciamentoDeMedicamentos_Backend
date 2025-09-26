@@ -83,6 +83,12 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario")
     private List<MedicamentoHistorico> historicos;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name="usuario_role",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name="role_id"))
+    private List<Role> roles;
+
     public Integer getId() {
         return id;
     }
@@ -111,11 +117,11 @@ public class Usuario {
 
     public void setEmail(String email) { this.email = email; }
 
-    public String getSenha() {
+    public String getPassword() {
         return senha;
     }
 
-    public void setSenha(String senha) {
+    public void setPassword(String senha) {
         this.senha = senha;
     }
 
@@ -157,5 +163,13 @@ public class Usuario {
 
     public void setHistoricos(List<MedicamentoHistorico> historicos) {
         this.historicos = historicos;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 }

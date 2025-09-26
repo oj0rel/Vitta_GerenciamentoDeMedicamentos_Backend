@@ -1,5 +1,6 @@
 package com.vitta.vittaBackend.dto.request.usuario;
 
+import com.vitta.vittaBackend.enums.security.RoleName;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 

@@ -3,14 +3,28 @@ package com.vitta.vittaBackend.service;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.response.usuario.*;
+import com.vitta.vittaBackend.dto.security.LoginUsuarioDto;
+import com.vitta.vittaBackend.dto.security.RecoveryJwtTokenDto;
+import com.vitta.vittaBackend.entity.Role;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.UsuarioStatus;
+import com.vitta.vittaBackend.enums.security.RoleName;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
+import com.vitta.vittaBackend.repository.security.RoleRepository;
+import com.vitta.vittaBackend.security.UserDetailsImpl;
+import com.vitta.vittaBackend.service.security.JwtTokenService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,13 +32,81 @@ import java.util.stream.Collectors;
  * Camada de serviço para gerenciar a lógica de negócio dos Usuários.
  */
 @Service
-public class UsuarioService {
+public class UsuarioService implements UserDetailsService {
 
+    @Autowired
     private final UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
+    }
+
+    // metodo do SecurityJWT
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // "username" aqui é o email que o usuário digita no login
+        Usuario usuario = usuarioRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o email: " + username));
+
+        return new UserDetailsImpl(usuario);
+    }
+
+    // metodo do SecurityJWT
+    public void criarUsuarioSecurity(UsuarioDTORequest usuarioDTORequest) {
+
+        if (usuarioRepository.findByEmail(usuarioDTORequest.getEmail()).isPresent()) {
+            throw new RuntimeException("Usuário com este email já existe");
+        }
+
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setNome(usuarioDTORequest.getNome());
+        novoUsuario.setTelefone(usuarioDTORequest.getTelefone());
+        novoUsuario.setEmail(usuarioDTORequest.getEmail());
+
+        //linha para testar enquanto o tamanho do campo senha não é alterado
+        novoUsuario.setPassword(usuarioDTORequest.getSenha());
+
+//        user.setPassword(passwordEncoder.encode(usuarioDTORequest.getSenha()));
+
+        /// já define o novo usuario que será criado com a role customer, sem precisar passar no request
+        Role rolePadrao = roleRepository.findByName(RoleName.ROLE_CUSTOMER)
+                .orElseThrow(() -> new RuntimeException("Erro crítico: A role padrão 'ROLE_CUSTOMER' não foi encontrada no banco."));
+
+        novoUsuario.setRoles(Collections.singletonList(rolePadrao));
+
+        usuarioRepository.save(novoUsuario);
+    }
+
+    // Autenticação de usuário e geração de token JWT
+    // metodo do SecurityJWT
+    public RecoveryJwtTokenDto autenticarUsuario(LoginUsuarioDto dto) {
+
+        // Autentica o usuário
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(dto.email(), dto.password())
+        );
+
+        // Busca usuário no banco
+        Usuario user = usuarioRepository.findByEmail(dto.email())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Gera token JWT
+        String token = jwtTokenService.generateToken(new UserDetailsImpl(user));
+
+        return new RecoveryJwtTokenDto(token);
     }
 
     /**
@@ -85,7 +167,7 @@ public class UsuarioService {
         novoUsuario.setTelefone(usuarioDTORequest.getTelefone());
         novoUsuario.setEmail(usuarioDTORequest.getEmail());
 
-        novoUsuario.setSenha(usuarioDTORequest.getSenha());
+        novoUsuario.setPassword(usuarioDTORequest.getSenha());
 
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
         return new UsuarioDTOResponse(usuarioSalvo);
