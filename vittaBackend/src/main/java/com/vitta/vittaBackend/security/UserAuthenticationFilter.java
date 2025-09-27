@@ -24,7 +24,7 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
     private JwtTokenService jwtTokenService;
 
     @Autowired
-    private UsuarioRepository userRepository;
+    private UsuarioRepository usuarioRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -42,7 +42,7 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
             String token = authorizationHeader.replace("Bearer ", "");
             try {
                 String subject = jwtTokenService.getSubjectFromToken(token);
-                Optional<Usuario> maybeUser = userRepository.findByEmail(subject);
+                Optional<Usuario> maybeUser = usuarioRepository.findByEmail(subject);
 
                 if (maybeUser.isPresent()) {
                     Usuario user = maybeUser.get();
@@ -69,8 +69,8 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
         String method = request.getMethod();
 
         // libera POST /users (criação de usuário) e POST /users/login
-        return (path.equals("/users") && method.equalsIgnoreCase("POST")) ||
-                (path.equals("/users/login") && method.equalsIgnoreCase("POST"));
+        return (path.equals("/api/usuario/cadastrarNovoUsuario") && method.equalsIgnoreCase("POST")) ||
+                (path.equals("/api/usuario/login") && method.equalsIgnoreCase("POST"));
     }
 
 }

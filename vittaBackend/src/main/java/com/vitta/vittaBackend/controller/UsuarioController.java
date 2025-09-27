@@ -2,8 +2,9 @@ package com.vitta.vittaBackend.controller;
 
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioAtualizarDTORequest;
-import com.vitta.vittaBackend.dto.response.agenda.AgendaDoDiaDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.*;
+import com.vitta.vittaBackend.dto.security.LoginUsuarioDto;
+import com.vitta.vittaBackend.dto.security.RecoveryJwtTokenDto;
 import com.vitta.vittaBackend.service.AgendaService;
 import com.vitta.vittaBackend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +28,28 @@ public class UsuarioController {
 
     private UsuarioService usuarioService;
     private AgendaService agendaService;
+
+    @PostMapping("/login")
+    public ResponseEntity<RecoveryJwtTokenDto> autenticarUsuarioSecurity(@RequestBody LoginUsuarioDto loginUsuarioDto) {
+        RecoveryJwtTokenDto token = usuarioService.autenticarUsuario(loginUsuarioDto);
+        return new ResponseEntity<>(token, HttpStatus.OK);
+    }
+
+    @PostMapping("/cadastrarNovoUsuario")
+    public ResponseEntity<Void> criarUsuarioSecurity(@RequestBody UsuarioDTORequest usuarioDTORequest) {
+        usuarioService.criarUsuarioSecurity(usuarioDTORequest);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> getAuthenticationTest() {
+        return new ResponseEntity<>("Autenticado com sucesso", HttpStatus.OK);
+    }
+
+    @GetMapping("/test/customer")
+    public ResponseEntity<String> getCustomerAuthenticationTest() {
+        return new ResponseEntity<>("Cliente autenticado com sucesso", HttpStatus.OK);
+    }
 
     /**
      * Construtor para injeção de dependências dos serviços de Usuário и Agenda.
@@ -134,17 +157,6 @@ public class UsuarioController {
         } else {
             return ResponseEntity.ok(usuarioTratamentosDTOResponse);
         }
-    }
-
-    /**
-     * Cadastra um novo usuário no sistema.
-     * @param usuarioDTORequest DTO contendo os dados do novo usuário.
-     * @return ResponseEntity com o DTO do usuário recém-criado e o status HTTP 201 Created.
-     */
-    @PostMapping("/cadastrar")
-    @Operation(summary = "Criar novo Usuário", description = "Endpoint para criar um novo registro de Usuário.")
-    public ResponseEntity<UsuarioDTOResponse> cadastrarUsuario(@Valid @RequestBody UsuarioDTORequest usuarioDTORequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.cadastrarUsuario(usuarioDTORequest));
     }
 
     /**

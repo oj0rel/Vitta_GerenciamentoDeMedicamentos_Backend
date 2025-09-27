@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * Camada de serviço para gerenciar a lógica de negócio dos Usuários.
  */
 @Service
-public class UsuarioService implements UserDetailsService {
+public class UsuarioService {
 
     @Autowired
     private final UsuarioRepository usuarioRepository;
@@ -55,16 +55,6 @@ public class UsuarioService implements UserDetailsService {
     }
 
     // metodo do SecurityJWT
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // "username" aqui é o email que o usuário digita no login
-        Usuario usuario = usuarioRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o email: " + username));
-
-        return new UserDetailsImpl(usuario);
-    }
-
-    // metodo do SecurityJWT
     public void criarUsuarioSecurity(UsuarioDTORequest usuarioDTORequest) {
 
         if (usuarioRepository.findByEmail(usuarioDTORequest.getEmail()).isPresent()) {
@@ -76,10 +66,7 @@ public class UsuarioService implements UserDetailsService {
         novoUsuario.setTelefone(usuarioDTORequest.getTelefone());
         novoUsuario.setEmail(usuarioDTORequest.getEmail());
 
-        //linha para testar enquanto o tamanho do campo senha não é alterado
-        novoUsuario.setPassword(usuarioDTORequest.getSenha());
-
-//        user.setPassword(passwordEncoder.encode(usuarioDTORequest.getSenha()));
+        novoUsuario.setSenha(passwordEncoder.encode(usuarioDTORequest.getSenha()));
 
         /// já define o novo usuario que será criado com a role customer, sem precisar passar no request
         Role rolePadrao = roleRepository.findByName(RoleName.ROLE_CUSTOMER)
@@ -167,7 +154,7 @@ public class UsuarioService implements UserDetailsService {
         novoUsuario.setTelefone(usuarioDTORequest.getTelefone());
         novoUsuario.setEmail(usuarioDTORequest.getEmail());
 
-        novoUsuario.setPassword(usuarioDTORequest.getSenha());
+        novoUsuario.setSenha(usuarioDTORequest.getSenha());
 
         Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
         return new UsuarioDTOResponse(usuarioSalvo);

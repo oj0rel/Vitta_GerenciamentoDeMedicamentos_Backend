@@ -10,33 +10,33 @@ import java.util.stream.Collectors;
 
 public class UserDetailsImpl implements UserDetails {
 
-    private Usuario user;
+    private Usuario usuario;
 
-    public UserDetailsImpl(Usuario user) {
-        this.user = user;
+    public UserDetailsImpl(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        var authorities = user.getRoles()
+        var authorities = usuario.getRoles()
                 .stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
 
         // LINHA DE DEBUG: Verifique o que aparece no console do seu servidor
-        System.out.println("PERMISSÕES PARA O USUÁRIO " + user.getEmail() + ": " + authorities);
+        System.out.println("PERMISSÕES PARA O USUÁRIO " + usuario.getEmail() + ": " + authorities);
 
         return authorities;
     }
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return usuario.getSenha();
     } // Retorna a credencial do usuário que criamos anteriormente
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return usuario.getEmail();
     } // Retorna o nome de usuário do usuário que criamos anteriormente
 
     @Override

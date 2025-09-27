@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -37,7 +38,7 @@ public class SecurityConfiguration {
                         .requestMatchers(SWAGGER_ENDPOINTS).permitAll()
 
                         // Libera criação de usuário e login sem token
-                        .requestMatchers(HttpMethod.POST, "/users/cadastrarNovoUser", "/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuario/cadastrarNovoUsuario", "/api/usuario/login").permitAll()
 
                         // Endpoints de teste com suas respectivas permissões
                         .requestMatchers("/users/test").authenticated()
@@ -46,9 +47,10 @@ public class SecurityConfiguration {
 
                         // Qualquer outra requisição não listada acima exigirá autenticação
                         .anyRequest().authenticated()
-                );
+                )
+
                 // Adiciona o filtro JWT antes do filtro padrão do Spring
-//                .addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
