@@ -3,8 +3,8 @@ package com.vitta.vittaBackend.controller;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.response.usuario.*;
-import com.vitta.vittaBackend.dto.security.LoginUsuarioDto;
 import com.vitta.vittaBackend.dto.security.RecoveryJwtTokenDto;
+import com.vitta.vittaBackend.dto.security.UsuarioLoginDto;
 import com.vitta.vittaBackend.service.AgendaService;
 import com.vitta.vittaBackend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,28 +29,6 @@ public class UsuarioController {
     private UsuarioService usuarioService;
     private AgendaService agendaService;
 
-    @PostMapping("/login")
-    public ResponseEntity<RecoveryJwtTokenDto> autenticarUsuarioSecurity(@RequestBody LoginUsuarioDto loginUsuarioDto) {
-        RecoveryJwtTokenDto token = usuarioService.autenticarUsuario(loginUsuarioDto);
-        return new ResponseEntity<>(token, HttpStatus.OK);
-    }
-
-    @PostMapping("/cadastrarNovoUsuario")
-    public ResponseEntity<Void> criarUsuarioSecurity(@RequestBody UsuarioDTORequest usuarioDTORequest) {
-        usuarioService.criarUsuarioSecurity(usuarioDTORequest);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<String> getAuthenticationTest() {
-        return new ResponseEntity<>("Autenticado com sucesso", HttpStatus.OK);
-    }
-
-    @GetMapping("/test/customer")
-    public ResponseEntity<String> getCustomerAuthenticationTest() {
-        return new ResponseEntity<>("Cliente autenticado com sucesso", HttpStatus.OK);
-    }
-
     /**
      * Construtor para injeção de dependências dos serviços de Usuário и Agenda.
      * @param usuarioService Serviço com a lógica de negócio para Usuários.
@@ -68,6 +46,70 @@ public class UsuarioController {
     @GetMapping("/listar")
     @Operation(summary = "Listar Usuários", description = "Endpoint para listar todos os Usuários.")
     public ResponseEntity <List<UsuarioDTOResponse>> listarUsuarios() { return ResponseEntity.ok(usuarioService.listarUsuariosAtivos()); }
+
+    /**
+     * Cadastra um novo usuário no sistema.
+     * <p>
+     * Este endpoint recebe os dados de um novo usuário e os persiste no banco de dados.
+     * </p>
+     *
+     * @param usuarioDTORequest DTO contendo os dados necessários para o cadastro do novo usuário.
+     * @return um {@link ResponseEntity} vazio com o status HTTP 201 (CREATED) indicando
+     * que o recurso foi criado com sucesso.
+     */
+    @PostMapping("/cadastrarNovoUsuario")
+    @Operation(summary = "Cadastrar Usuário", description = "Endpoint para cadastrar Usuários, com SecurityJWT.")
+    public ResponseEntity<Void> criarUsuario(@RequestBody UsuarioDTORequest usuarioDTORequest) {
+        usuarioService.criarUsuario(usuarioDTORequest);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    /**
+     * Autentica um usuário com base em suas credenciais e retorna um token JWT.
+     * <p>
+     * Este endpoint recebe um objeto com email e senha. Se as credenciais forem válidas,
+     * o serviço de usuário gera e retorna um token de acesso.
+     * </p>
+     *
+     * @param usuarioLoginDTO DTO contendo o email e a senha do usuário para autenticação.
+     * @return um {@link ResponseEntity} contendo o {@link RecoveryJwtTokenDto} com o token gerado
+     * e o status HTTP 200 (OK).
+     */
+    @PostMapping("/login")
+    @Operation(summary = "Login de Usuário", description = "Endpoint para fazer o Login de 1 Usuário cadastrado no Banco.")
+    public ResponseEntity<RecoveryJwtTokenDto> autenticarUsuarioSecurity(@RequestBody UsuarioLoginDto usuarioLoginDTO) {
+        RecoveryJwtTokenDto token = usuarioService.autenticarUsuario(usuarioLoginDTO);
+        return new ResponseEntity<>(token, HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint de teste para verificar se um usuário está autenticado.
+     * <p>
+     * Apenas usuários com um token JWT válido podem acessar este endpoint.
+     * </p>
+     *
+     * @return um {@link ResponseEntity} com uma mensagem de sucesso e o status HTTP 200 (OK).
+     */
+    @GetMapping("/test")
+    @Operation(summary = "Teste de Usuário", description = "Endpoint para verificar se um Usuário está autenticado.")
+    public ResponseEntity<String> getAuthenticationTest() {
+        return new ResponseEntity<>("Autenticado com sucesso", HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint de teste para verificar se um usuário autenticado possui a role 'CUSTOMER'.
+     * <p>
+     * Este endpoint é protegido e requer que o usuário autenticado tenha uma permissão
+     * específica de cliente para ser acessado.
+     * </p>
+     *
+     * @return um {@link ResponseEntity} com uma mensagem de sucesso para clientes e o status HTTP 200 (OK).
+     */
+    @GetMapping("/test/customer")
+    @Operation(summary = "Listar Role de Usuário", description = "Endpoint para verificar a Role do Usuário autenticado.")
+    public ResponseEntity<String> getCustomerAuthenticationTest() {
+        return new ResponseEntity<>("Cliente autenticado com sucesso", HttpStatus.OK);
+    }
 
     /**
      * Busca um usuário ativo específico pelo seu ID.

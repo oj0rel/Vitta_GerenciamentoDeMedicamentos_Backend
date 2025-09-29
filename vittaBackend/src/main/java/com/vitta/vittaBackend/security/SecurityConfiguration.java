@@ -43,7 +43,6 @@ public class SecurityConfiguration {
                         // Endpoints de teste com suas respectivas permissões
                         .requestMatchers("/users/test").authenticated()
                         .requestMatchers("/users/test/customer").hasRole("CUSTOMER")
-                        .requestMatchers("/users/test/administrator").hasRole("ADMINISTRATOR")
 
                         // Qualquer outra requisição não listada acima exigirá autenticação
                         .anyRequest().authenticated()

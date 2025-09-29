@@ -3,7 +3,7 @@ package com.vitta.vittaBackend.service;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioDTORequest;
 import com.vitta.vittaBackend.dto.request.usuario.UsuarioAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.response.usuario.*;
-import com.vitta.vittaBackend.dto.security.LoginUsuarioDto;
+import com.vitta.vittaBackend.dto.security.UsuarioLoginDto;
 import com.vitta.vittaBackend.dto.security.RecoveryJwtTokenDto;
 import com.vitta.vittaBackend.entity.Role;
 import com.vitta.vittaBackend.entity.Usuario;
@@ -18,9 +18,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,64 +33,17 @@ public class UsuarioService {
 
     @Autowired
     private final UsuarioRepository usuarioRepository;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private JwtTokenService jwtTokenService;
-
     @Autowired
     private RoleRepository roleRepository;
-
     @Autowired
     public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
-    }
-
-    // metodo do SecurityJWT
-    public void criarUsuarioSecurity(UsuarioDTORequest usuarioDTORequest) {
-
-        if (usuarioRepository.findByEmail(usuarioDTORequest.getEmail()).isPresent()) {
-            throw new RuntimeException("Usuário com este email já existe");
-        }
-
-        Usuario novoUsuario = new Usuario();
-        novoUsuario.setNome(usuarioDTORequest.getNome());
-        novoUsuario.setTelefone(usuarioDTORequest.getTelefone());
-        novoUsuario.setEmail(usuarioDTORequest.getEmail());
-
-        novoUsuario.setSenha(passwordEncoder.encode(usuarioDTORequest.getSenha()));
-
-        /// já define o novo usuario que será criado com a role customer, sem precisar passar no request
-        Role rolePadrao = roleRepository.findByName(RoleName.ROLE_CUSTOMER)
-                .orElseThrow(() -> new RuntimeException("Erro crítico: A role padrão 'ROLE_CUSTOMER' não foi encontrada no banco."));
-
-        novoUsuario.setRoles(Collections.singletonList(rolePadrao));
-
-        usuarioRepository.save(novoUsuario);
-    }
-
-    // Autenticação de usuário e geração de token JWT
-    // metodo do SecurityJWT
-    public RecoveryJwtTokenDto autenticarUsuario(LoginUsuarioDto dto) {
-
-        // Autentica o usuário
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.email(), dto.password())
-        );
-
-        // Busca usuário no banco
-        Usuario user = usuarioRepository.findByEmail(dto.email())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-        // Gera token JWT
-        String token = jwtTokenService.generateToken(new UserDetailsImpl(user));
-
-        return new RecoveryJwtTokenDto(token);
     }
 
     /**
@@ -117,36 +67,66 @@ public class UsuarioService {
         return new UsuarioDTOResponse(usuario);
     }
 
+    /**
+     * Busca um usuário pelo seu ID e retorna seus agendamentos.
+     *
+     * @param usuarioId O ID único do usuário a ser buscado.
+     * @return um {@link UsuarioAgendamentosDTOResponse} contendo a lista de agendamentos do usuário.
+     * @throws RuntimeException se o usuário com o ID fornecido não for encontrado.
+     */
     public UsuarioAgendamentosDTOResponse buscarUsuarioAgendamentosPorId(Integer usuarioId) {
         Usuario usuario = this.validarUsuario(usuarioId);
         return new UsuarioAgendamentosDTOResponse(usuario);
     }
 
+    /**
+     * Busca um usuário pelo seu ID e retorna seu histórico de uso de medicamentos.
+     *
+     * @param usuarioId O ID único do usuário a ser buscado.
+     * @return um {@link UsuarioHistoricoDTOResponse} contendo o histórico de medicamentos do usuário.
+     * @throws RuntimeException se o usuário com o ID fornecido não for encontrado.
+     */
     public UsuarioHistoricoDTOResponse buscarUsuarioHistoricosPorId(Integer usuarioId) {
         Usuario usuario = this.validarUsuario(usuarioId);
         return new UsuarioHistoricoDTOResponse(usuario);
     }
 
+    /**
+     * Busca um usuário pelo seu ID e retorna sua lista de medicamentos cadastrados.
+     *
+     * @param usuarioId O ID único do usuário a ser buscado.
+     * @return um {@link UsuarioMedicamentosDTOResponse} contendo a lista de medicamentos do usuário.
+     * @throws RuntimeException se o usuário com o ID fornecido não for encontrado.
+     */
     public UsuarioMedicamentosDTOResponse buscarUsuarioMedicamentosPorId(Integer usuarioId) {
         Usuario usuario = this.validarUsuario(usuarioId);
         return new UsuarioMedicamentosDTOResponse(usuario);
     }
 
+    /**
+     * Busca um usuário pelo seu ID e retorna seus tratamentos ativos.
+     *
+     * @param usuarioId O ID único do usuário a ser buscado.
+     * @return um {@link UsuarioTratamentosDTOResponse} contendo a lista de tratamentos do usuário.
+     * @throws RuntimeException se o usuário com o ID fornecido não for encontrado.
+     */
     public UsuarioTratamentosDTOResponse buscarUsuarioTratamentosPorId(Integer usuarioId) {
         Usuario usuario = this.validarUsuario(usuarioId);
         return new UsuarioTratamentosDTOResponse(usuario);
     }
 
     /**
-     * Cria um novo usuário, validando se o e-mail já existe e criptografando a senha.
-     * @param usuarioDTORequest O DTO contendo os dados para o novo usuário.
-     * @return O {@link UsuarioDTOResponse} da entidade recém-criada.
-     * @throws IllegalStateException se o e-mail já estiver em uso.
+     * Cria um novo usuário no sistema com a permissão padrão de cliente.
+     * Este método faz parte do fluxo de segurança e registro.
+     *
+     * @param usuarioDTORequest DTO contendo os dados (nome, telefone, email, senha) do novo usuário.
+     * @throws RuntimeException se já existir um usuário cadastrado com o mesmo e-mail,
+     * ou se a role padrão 'ROLE_CUSTOMER' não for encontrada no sistema.
      */
-    @Transactional
-    public UsuarioDTOResponse cadastrarUsuario(UsuarioDTORequest usuarioDTORequest) {
+    public void criarUsuario(UsuarioDTORequest usuarioDTORequest) {
+
         if (usuarioRepository.findByEmail(usuarioDTORequest.getEmail()).isPresent()) {
-            throw new IllegalStateException("O e-mail informado já está em uso.");
+            throw new RuntimeException("Usuário com este email já existe");
         }
 
         Usuario novoUsuario = new Usuario();
@@ -154,10 +134,41 @@ public class UsuarioService {
         novoUsuario.setTelefone(usuarioDTORequest.getTelefone());
         novoUsuario.setEmail(usuarioDTORequest.getEmail());
 
-        novoUsuario.setSenha(usuarioDTORequest.getSenha());
+        novoUsuario.setSenha(passwordEncoder.encode(usuarioDTORequest.getSenha()));
 
-        Usuario usuarioSalvo = usuarioRepository.save(novoUsuario);
-        return new UsuarioDTOResponse(usuarioSalvo);
+        /// já define o novo usuario que será criado com a role customer, sem precisar passar no request
+        Role rolePadrao = roleRepository.findByName(RoleName.ROLE_CUSTOMER)
+                .orElseThrow(() -> new RuntimeException("Erro crítico: A role padrão 'ROLE_CUSTOMER' não foi encontrada no banco."));
+
+        novoUsuario.setRoles(Collections.singletonList(rolePadrao));
+
+        usuarioRepository.save(novoUsuario);
+    }
+
+    /**
+     * Autentica um usuário com base em suas credenciais e gera um token de acesso JWT.
+     * Este método faz parte do fluxo de segurança e login.
+     *
+     * @param usuarioLoginDTO DTO contendo o e-mail e a senha para autenticação.
+     * @return um {@link RecoveryJwtTokenDto} contendo o token JWT gerado para o usuário autenticado.
+     * @throws org.springframework.security.core.AuthenticationException se as credenciais forem inválidas.
+     * @throws RuntimeException se o usuário com o e-mail fornecido não for encontrado após a autenticação.
+     */
+    public RecoveryJwtTokenDto autenticarUsuario(UsuarioLoginDto usuarioLoginDTO) {
+
+        // Autentica o usuário
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(usuarioLoginDTO.email(), usuarioLoginDTO.password())
+        );
+
+        // Busca usuário no banco
+        Usuario usuario = usuarioRepository.findByEmail(usuarioLoginDTO.email())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        // Gera token JWT
+        String token = jwtTokenService.generateToken(new UserDetailsImpl(usuario));
+
+        return new RecoveryJwtTokenDto(token);
     }
 
     /**

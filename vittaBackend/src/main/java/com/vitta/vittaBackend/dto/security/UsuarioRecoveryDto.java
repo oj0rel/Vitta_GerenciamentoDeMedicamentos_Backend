@@ -4,7 +4,7 @@ import com.vitta.vittaBackend.entity.Role;
 
 import java.util.List;
 
-public record RecoveryUsuarioDTO(
+public record UsuarioRecoveryDto(
         Long id,
         String email,
         List<Role> roles

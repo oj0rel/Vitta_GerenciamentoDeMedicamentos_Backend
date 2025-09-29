@@ -68,7 +68,7 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
-        // libera POST /users (criação de usuário) e POST /users/login
+        // libera POST /api/usuario/cadastrarNovoUsuario e POST /api/usuario/login
         return (path.equals("/api/usuario/cadastrarNovoUsuario") && method.equalsIgnoreCase("POST")) ||
                 (path.equals("/api/usuario/login") && method.equalsIgnoreCase("POST"));
     }

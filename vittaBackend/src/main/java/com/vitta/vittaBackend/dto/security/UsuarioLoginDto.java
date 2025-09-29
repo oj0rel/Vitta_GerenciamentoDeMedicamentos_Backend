@@ -1,6 +1,6 @@
 package com.vitta.vittaBackend.dto.security;
 
-public record LoginUsuarioDto(
+public record UsuarioLoginDto(
         String email,
         String password
 ) {
