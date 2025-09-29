@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Repositório para gerenciar as operações de banco de dados para a entidade {@link Medicamento}.
@@ -34,10 +33,9 @@ public interface MedicamentoRepository extends JpaRepository<Medicamento, Intege
      *
      * @param medicamentoId O ID do medicamento a ser buscado.
      * @param usuarioId O ID do usuário proprietário do medicamento.
-     * @return um {@link Optional} contendo a entidade {@link Medicamento} correspondente, ou vazio se não for encontrada ou não pertencer ao usuário.
      */
     @Query("SELECT m FROM Medicamento m WHERE m.id = :medicamentoId AND m.usuario.id = :usuarioId AND m.status >= 0")
-    Optional<Medicamento> listarMedicamentoPorId(@Param("medicamentoId") Integer medicamentoId, @Param("usuarioId") Integer usuarioId);
+    Medicamento listarMedicamentoPorId(@Param("medicamentoId") Integer medicamentoId, @Param("usuarioId") Integer usuarioId);
 
     /**
      * Retorna uma lista de todos os medicamentos inativos (excluídos logicamente) de um usuário específico.

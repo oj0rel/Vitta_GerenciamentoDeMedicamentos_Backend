@@ -32,10 +32,9 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
      *
      * @param agendamentoId O ID do agendamento a ser buscado.
      * @param usuarioId O ID do usuário que deve ser o proprietário do agendamento.
-     * @return um {@link Optional} contendo a entidade {@link Agendamento} correspondente, ou vazio se não for encontrada ou não pertencer ao usuário.
      */
     @Query("SELECT a FROM Agendamento a WHERE a.id = :agendamentoId AND a.usuario.id = :usuarioId AND a.status >= 0")
-    Optional<Agendamento> listarAgendamentoPorId(@Param("agendamentoId") Integer agendamentoId, @Param("usuarioId") Integer usuarioId);
+    Agendamento listarAgendamentoPorId(@Param("agendamentoId") Integer agendamentoId, @Param("usuarioId") Integer usuarioId);
 
     /**
      * Realiza a exclusão lógica de um agendamento, garantindo que pertença ao usuário correto.

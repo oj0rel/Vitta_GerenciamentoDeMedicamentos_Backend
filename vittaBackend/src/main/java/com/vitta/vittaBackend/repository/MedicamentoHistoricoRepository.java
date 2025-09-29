@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface MedicamentoHistoricoRepository extends JpaRepository<MedicamentoHistorico, Integer> {
@@ -30,11 +29,9 @@ public interface MedicamentoHistoricoRepository extends JpaRepository<Medicament
      *
      * @param historicoId O ID do registro de histórico a ser buscado.
      * @param usuarioId O ID do usuário que deve ser o proprietário do medicamento associado.
-     * @return um {@link Optional} contendo a entidade {@link MedicamentoHistorico} correspondente,
-     * ou vazio se não for encontrada ou não pertencer ao usuário.
      */
     @Query("SELECT m FROM MedicamentoHistorico m WHERE m.id = :historicoId AND m.medicamento.usuario.id = :usuarioId AND m.historicoStatus >= 0")
-    Optional<MedicamentoHistorico> listarMedicamentoHistoricoPorId(@Param("historicoId") Integer historicoId, @Param("usuarioId") Integer usuarioId);
+    MedicamentoHistorico listarMedicamentoHistoricoPorId(@Param("historicoId") Integer historicoId, @Param("usuarioId") Integer usuarioId);
 
     /**
      * Realiza a exclusão lógica de um registro de histórico, garantindo que ele pertença ao usuário correto.

@@ -20,10 +20,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
      * Busca um usuário ativo pelo seu ID. Ideal para buscar o perfil do próprio usuário logado.
      *
      * @param usuarioId O ID do usuário a ser buscado.
-     * @return Um {@link Optional} contendo o usuário, se encontrado e ativo.
      */
     @Query("SELECT u FROM Usuario u WHERE u.id = :id AND u.status >= 0")
-    Optional<Usuario> obterUsuarioPorId(@Param("id") Integer usuarioId);
+    Usuario listarUsuarioPorId(@Param("id") Integer usuarioId);
 
     /**
      * Busca um usuário pelo seu endereço de e-mail.
