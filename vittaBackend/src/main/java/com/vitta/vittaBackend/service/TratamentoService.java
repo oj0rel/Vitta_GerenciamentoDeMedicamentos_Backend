@@ -56,32 +56,48 @@ public class TratamentoService {
     }
 
     /**
-     * Retorna uma lista de todos os tratamentos com status ATIVO.
+     * Retorna uma lista de todos os tratamentos ativos de um usuário específico.
+     * @param usuarioId O ID do usuário autenticado.
      * @return Uma lista de {@link TratamentoDTOResponse}.
      */
-    public List<TratamentoDTOResponse> listarTratamentos() {
-        return tratamentoRepository.listarTratamentos()
+    public List<TratamentoDTOResponse> listarTratamentos(Integer usuarioId) {
+        return tratamentoRepository.listarTratamentos(usuarioId)
                 .stream()
                 .map(TratamentoDTOResponse::new)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Busca um tratamento pelo seu ID.
+     * Busca um tratamento pelo seu ID, garantindo que pertença ao usuário.
      * @param tratamentoId O ID do tratamento a ser buscado.
+     * @param usuarioId O ID do usuário autenticado.
      * @return O {@link TratamentoDTOResponse} correspondente ao ID.
      */
-    public TratamentoDTOResponse buscarTratamentoPorId(Integer tratamentoId) {
-        Tratamento tratamento = this.validarTratamento(tratamentoId);
+    public TratamentoDTOResponse listarTratamentoPorId(Integer tratamentoId, Integer usuarioId) {
+        Tratamento tratamento = validarTratamento(tratamentoId, usuarioId);
         return new TratamentoDTOResponse(tratamento);
     }
 
+    /**
+     * Cadastra um novo tratamento e gera os agendamentos correspondentes para o usuário autenticado.
+     * @param tratamentoDTORequest O DTO contendo os dados do novo tratamento.
+     * @param usuarioId O ID do usuário autenticado (vindo do token).
+     * @return O {@link TratamentoDTOResponse} do tratamento recém-criado.
+     */
     @Transactional
-    public TratamentoDTOResponse cadastrarTratamento(TratamentoDTORequest tratamentoDTORequest) {
+    public TratamentoDTOResponse cadastrarTratamento(TratamentoDTORequest tratamentoDTORequest, Integer usuarioId) {
 
         // linkar com Medicamento e Usuario já cadastrados passando o ID no DTORequest
-        Medicamento medicamento = medicamentoRepository.findById(tratamentoDTORequest.getMedicamentoId()).orElseThrow();
-        Usuario usuario = usuarioRepository.findById(tratamentoDTORequest.getUsuarioId()).orElseThrow();
+        Medicamento medicamento = medicamentoRepository.listarMedicamentoPorId(
+                tratamentoDTORequest.getMedicamentoId(),
+                usuarioId
+        );
+
+        if (medicamento == null) {
+            throw new EntityNotFoundException("Medicamento não encontrado ou não pertence a este usuário.");
+        }
+
+        Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
 
         Tratamento tratamento = new Tratamento();
 
@@ -123,14 +139,15 @@ public class TratamentoService {
     }
 
     /**
-     * Atualiza os dados de um tratamento existente.
+     * Atualiza um tratamento existente e re-gera os agendamentos futuros se necessário.
      * @param tratamentoId O ID do tratamento a ser atualizado.
+     * @param usuarioId O ID do usuário autenticado.
      * @param tratamentoAtualizarDTORequest O DTO com os novos dados.
      * @return O {@link TratamentoDTOResponse} da entidade atualizada.
      */
     @Transactional
-    public TratamentoDTOResponse atualizarTratamento(Integer tratamentoId, TratamentoAtualizarDTORequest tratamentoAtualizarDTORequest) {
-        Tratamento tratamentoExistente = validarTratamento(tratamentoId);
+    public TratamentoDTOResponse atualizarTratamento(Integer tratamentoId, Integer usuarioId, TratamentoAtualizarDTORequest tratamentoAtualizarDTORequest) {
+        Tratamento tratamentoExistente = validarTratamento(tratamentoId, usuarioId);
 
         boolean regerarAgendamentos = false;
         TipoDeAlerta tipoDeAlertaParaRegeracao = null;
@@ -170,14 +187,15 @@ public class TratamentoService {
             // se precisa regerar, mas o alerta não foi alterado, precisamos buscar o alerta atual
             // para manter a consistência.
             tipoDeAlertaParaRegeracao = agendamentoRepository
-                    .findFirstByTratamentoId(tratamentoId)
+                    .obterPrimeiroAgendamentoDeTratamentoEspecifico(tratamentoId, usuarioId)
                     .map(Agendamento::getTipoDeAlerta)
                     .orElse(TipoDeAlerta.NOTIFICACAO_PUSH); // Fallback para um padrão, caso não encontre nenhum
         }
 
         if (regerarAgendamentos) {
-            agendamentoRepository.deleteByTratamentoIdAndStatusAndHorarioDoAgendamentoAfter(
+            agendamentoRepository.deletarAgendamentosFuturosPendentesDeTratamento(
                     tratamentoId,
+                    usuarioId,
                     AgendamentoStatus.PENDENTE,
                     LocalDateTime.now()
             );
@@ -194,12 +212,13 @@ public class TratamentoService {
     }
 
     /**
-     * Realiza a exclusão lógica de um tratamento, alterando seu status para CANCELADO.
+     * Realiza a exclusão lógica de um tratamento, garantindo que ele pertença ao usuário.
      * @param tratamentoId O ID do tratamento a ser desativado.
+     * @param usuarioId O ID do usuário autenticado.
      */
     @Transactional
-    public void deletarLogico(Integer tratamentoId) {
-        Tratamento tratamento = this.validarTratamento(tratamentoId);
+    public void deletarLogico(Integer tratamentoId, Integer usuarioId) {
+        Tratamento tratamento = validarTratamento(tratamentoId, usuarioId);
 
         tratamento.setStatus(TratamentoStatus.CANCELADO);
         tratamentoRepository.save(tratamento);
@@ -208,15 +227,14 @@ public class TratamentoService {
 
 
     /**
-     * Valida a existência de um tratamento pelo seu ID e o retorna.
-     * Este é um método auxiliar privado para evitar a repetição de código nos
-     * métodos públicos que precisam de buscar uma entidade antes de realizar uma ação.
-     *
-     * @param tratamentoId o ID do tratamento a ser validado e buscado.
+     * Valida a existência de um tratamento e sua posse pelo usuário.
+     * @param tratamentoId o ID do tratamento a ser validado.
+     * @param usuarioId O ID do usuário que deve ser o proprietário.
      * @return A entidade {@link Tratamento} encontrada.
+     * @throws EntityNotFoundException se o tratamento não for encontrado ou não pertencer ao usuário.
      */
-    private Tratamento validarTratamento(Integer tratamentoId) {
-        Tratamento tratamento = tratamentoRepository.obterTratamentoPeloId(tratamentoId);
+    private Tratamento validarTratamento(Integer tratamentoId, Integer usuarioId) {
+        Tratamento tratamento = tratamentoRepository.listarTratamentoPorId(tratamentoId, usuarioId);
 
         if (tratamento == null) {
             throw new EntityNotFoundException("Tratamento não encontrado com o ID: " + tratamentoId);
