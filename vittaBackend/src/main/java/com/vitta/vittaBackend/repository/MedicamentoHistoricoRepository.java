@@ -20,7 +20,7 @@ public interface MedicamentoHistoricoRepository extends JpaRepository<Medicament
      * @param usuarioId O ID do usuário para o qual o histórico será listado.
      * @return Uma lista de entidades {@link MedicamentoHistorico} ativas para o usuário especificado.
      */
-    @Query("SELECT m FROM MedicamentoHistorico m WHERE m.medicamento.usuario.id = :usuarioId AND m.historicoStatus > 0")
+    @Query("SELECT m FROM MedicamentoHistorico m WHERE m.usuario.id = :usuarioId AND m.historicoStatus > 0")
     List<MedicamentoHistorico> listarMedicamentosHistoricos(@Param("usuarioId") Integer usuarioId);
 
     /**
@@ -30,7 +30,7 @@ public interface MedicamentoHistoricoRepository extends JpaRepository<Medicament
      * @param historicoId O ID do registro de histórico a ser buscado.
      * @param usuarioId O ID do usuário que deve ser o proprietário do medicamento associado.
      */
-    @Query("SELECT m FROM MedicamentoHistorico m WHERE m.id = :historicoId AND m.medicamento.usuario.id = :usuarioId AND m.historicoStatus >= 0")
+    @Query("SELECT m FROM MedicamentoHistorico m WHERE m.id = :historicoId AND m.usuario.id = :usuarioId AND m.historicoStatus >= 0")
     MedicamentoHistorico listarMedicamentoHistoricoPorId(@Param("historicoId") Integer historicoId, @Param("usuarioId") Integer usuarioId);
 
     /**
@@ -42,6 +42,6 @@ public interface MedicamentoHistoricoRepository extends JpaRepository<Medicament
      */
     @Modifying
     @Transactional
-    @Query("UPDATE MedicamentoHistorico m SET m.historicoStatus = 0 WHERE m.id = :historicoId AND m.medicamento.usuario.id = :usuarioId")
+    @Query("UPDATE MedicamentoHistorico m SET m.historicoStatus = 0 WHERE m.id = :historicoId AND m.usuario.id = :usuarioId")
     void apagarLogicoMedicamentoHistorico(@Param("historicoId") Integer historicoId, @Param("usuarioId") Integer usuarioId);
 }
