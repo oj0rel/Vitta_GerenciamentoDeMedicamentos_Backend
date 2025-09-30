@@ -30,12 +30,6 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // pula validação de token para endpoints públicos
-        if (isPublicEndpoint(request)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -62,16 +56,6 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    // Verifica se o endpoint é público (não precisa de token)
-    private boolean isPublicEndpoint(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        String method = request.getMethod();
-
-        // libera POST /api/usuario/cadastrarNovoUsuario e POST /api/usuario/login
-        return (path.equals("/api/usuario/cadastrarNovoUsuario") && method.equalsIgnoreCase("POST")) ||
-                (path.equals("/api/usuario/login") && method.equalsIgnoreCase("POST"));
     }
 
 }

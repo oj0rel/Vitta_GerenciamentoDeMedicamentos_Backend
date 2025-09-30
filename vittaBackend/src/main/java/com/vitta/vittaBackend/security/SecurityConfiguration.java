@@ -38,7 +38,7 @@ public class SecurityConfiguration {
                         .requestMatchers(SWAGGER_ENDPOINTS).permitAll()
 
                         // Libera criação de usuário e login sem token
-                        .requestMatchers(HttpMethod.POST, "/api/usuario/cadastrarNovoUsuario", "/api/usuario/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios/cadastrar", "/api/usuarios/login").permitAll()
 
                         // Endpoints de teste com suas respectivas permissões
                         .requestMatchers("/users/test").authenticated()
