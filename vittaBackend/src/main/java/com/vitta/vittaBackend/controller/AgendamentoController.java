@@ -3,60 +3,116 @@ package com.vitta.vittaBackend.controller;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
+import com.vitta.vittaBackend.security.UserDetailsImpl;
 import com.vitta.vittaBackend.service.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Controller REST para gerenciar as operações de Agendamentos do usuário autenticado.
+ * <p>
+ * Expõe os endpoints protegidos para listar, criar, atualizar e deletar
+ * agendamentos, garantindo que um usuário só possa manipular seus próprios dados
+ * através da validação do token JWT em cada requisição.
+ */
 @RestController
-@RequestMapping("/api/agendamento")
-@Tag(name = "Agendamento", description = "API para gerenciamento dos agendamentos.")
+@RequestMapping("/api/agendamentos")
+@Tag(name = "Agendamento", description = "API para gerenciamento dos agendamentos do usuário autenticado.")
+@SecurityRequirement(name = "bearer-key")
 public class AgendamentoController {
 
     private AgendamentoService agendamentoService;
 
     public AgendamentoController(AgendamentoService agendamentoService) { this.agendamentoService = agendamentoService; }
 
+    /**
+     * Lista todos os agendamentos do usuário autenticado.
+     * @param userDetails O principal do usuário autenticado, injetado pelo Spring Security.
+     * @return Uma lista de agendamentos do usuário.
+     */
     @GetMapping("/listar")
-    @Operation(summary = "Listar os Agendamentos", description = "Endpoint para Listar os Agendamentos.")
-    public ResponseEntity<List<AgendamentoDTOResponse>> listarAgendamentos() { return ResponseEntity.ok(agendamentoService.listarAgendamentos()); }
+    @Operation(summary = "Listar meus Agendamentos", description = "Endpoint para listar todos os Agendamentos do usuário logado.")
+    public ResponseEntity<List<AgendamentoDTOResponse>> listarAgendamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Integer usuarioId = userDetails.getUserId();
+        return ResponseEntity.ok(agendamentoService.listarAgendamentosPorUsuario(usuarioId));
+    }
 
+    /**
+     * Busca um agendamento específico pelo ID, garantindo que pertença ao usuário autenticado.
+     * @param agendamentoId O ID do agendamento a ser buscado.
+     * @param userDetails O principal do usuário autenticado.
+     * @return O agendamento encontrado.
+     */
     @GetMapping("/listarAgendamentoPorId/{agendamentoId}")
-    @Operation(summary = "Listar o Agendamento pelo ID dele", description = "Endpoint para listar um Agendamento, pelo ID.")
-    public ResponseEntity<AgendamentoDTOResponse> buscarAgendamentoPorId(@PathVariable("agendamentoId") Integer agendamentoId) {
-        AgendamentoDTOResponse agendamentoDTOResponse = agendamentoService.buscarAgendamentoPorId(agendamentoId);
+    @Operation(summary = "Listar o Agendamento pelo ID dele", description = "Endpoint para listar um Agendamento específico do usuário logado.")
+    public ResponseEntity<AgendamentoDTOResponse> buscarAgendamentoPorId(
+            @PathVariable("agendamentoId") Integer agendamentoId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Integer usuarioId = userDetails.getUserId();
+        AgendamentoDTOResponse agendamentoDTOResponse = agendamentoService.listarAgendamentoPorId(agendamentoId, usuarioId);
 
-        if (agendamentoId == null) {
-            return ResponseEntity.noContent().build();
-        } else {
             return ResponseEntity.ok(agendamentoDTOResponse);
-        }
     }
 
+    /**
+     * Cria um novo agendamento para o usuário autenticado.
+     * @param agendamentoDTORequest O corpo da requisição com os dados do novo agendamento.
+     * @param userDetails O principal do usuário autenticado.
+     * @return O agendamento recém-criado.
+     */
     @PostMapping("/cadastrar")
-    @Operation(summary = "Criar novo Agendamento", description = "Endpoint para criar um novo registro de Agendamento.")
-    public ResponseEntity<AgendamentoDTOResponse> cadastrarAgendamento(@Valid @RequestBody AgendamentoDTORequest agendamentoDTORequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(agendamentoService.cadastrarAgendamento(agendamentoDTORequest));
+    @Operation(summary = "Criar novo Agendamento", description = "Endpoint para criar um novo registro de Agendamento para o usuário logado.")
+    public ResponseEntity<AgendamentoDTOResponse> cadastrarAgendamento(
+            @Valid @RequestBody AgendamentoDTORequest agendamentoDTORequest,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Integer usuarioId = userDetails.getUserId();
+        AgendamentoDTOResponse agendamentoDTOResponse = agendamentoService.cadastrarAgendamento(agendamentoDTORequest, usuarioId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(agendamentoDTOResponse);
     }
 
+    /**
+     * Atualiza um agendamento existente do usuário autenticado.
+     * @param agendamentoId O ID do agendamento a ser atualizado.
+     * @param agendamentoAtualizarDTORequest O corpo da requisição com os dados para atualização.
+     * @param userDetails O principal do usuário autenticado.
+     * @return O agendamento atualizado.
+     */
     @PutMapping("/atualizar/{agendamentoId}")
-    @Operation(summary = "Atualizar todos os dados do Agendamento", description = "Endpoint para atualizar o registro do Agendamento, pelo ID.")
+    @Operation(summary = "Atualizar todos os dados do Agendamento", description = "Endpoint para atualizar o registro do Agendamento existente do usuário logado.")
     public ResponseEntity<AgendamentoDTOResponse> atualizarAgendamentoPorId(
             @PathVariable("agendamentoId") Integer agendamentoId,
-            @RequestBody @Valid AgendamentoAtualizarDTORequest agendamentoAtualizarDTORequest) {
-        AgendamentoDTOResponse agendamentoAtualizado = agendamentoService.atualizarAgendamento(agendamentoId, agendamentoAtualizarDTORequest);
+            @RequestBody @Valid AgendamentoAtualizarDTORequest agendamentoAtualizarDTORequest,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Integer usuarioId = userDetails.getUserId();
+        AgendamentoDTOResponse agendamentoAtualizado = agendamentoService.atualizarAgendamento(agendamentoId, usuarioId, agendamentoAtualizarDTORequest);
         return ResponseEntity.ok(agendamentoAtualizado);
     }
 
+    /**
+     * Realiza a exclusão lógica de um agendamento do usuário autenticado.
+     * @param agendamentoId O ID do agendamento a ser deletado.
+     * @param userDetails O principal do usuário autenticado.
+     * @return Resposta sem conteúdo.
+     */
     @DeleteMapping("/deletar/{agendamentoId}")
-    @Operation(summary = "Deletar todos os dados do Agendamento", description = "Endpoint para deletar o registro do Agendamento, pelo ID.")
-    public ResponseEntity<Void> deletarAgendamento(@PathVariable("agendamentoId") Integer agendamentoId) {
-        agendamentoService.deletarAgendamento(agendamentoId);
+    @Operation(summary = "Deletar todos os dados do Agendamento", description = "Endpoint para deletar o registro do Agendamento do usuário logado.")
+    public ResponseEntity<Void> deletarAgendamento(
+            @PathVariable("agendamentoId") Integer agendamentoId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Integer usuarioId = userDetails.getUserId();
+        agendamentoService.deletarAgendamento(agendamentoId, usuarioId);
         return ResponseEntity.noContent().build();
     }
 }

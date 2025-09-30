@@ -5,24 +5,26 @@ import com.vitta.vittaBackend.dto.request.usuario.UsuarioAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.response.usuario.*;
 import com.vitta.vittaBackend.dto.security.RecoveryJwtTokenDto;
 import com.vitta.vittaBackend.dto.security.UsuarioLoginDto;
+import com.vitta.vittaBackend.security.UserDetailsImpl;
 import com.vitta.vittaBackend.service.AgendaService;
 import com.vitta.vittaBackend.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /**
- * Controller para gerenciar as operações de Usuários e endpoints relacionados.
- * Expõe a API REST para cadastro, consulta, atualização e exclusão de usuários,
- * bem como para a consulta da agenda diária de um usuário específico.
+ * Controller REST para gerenciar as operações de Usuário.
+ * <p>
+ * Expõe endpoints públicos para cadastro e login, e endpoints protegidos
+ * para que o usuário autenticado possa gerenciar seus próprios dados.
  */
 @RestController
-@RequestMapping("/api/usuario")
+@RequestMapping("/api/usuarios")
 @Tag(name = "Usuário", description = "API para gerenciamento de usuários.")
 public class UsuarioController {
 
@@ -40,24 +42,15 @@ public class UsuarioController {
     }
 
     /**
-     * Lista todos os usuários com status ATIVO.
-     * @return ResponseEntity contendo uma lista de usuários e o status HTTP 200 OK.
-     */
-    @GetMapping("/listar")
-    @Operation(summary = "Listar Usuários", description = "Endpoint para listar todos os Usuários.")
-    public ResponseEntity <List<UsuarioDTOResponse>> listarUsuarios() { return ResponseEntity.ok(usuarioService.listarUsuariosAtivos()); }
-
-    /**
      * Cadastra um novo usuário no sistema.
      * <p>
      * Este endpoint recebe os dados de um novo usuário e os persiste no banco de dados.
      * </p>
      *
      * @param usuarioDTORequest DTO contendo os dados necessários para o cadastro do novo usuário.
-     * @return um {@link ResponseEntity} vazio com o status HTTP 201 (CREATED) indicando
-     * que o recurso foi criado com sucesso.
+     * @return Resposta com status 201 Created.
      */
-    @PostMapping("/cadastrarNovoUsuario")
+    @PostMapping("/cadastrar")
     @Operation(summary = "Cadastrar Usuário", description = "Endpoint para cadastrar Usuários, com SecurityJWT.")
     public ResponseEntity<Void> criarUsuario(@RequestBody UsuarioDTORequest usuarioDTORequest) {
         usuarioService.criarUsuario(usuarioDTORequest);
@@ -72,14 +65,109 @@ public class UsuarioController {
      * </p>
      *
      * @param usuarioLoginDTO DTO contendo o email e a senha do usuário para autenticação.
-     * @return um {@link ResponseEntity} contendo o {@link RecoveryJwtTokenDto} com o token gerado
-     * e o status HTTP 200 (OK).
+     * @return O token JWT para ser usado nas próximas requisições.
      */
     @PostMapping("/login")
     @Operation(summary = "Login de Usuário", description = "Endpoint para fazer o Login de 1 Usuário cadastrado no Banco.")
     public ResponseEntity<RecoveryJwtTokenDto> autenticarUsuarioSecurity(@RequestBody UsuarioLoginDto usuarioLoginDTO) {
         RecoveryJwtTokenDto token = usuarioService.autenticarUsuario(usuarioLoginDTO);
         return new ResponseEntity<>(token, HttpStatus.OK);
+    }
+
+    /**
+     * Busca um usuário ativo específico pelo seu ID.
+     * @param userDetails Detalhes do usuário injetados pelo Spring Security.
+     * @return O perfil completo do usuário logado.
+     */
+    @GetMapping("/buscarMeuPerfil")
+    @Operation(summary = "Buscar meu perfil", description = "Endpoint para o usuário logado buscar seus próprios dados de perfil.")
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<UsuarioDTOResponse> buscarMeuPerfil(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Integer usuarioId = userDetails.getUserId();
+        UsuarioDTOResponse usuarioDTOResponse = usuarioService.buscarMeuPerfil(usuarioId);
+
+        return ResponseEntity.ok(usuarioDTOResponse);
+    }
+
+    /**
+     * Atualiza dados de um usuário existente (nome e telefone).
+     * @param usuarioAtualizarDTORequest DTO contendo os dados a serem alterados.
+     * @param userDetails Detalhes do usuário injetados pelo Spring Security.
+     * @return O perfil do usuário com os dados atualizados.
+     */
+    @PutMapping("/atualizarMeuPerfil")
+    @Operation(summary = "Atualizar meu perfil", description = "Endpoint para o usuário logado atualizar seus dados de perfil.")
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<UsuarioDTOResponse> atualizarUsuarioPorId(
+            @RequestBody @Valid UsuarioAtualizarDTORequest usuarioAtualizarDTORequest,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Integer usuarioId = userDetails.getUserId();
+        UsuarioDTOResponse usuarioAtualizado = usuarioService.atualizarMeuPerfil(usuarioId, usuarioAtualizarDTORequest);
+        return ResponseEntity.ok(usuarioAtualizado);
+    }
+
+    /**
+     * Realiza a exclusão lógica de um usuário, alterando seu status para INATIVO.
+     * @param userDetails Detalhes do usuário injetados pelo Spring Security.
+     * @return Resposta sem conteúdo.
+     */
+    @DeleteMapping("/deletarMinhaConta")
+    @Operation(summary = "Deletar minha conta", description = "Endpoint para o usuário logado deletar (logicamente) sua própria conta.")
+    public ResponseEntity<Void> deletarUsuario(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Integer usuarioId = userDetails.getUserId();
+        usuarioService.deletarMinhaConta(usuarioId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
+    /**
+     * Busca os agendamentos do usuário logado.
+     * @param userDetails Detalhes do usuário injetados pelo Spring Security.
+     */
+    @GetMapping("/listarMeusAgendamentos")
+    @Operation(summary = "Listar meus agendamentos", description = "Busca o usuário logado com sua lista de agendamentos cadastrados.")
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<UsuarioAgendamentosDTOResponse> buscarMeusAgendamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Integer usuarioId = userDetails.getUserId();
+        return ResponseEntity.ok(usuarioService.buscarMeusAgendamentos(usuarioId));
+    }
+
+    /**
+     * Busca os históricos do usuário logado.
+     * @param userDetails Detalhes do usuário injetados pelo Spring Security.
+     */
+    @GetMapping("/listarMeusHistoricos")
+    @Operation(summary = "Listar meus históricos", description = "Busca o usuário logado com seu histórico de uso de medicamentos cadastrados.")
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<UsuarioHistoricoDTOResponse> buscarMeusHistoricos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Integer usuarioId = userDetails.getUserId();
+        return ResponseEntity.ok(usuarioService.buscarMeusHistoricos(usuarioId));
+    }
+
+    /**
+     * Busca os medicamentos do usuário logado.
+     * @param userDetails Detalhes do usuário injetados pelo Spring Security.
+     */
+    @GetMapping("/listarMeusMedicamentos")
+    @Operation(summary = "Listar meus medicamentos", description = "Busca o usuário logado com sua lista de medicamentos cadastrados.")
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<UsuarioMedicamentosDTOResponse> buscarMeusMedicamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Integer usuarioId = userDetails.getUserId();
+        return ResponseEntity.ok(usuarioService.buscarMeusMedicamentos(usuarioId));
+    }
+
+    /**
+     * Busca os tratamentos do usuário logado.
+     * @param userDetails Detalhes do usuário injetados pelo Spring Security.
+     */
+    @GetMapping("/listarMeusTratamentos")
+    @Operation(summary = "Listar meus tratamentos", description = "Busca o usuário logado com sua lista de tratamentos cadastrados.")
+    @SecurityRequirement(name = "bearer-key")
+    public ResponseEntity<UsuarioTratamentosDTOResponse> buscarMeusTratamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        Integer usuarioId = userDetails.getUserId();
+        return ResponseEntity.ok(usuarioService.buscarMeusTratamentos(usuarioId));
     }
 
     /**
@@ -111,122 +199,14 @@ public class UsuarioController {
         return new ResponseEntity<>("Cliente autenticado com sucesso", HttpStatus.OK);
     }
 
-    /**
-     * Busca um usuário ativo específico pelo seu ID.
-     * @param usuarioId O ID do usuário a ser buscado.
-     * @return ResponseEntity com o DTO do usuário encontrado e status 200 OK.
-     * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
-     */
-    @GetMapping("/listarUsuarioPorId/{usuarioId}")
-    @Operation(summary = "Listar Usuário pelo ID dele", description = "Endpoint para listar um Usuário, pelo ID.")
-    public ResponseEntity<UsuarioDTOResponse> buscarUsuarioPorId(@PathVariable("usuarioId") Integer usuarioId) {
-        UsuarioDTOResponse usuarioDTOResponse = usuarioService.buscarUsuarioPorId(usuarioId);
+    //    /**
+//     * Lista todos os usuários com status ATIVO.
+//     * @return ResponseEntity contendo uma lista de usuários e o status HTTP 200 OK.
+//     */
+//    @GetMapping("/listar")
+//    @Operation(summary = "Listar Usuários", description = "Endpoint para listar todos os Usuários.")
+//    public ResponseEntity <List<UsuarioDTOResponse>> listarUsuarios() { return ResponseEntity.ok(usuarioService.listarUsuariosAtivos()); }
 
-        if (usuarioId == null) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(usuarioDTOResponse);
-        }
-    }
-
-    /**
-     * Busca um usuário ativo específico, com seus agendamentos, pelo seu ID.
-     * @param usuarioId O ID do usuário a ser buscado.
-     * @return ResponseEntity com o DTO do usuário encontrado e status 200 OK.
-     * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
-     */
-    @GetMapping("/listarUsuarioAgendamentosPorId/{usuarioId}")
-    @Operation(summary = "Listar Usuário e agendamentos pelo ID dele", description = "Endpoint para listar um Usuário com os agendamentos dele, pelo ID.")
-    public ResponseEntity<UsuarioAgendamentosDTOResponse> buscarUsuarioAgendamentosPorId(@PathVariable("usuarioId") Integer usuarioId) {
-        UsuarioAgendamentosDTOResponse usuarioAgendamentosDTOResponse = usuarioService.buscarUsuarioAgendamentosPorId(usuarioId);
-
-        if (usuarioId == null) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(usuarioAgendamentosDTOResponse);
-        }
-    }
-
-    /**
-     * Busca um usuário ativo específico, com seus históricos, pelo seu ID.
-     * @param usuarioId O ID do usuário a ser buscado.
-     * @return ResponseEntity com o DTO do usuário encontrado e status 200 OK.
-     * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
-     */
-    @GetMapping("/listarUsuarioHistoricoPorId/{usuarioId}")
-    @Operation(summary = "Listar Usuário e históricos pelo ID dele", description = "Endpoint para listar um Usuário com os históricos dele, pelo ID.")
-    public ResponseEntity<UsuarioHistoricoDTOResponse> buscarUsuarioHistoricoPorId(@PathVariable("usuarioId") Integer usuarioId) {
-        UsuarioHistoricoDTOResponse usuarioHistoricoDTOResponse = usuarioService.buscarUsuarioHistoricosPorId(usuarioId);
-
-        if (usuarioId == null) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(usuarioHistoricoDTOResponse);
-        }
-    }
-
-    /**
-     * Busca um usuário ativo específico, com seus medicamentos, pelo seu ID.
-     * @param usuarioId O ID do usuário a ser buscado.
-     * @return ResponseEntity com o DTO do usuário encontrado e status 200 OK.
-     * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
-     */
-    @GetMapping("/listarUsuarioMedicamentosPorId/{usuarioId}")
-    @Operation(summary = "Listar Usuário e medicamentos pelo ID dele", description = "Endpoint para listar um Usuário com os medicamentos dele, pelo ID.")
-    public ResponseEntity<UsuarioMedicamentosDTOResponse> buscarUsuarioMedicamentosPorId(@PathVariable("usuarioId") Integer usuarioId) {
-        UsuarioMedicamentosDTOResponse usuarioMedicamentosDTOResponse = usuarioService.buscarUsuarioMedicamentosPorId(usuarioId);
-
-        if (usuarioId == null) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(usuarioMedicamentosDTOResponse);
-        }
-    }
-
-    /**
-     * Busca um usuário ativo específico, com seus tratamentos, pelo seu ID.
-     * @param usuarioId O ID do usuário a ser buscado.
-     * @return ResponseEntity com o DTO do usuário encontrado e status 200 OK.
-     * Retorna 404 Not Found se o usuário não existir ou estiver inativo.
-     */
-    @GetMapping("/listarUsuarioTratamentosPorId/{usuarioId}")
-    @Operation(summary = "Listar Usuário e tratamentos pelo ID dele", description = "Endpoint para listar um Usuário com os tratamentos dele, pelo ID.")
-    public ResponseEntity<UsuarioTratamentosDTOResponse> buscarUsuarioTratamentosPorId(@PathVariable("usuarioId") Integer usuarioId) {
-        UsuarioTratamentosDTOResponse usuarioTratamentosDTOResponse = usuarioService.buscarUsuarioTratamentosPorId(usuarioId);
-
-        if (usuarioId == null) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.ok(usuarioTratamentosDTOResponse);
-        }
-    }
-
-    /**
-     * Atualiza dados de um usuário existente (nome e telefone).
-     * @param usuarioId O ID do usuário a ser atualizado.
-     * @param usuarioAtualizarDTORequest DTO contendo os dados a serem alterados.
-     * @return ResponseEntity com o DTO do usuário atualizado e o status HTTP 200 OK.
-     */
-    @PutMapping("/atualizar/{usuarioId}")
-    @Operation(summary = "Atualizar todos os dados do Usuário", description = "Endpoint para atualizar o registro do Usuário, pelo ID.")
-    public ResponseEntity<UsuarioDTOResponse> atualizarUsuarioPorId(
-            @PathVariable("usuarioId") Integer usuarioId,
-            @RequestBody @Valid UsuarioAtualizarDTORequest usuarioAtualizarDTORequest) {
-        UsuarioDTOResponse usuarioAtualizado = usuarioService.atualizarUsuario(usuarioId, usuarioAtualizarDTORequest);
-        return ResponseEntity.ok(usuarioAtualizado);
-    }
-
-    /**
-     * Realiza a exclusão lógica de um usuário, alterando seu status para INATIVO.
-     * @param usuarioId O ID do usuário a ser desativado.
-     * @return ResponseEntity com o status HTTP 204 No Content, indicando sucesso.
-     */
-    @DeleteMapping("/deletar/{usuarioId}")
-    @Operation(summary = "Deletar todos os dados do Usuário", description = "Endpoint para deletar o registro do Usuário, pelo ID.")
-    public ResponseEntity<Void> deletarUsuario(@PathVariable("usuarioId") Integer usuarioId) {
-        usuarioService.deletarLogico(usuarioId);
-        return ResponseEntity.noContent().build();
-    }
 
     /**
      * Busca a agenda de medicamentos do dia para um usuário específico.
