@@ -1,11 +1,15 @@
 package com.vitta.vittaBackend.service;
 
-import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequestAtualizar;
+import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequest;
+import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
+import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.entity.MedicamentoHistorico;
+import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.repository.AgendamentoRepository;
 import com.vitta.vittaBackend.repository.MedicamentoHistoricoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,23 +61,37 @@ public class MedicamentoHistoricoService {
         return new MedicamentoHistoricoDTOResponse(medicamentoHistorico);
     }
 
-//    CADASTRAR HISTORICO DE USO DE MEDICAMENTO
-//    @Transactional
-//    public MedicamentoHistoricoDTOResponse cadastrarMedicamentoHistorico(MedicamentoHistoricoDTORequest medicamentoHistoricoDTORequest) {
-//        Usuario usuario = usuarioRepository.findById(medicamentoHistoricoDTORequest.getUsuarioId()).orElseThrow();
-//
-//        Agendamento agendamento = agendamentoRepository.findById(medicamentoHistoricoDTORequest.getAgendamentoId()).orElseThrow();
-//
-//        MedicamentoHistorico medicamentoHistorico = new MedicamentoHistorico();
-//        medicamentoHistorico.setHoraDoUso(medicamentoHistoricoDTORequest.getHoraDoUso());
-//        medicamentoHistorico.setDoseTomada(medicamentoHistoricoDTORequest.getDoseTomada());
-//        medicamentoHistorico.setObservacao(medicamentoHistoricoDTORequest.getObservacao());
-//        medicamentoHistorico.setAgendamento(agendamento);
-//        medicamentoHistorico.setUsuario(usuario);
-//
-//        MedicamentoHistorico medicamentoHistoricoSalvo = medicamentoHistoricoRepository.save(medicamentoHistorico);
-//        return new MedicamentoHistoricoDTOResponse(medicamentoHistoricoSalvo);
-//    }
+    /**
+     * Cadastra um novo histórico para o usuário autenticado.
+     * O ID do usuário é obtido do contexto de segurança, não do DTO.
+     * @param medicamentoHistoricoDTORequest DTO com os dados do novo agendamento.
+     * @param usuarioId O ID do usuário autenticado.
+     * @return O AgendamentoDTOResponse do novo agendamento.
+     */
+    @Transactional
+    public MedicamentoHistoricoDTOResponse cadastrarMedicamentoHistorico(MedicamentoHistoricoDTORequest medicamentoHistoricoDTORequest, Integer usuarioId) {
+
+        Agendamento agendamento = agendamentoRepository.listarAgendamentoPorId(
+                medicamentoHistoricoDTORequest.getAgendamentoId(),
+                usuarioId
+        );
+        if (agendamento == null) {
+            throw new EntityNotFoundException("Agendamento não encontrado ou não pertence a este usuário.");
+        }
+
+        Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
+
+        MedicamentoHistorico medicamentoHistorico = new MedicamentoHistorico();
+        medicamentoHistorico.setHoraDoUso(medicamentoHistoricoDTORequest.getHoraDoUso());
+        medicamentoHistorico.setDoseTomada(medicamentoHistoricoDTORequest.getDoseTomada());
+        medicamentoHistorico.setObservacao(medicamentoHistoricoDTORequest.getObservacao());
+
+        medicamentoHistorico.setAgendamento(agendamento);
+        medicamentoHistorico.setUsuario(usuario);
+
+        MedicamentoHistorico medicamentoHistoricoSalvo = medicamentoHistoricoRepository.save(medicamentoHistorico);
+        return new MedicamentoHistoricoDTOResponse(medicamentoHistoricoSalvo);
+    }
 
     /**
      * Atualiza um registro de histórico existente, garantindo que ele pertença ao usuário.
@@ -83,7 +101,7 @@ public class MedicamentoHistoricoService {
      * @return O MedicamentoHistoricoDTOResponse atualizado.
      */
     @Transactional
-    public MedicamentoHistoricoDTOResponse atualizarMedicamentoHistorico(Integer historicoId, Integer usuarioId, MedicamentoHistoricoDTORequestAtualizar historicoDTORequestAtualizar) {
+    public MedicamentoHistoricoDTOResponse atualizarMedicamentoHistorico(Integer historicoId, Integer usuarioId, MedicamentoHistoricoAtualizarDTORequest historicoDTORequestAtualizar) {
         MedicamentoHistorico medicamentoHistoricoExistente = validarMedicamentoHistorico(historicoId, usuarioId);
 
         if (historicoDTORequestAtualizar.getHoraDoUso() != null) {

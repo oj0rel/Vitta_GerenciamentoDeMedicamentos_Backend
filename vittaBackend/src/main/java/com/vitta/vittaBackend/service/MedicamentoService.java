@@ -39,7 +39,7 @@ public class MedicamentoService {
      * @param usuarioId O ID do usuário autenticado.
      * @return Uma lista de {@link MedicamentoDTOResponse}.
      */
-    public List<MedicamentoDTOResponse> listarMedicamentosAtivos(Integer usuarioId) {
+    public List<MedicamentoDTOResponse> listarMedicamentosPorUsuario(Integer usuarioId) {
         // Alterado para chamar o seu método customizado
         return medicamentoRepository.listarMedicamentos(usuarioId)
                 .stream()

@@ -51,17 +51,6 @@ public class UsuarioService {
         this.roleRepository = roleRepository;
     }
 
-//    /**
-//     * Retorna uma lista de todos os usuários com status ATIVO.
-//     * @return Uma lista de {@link UsuarioDTOResponse}.
-//     */
-//    public List<UsuarioDTOResponse> listarUsuariosAtivos() {
-//        return usuarioRepository.listarUsuariosAtivos()
-//                .stream()
-//                .map(UsuarioDTOResponse::new)
-//                .collect(Collectors.toList());
-//    }
-
     /**
      * Busca o perfil completo do usuário autenticado.
      * @param usuarioId O ID do usuário autenticado (vindo do token).
@@ -209,8 +198,6 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
-
-
     /**
      * Valida a existência de um usuário pelo seu ID e o retorna.
      * Este é um método auxiliar privado para evitar a repetição de código nos
@@ -226,5 +213,16 @@ public class UsuarioService {
         }
         return usuario;
     }
+
+    //    /**
+//     * Retorna uma lista de todos os usuários com status ATIVO.
+//     * @return Uma lista de {@link UsuarioDTOResponse}.
+//     */
+//    public List<UsuarioDTOResponse> listarUsuariosAtivos() {
+//        return usuarioRepository.listarUsuariosAtivos()
+//                .stream()
+//                .map(UsuarioDTOResponse::new)
+//                .collect(Collectors.toList());
+//    }
 
 }
