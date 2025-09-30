@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,29 +17,12 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     /**
-     * Busca todos os usuários com status ATIVO.
-     * Utiliza LEFT JOIN FETCH para carregar os tratamentos associados de forma eficiente.
-     * @return Uma lista de usuários ativos.
-     */
-    @Query("SELECT u FROM Usuario u WHERE u.status > 0")
-    List<Usuario> listarUsuariosAtivos();
-
-    /**
-     * Busca um usuário ativo pelo seu ID.
-     * Utiliza LEFT JOIN FETCH para carregar os tratamentos associados de forma eficiente.
+     * Busca um usuário ativo pelo seu ID. Ideal para buscar o perfil do próprio usuário logado.
+     *
      * @param usuarioId O ID do usuário a ser buscado.
-     * @return Um {@link Optional} contendo o usuário, se encontrado e ativo.
      */
     @Query("SELECT u FROM Usuario u WHERE u.id = :id AND u.status >= 0")
-    Usuario obterUsuarioPeloId(@Param("id") Integer usuarioId);
-
-    /**
-     * Retorna uma lista de todos os usuários que foram logicamente excluídos.
-     * Busca por usuários cujo status é igual a -1 (cancelado/inativo).
-     * @return Uma lista de entidades {@link Usuario} com o status cancelado.
-     */
-    @Query("SELECT u FROM Usuario u WHERE u.status = -1")
-    List<Usuario> listarUsuariosCancelados();
+    Usuario listarUsuarioPorId(@Param("id") Integer usuarioId);
 
     /**
      * Busca um usuário pelo seu endereço de e-mail.

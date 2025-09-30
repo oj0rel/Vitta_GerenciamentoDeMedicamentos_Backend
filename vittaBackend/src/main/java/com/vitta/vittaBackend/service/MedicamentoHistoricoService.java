@@ -1,23 +1,11 @@
 package com.vitta.vittaBackend.service;
 
-import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequest;
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.MedicamentoHistoricoDTORequestAtualizar;
-import com.vitta.vittaBackend.dto.request.medicamentoHistorico.RegistrarUsoDTORequest;
-import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
-import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
-import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
-import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
-import com.vitta.vittaBackend.entity.Agendamento;
-import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.entity.MedicamentoHistorico;
-import com.vitta.vittaBackend.entity.Usuario;
-import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.repository.AgendamentoRepository;
 import com.vitta.vittaBackend.repository.MedicamentoHistoricoRepository;
-import com.vitta.vittaBackend.repository.MedicamentoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,66 +34,96 @@ public class MedicamentoHistoricoService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    //LISTAR O HISTORICO DE USO DE MEDICAMENTOS
-    public List<MedicamentoHistoricoDTOResponse> listarMedicamentosHistoricos() {
-        return this.medicamentoHistoricoRepository.listarMedicamentosHistoricos()
+    /**
+     * Lista o histórico de uso de medicamentos de um usuário específico.
+     * @param usuarioId O ID do usuário autenticado.
+     * @return Uma lista de MedicamentoHistoricoDTOResponse.
+     */
+    public List<MedicamentoHistoricoDTOResponse> listarMedicamentosHistoricos(Integer usuarioId) {
+        return this.medicamentoHistoricoRepository.listarMedicamentosHistoricos(usuarioId)
                 .stream()
                 .map(MedicamentoHistoricoDTOResponse::new)
                 .collect(Collectors.toList());
     }
 
-    //LISTAR 1 HISTORICO DE USO DE MEDICAMENTO, PEGANDO PELO ID
-    public MedicamentoHistoricoDTOResponse buscarMedicamentoHistoricoPorId(Integer medicamentoHistoricoId) {
-        MedicamentoHistorico medicamentoHistorico = this.validarMedicamentoHistorico(medicamentoHistoricoId);
+    /**
+     * Busca um único registro de histórico pelo seu ID, garantindo que ele pertença ao usuário.
+     * @param historicoId O ID do registro de histórico a ser buscado.
+     * @param usuarioId O ID do usuário autenticado.
+     * @return O MedicamentoHistoricoDTOResponse correspondente.
+     */
+    public MedicamentoHistoricoDTOResponse listarMedicamentoHistoricoPorId(Integer historicoId, Integer usuarioId) {
+        MedicamentoHistorico medicamentoHistorico = validarMedicamentoHistorico(historicoId, usuarioId);
         return new MedicamentoHistoricoDTOResponse(medicamentoHistorico);
     }
 
-    //CADASTRAR HISTORICO DE USO DE MEDICAMENTO
+//    CADASTRAR HISTORICO DE USO DE MEDICAMENTO
+//    @Transactional
+//    public MedicamentoHistoricoDTOResponse cadastrarMedicamentoHistorico(MedicamentoHistoricoDTORequest medicamentoHistoricoDTORequest) {
+//        Usuario usuario = usuarioRepository.findById(medicamentoHistoricoDTORequest.getUsuarioId()).orElseThrow();
+//
+//        Agendamento agendamento = agendamentoRepository.findById(medicamentoHistoricoDTORequest.getAgendamentoId()).orElseThrow();
+//
+//        MedicamentoHistorico medicamentoHistorico = new MedicamentoHistorico();
+//        medicamentoHistorico.setHoraDoUso(medicamentoHistoricoDTORequest.getHoraDoUso());
+//        medicamentoHistorico.setDoseTomada(medicamentoHistoricoDTORequest.getDoseTomada());
+//        medicamentoHistorico.setObservacao(medicamentoHistoricoDTORequest.getObservacao());
+//        medicamentoHistorico.setAgendamento(agendamento);
+//        medicamentoHistorico.setUsuario(usuario);
+//
+//        MedicamentoHistorico medicamentoHistoricoSalvo = medicamentoHistoricoRepository.save(medicamentoHistorico);
+//        return new MedicamentoHistoricoDTOResponse(medicamentoHistoricoSalvo);
+//    }
+
+    /**
+     * Atualiza um registro de histórico existente, garantindo que ele pertença ao usuário.
+     * @param historicoId O ID do registro de histórico a ser atualizado.
+     * @param usuarioId O ID do usuário autenticado.
+     * @param historicoDTORequestAtualizar DTO com os dados de atualização.
+     * @return O MedicamentoHistoricoDTOResponse atualizado.
+     */
     @Transactional
-    public MedicamentoHistoricoDTOResponse cadastrarMedicamentoHistorico(MedicamentoHistoricoDTORequest medicamentoHistoricoDTORequest) {
-        Usuario usuario = usuarioRepository.findById(medicamentoHistoricoDTORequest.getUsuarioId()).orElseThrow();
+    public MedicamentoHistoricoDTOResponse atualizarMedicamentoHistorico(Integer historicoId, Integer usuarioId, MedicamentoHistoricoDTORequestAtualizar historicoDTORequestAtualizar) {
+        MedicamentoHistorico medicamentoHistoricoExistente = validarMedicamentoHistorico(historicoId, usuarioId);
 
-        Agendamento agendamento = agendamentoRepository.findById(medicamentoHistoricoDTORequest.getAgendamentoId()).orElseThrow();
-
-        MedicamentoHistorico medicamentoHistorico = new MedicamentoHistorico();
-        medicamentoHistorico.setHoraDoUso(medicamentoHistoricoDTORequest.getHoraDoUso());
-        medicamentoHistorico.setDoseTomada(medicamentoHistoricoDTORequest.getDoseTomada());
-        medicamentoHistorico.setObservacao(medicamentoHistoricoDTORequest.getObservacao());
-        medicamentoHistorico.setAgendamento(agendamento);
-        medicamentoHistorico.setUsuario(usuario);
-
-        MedicamentoHistorico medicamentoHistoricoSalvo = medicamentoHistoricoRepository.save(medicamentoHistorico);
-        return new MedicamentoHistoricoDTOResponse(medicamentoHistoricoSalvo);
-    }
-
-    //ATUALIZAR 1 HISTORICO DE USO DE MEDICAMENTO, PEGANDO PELO ID
-    @Transactional
-    public MedicamentoHistoricoDTOResponse atualizarMedicamentoHistorico(Integer medicamentoHistoricoId, MedicamentoHistoricoDTORequestAtualizar medicamentoHistoricoDTORequestAtualizar) {
-        MedicamentoHistorico medicamentoHistoricoExistente = this.validarMedicamentoHistorico(medicamentoHistoricoId);
-
-        if (medicamentoHistoricoDTORequestAtualizar.getHoraDoUso() != null) {
-            medicamentoHistoricoExistente.setHoraDoUso(medicamentoHistoricoDTORequestAtualizar.getHoraDoUso());
+        if (historicoDTORequestAtualizar.getHoraDoUso() != null) {
+            medicamentoHistoricoExistente.setHoraDoUso(historicoDTORequestAtualizar.getHoraDoUso());
         }
-        if (medicamentoHistoricoDTORequestAtualizar.getDoseTomada() != null) {
-            medicamentoHistoricoExistente.setDoseTomada(medicamentoHistoricoDTORequestAtualizar.getDoseTomada());
+        if (historicoDTORequestAtualizar.getDoseTomada() != null) {
+            medicamentoHistoricoExistente.setDoseTomada(historicoDTORequestAtualizar.getDoseTomada());
         }
-        if (medicamentoHistoricoDTORequestAtualizar.getObservacao() != null) {
-            medicamentoHistoricoExistente.setObservacao(medicamentoHistoricoDTORequestAtualizar.getObservacao());
+        if (historicoDTORequestAtualizar.getObservacao() != null) {
+            medicamentoHistoricoExistente.setObservacao(historicoDTORequestAtualizar.getObservacao());
         }
 
         MedicamentoHistorico medicamentoHistoricoAtualizado = medicamentoHistoricoRepository.save(medicamentoHistoricoExistente);
         return new MedicamentoHistoricoDTOResponse(medicamentoHistoricoAtualizado);
     }
 
-    //DELETAR 1 HISTORICO DE USO DE MEDICAMENTO, PEGANDO PELO ID
+    /**
+     * Realiza a exclusão lógica de um registro de histórico, garantindo que ele pertença ao usuário.
+     * @param historicoId O ID do registro a ser deletado.
+     * @param usuarioId O ID do usuário autenticado.
+     */
     @Transactional
-    public void deletarMedicamentoHistorico(Integer medicamentoHistoricoId) { medicamentoHistoricoRepository.apagadoLogicoMedicamentoHistorico(medicamentoHistoricoId); }
+    public void deletarMedicamentoHistorico(Integer historicoId, Integer usuarioId) { medicamentoHistoricoRepository.apagarLogicoMedicamentoHistorico(historicoId, usuarioId); }
 
 
 
-    //METODO PRIVADO PARA VALIDAR SE O HISTORICO DE USO EXISTE, PEGANDO PELO ID - para utilizar em outros métodos
-    private MedicamentoHistorico validarMedicamentoHistorico(Integer medicamentoHistoricoId) {
-        MedicamentoHistorico medicamentoHistorico = medicamentoHistoricoRepository.obterMedicamentoHistoricoPeloId(medicamentoHistoricoId);
+    /**
+     * Valida a existência de um registro de histórico e a sua posse pelo usuário especificado.
+     * <p>
+     * Este é um método auxiliar privado que busca um registro de histórico no repositório
+     * usando tanto o ID do histórico quanto o ID do usuário. Ele serve como uma
+     * verificação de segurança e existência antes de operações como atualização ou exclusão.
+     *
+     * @param medicamentoHistoricoId O ID do registro de histórico a ser validado e buscado.
+     * @param usuarioId O ID do usuário que deve ser o proprietário do histórico.
+     * @return A entidade {@link MedicamentoHistorico} encontrada, caso seja válida e pertença ao usuário.
+     * @throws RuntimeException se o registro de histórico não for encontrado ou não pertencer ao usuário.
+     */
+    private MedicamentoHistorico validarMedicamentoHistorico(Integer medicamentoHistoricoId, Integer usuarioId) {
+        MedicamentoHistorico medicamentoHistorico = medicamentoHistoricoRepository.listarMedicamentoHistoricoPorId(medicamentoHistoricoId, usuarioId);
         if (medicamentoHistorico == null) {
             throw new RuntimeException("Histórico do medicamento não encontrado ou inativo.");
         }

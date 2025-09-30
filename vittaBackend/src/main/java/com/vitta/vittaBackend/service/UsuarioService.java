@@ -31,39 +31,44 @@ import java.util.stream.Collectors;
 @Service
 public class UsuarioService {
 
-    @Autowired
     private final UsuarioRepository usuarioRepository;
-    @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
     private JwtTokenService jwtTokenService;
-    @Autowired
     private RoleRepository roleRepository;
+
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager,
+            JwtTokenService jwtTokenService,
+            RoleRepository roleRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenService = jwtTokenService;
+        this.roleRepository = roleRepository;
     }
 
-    /**
-     * Retorna uma lista de todos os usuários com status ATIVO.
-     * @return Uma lista de {@link UsuarioDTOResponse}.
-     */
-    public List<UsuarioDTOResponse> listarUsuariosAtivos() {
-        return usuarioRepository.listarUsuariosAtivos()
-                .stream()
-                .map(UsuarioDTOResponse::new)
-                .collect(Collectors.toList());
-    }
+//    /**
+//     * Retorna uma lista de todos os usuários com status ATIVO.
+//     * @return Uma lista de {@link UsuarioDTOResponse}.
+//     */
+//    public List<UsuarioDTOResponse> listarUsuariosAtivos() {
+//        return usuarioRepository.listarUsuariosAtivos()
+//                .stream()
+//                .map(UsuarioDTOResponse::new)
+//                .collect(Collectors.toList());
+//    }
 
     /**
-     * Busca um usuário ativo pelo seu ID.
-     * @param usuarioId O ID do usuário a ser buscado.
-     * @return O {@link UsuarioDTOResponse} correspondente ao ID.
+     * Busca o perfil completo do usuário autenticado.
+     * @param usuarioId O ID do usuário autenticado (vindo do token).
+     * @return O {@link UsuarioDTOResponse} correspondente ao seu perfil.
      */
-    public UsuarioDTOResponse buscarUsuarioPorId(Integer usuarioId) {
-        Usuario usuario = this.validarUsuario(usuarioId);
+    public UsuarioDTOResponse buscarMeuPerfil(Integer usuarioId) {
+        Usuario usuario = validarUsuario(usuarioId);
         return new UsuarioDTOResponse(usuario);
     }
 
@@ -74,8 +79,8 @@ public class UsuarioService {
      * @return um {@link UsuarioAgendamentosDTOResponse} contendo a lista de agendamentos do usuário.
      * @throws RuntimeException se o usuário com o ID fornecido não for encontrado.
      */
-    public UsuarioAgendamentosDTOResponse buscarUsuarioAgendamentosPorId(Integer usuarioId) {
-        Usuario usuario = this.validarUsuario(usuarioId);
+    public UsuarioAgendamentosDTOResponse buscarMeusAgendamentos(Integer usuarioId) {
+        Usuario usuario = validarUsuario(usuarioId);
         return new UsuarioAgendamentosDTOResponse(usuario);
     }
 
@@ -86,8 +91,8 @@ public class UsuarioService {
      * @return um {@link UsuarioHistoricoDTOResponse} contendo o histórico de medicamentos do usuário.
      * @throws RuntimeException se o usuário com o ID fornecido não for encontrado.
      */
-    public UsuarioHistoricoDTOResponse buscarUsuarioHistoricosPorId(Integer usuarioId) {
-        Usuario usuario = this.validarUsuario(usuarioId);
+    public UsuarioHistoricoDTOResponse buscarMeusHistoricos(Integer usuarioId) {
+        Usuario usuario = validarUsuario(usuarioId);
         return new UsuarioHistoricoDTOResponse(usuario);
     }
 
@@ -98,8 +103,8 @@ public class UsuarioService {
      * @return um {@link UsuarioMedicamentosDTOResponse} contendo a lista de medicamentos do usuário.
      * @throws RuntimeException se o usuário com o ID fornecido não for encontrado.
      */
-    public UsuarioMedicamentosDTOResponse buscarUsuarioMedicamentosPorId(Integer usuarioId) {
-        Usuario usuario = this.validarUsuario(usuarioId);
+    public UsuarioMedicamentosDTOResponse buscarMeusMedicamentos(Integer usuarioId) {
+        Usuario usuario = validarUsuario(usuarioId);
         return new UsuarioMedicamentosDTOResponse(usuario);
     }
 
@@ -110,8 +115,8 @@ public class UsuarioService {
      * @return um {@link UsuarioTratamentosDTOResponse} contendo a lista de tratamentos do usuário.
      * @throws RuntimeException se o usuário com o ID fornecido não for encontrado.
      */
-    public UsuarioTratamentosDTOResponse buscarUsuarioTratamentosPorId(Integer usuarioId) {
-        Usuario usuario = this.validarUsuario(usuarioId);
+    public UsuarioTratamentosDTOResponse buscarMeusTratamentos(Integer usuarioId) {
+        Usuario usuario = validarUsuario(usuarioId);
         return new UsuarioTratamentosDTOResponse(usuario);
     }
 
@@ -173,13 +178,13 @@ public class UsuarioService {
 
     /**
      * Atualiza os dados de um usuário existente (nome e telefone).
-     * @param usuarioId O ID do usuário a ser atualizado.
+     * @param usuarioId O ID do usuário autenticado (vindo do token).
      * @param usuarioAtualizarDTORequest O DTO com os novos dados.
      * @return O {@link UsuarioDTOResponse} da entidade atualizada.
      */
     @Transactional
-    public UsuarioDTOResponse atualizarUsuario(Integer usuarioId, UsuarioAtualizarDTORequest usuarioAtualizarDTORequest) {
-        Usuario usuarioExistente = this.validarUsuario(usuarioId);
+    public UsuarioDTOResponse atualizarMeuPerfil(Integer usuarioId, UsuarioAtualizarDTORequest usuarioAtualizarDTORequest) {
+        Usuario usuarioExistente = validarUsuario(usuarioId);
 
         if (usuarioAtualizarDTORequest.getNome() != null) {
             usuarioExistente.setNome(usuarioAtualizarDTORequest.getNome());
@@ -193,12 +198,12 @@ public class UsuarioService {
     }
 
     /**
-     * Realiza a exclusão lógica de um usuário, alterando seu status para INATIVO.
-     * @param usuarioId O ID do usuário a ser desativado.
+     * Realiza a exclusão lógica da conta do usuário autenticado.
+     * @param usuarioId O ID do usuário autenticado (vindo do token).
      */
     @Transactional
-    public void deletarLogico(Integer usuarioId) {
-        Usuario usuario = this.validarUsuario(usuarioId);
+    public void deletarMinhaConta(Integer usuarioId) {
+        Usuario usuario = validarUsuario(usuarioId);
 
         usuario.setStatus(UsuarioStatus.INATIVO);
         usuarioRepository.save(usuario);
@@ -211,11 +216,11 @@ public class UsuarioService {
      * Este é um método auxiliar privado para evitar a repetição de código nos
      * métodos públicos que precisam de buscar uma entidade antes de realizar uma ação.
      *
-     * @param usuarioId O ID do usuário a ser validado e buscado.
+     * @param usuarioId O ID do usuário a ser validado e buscado (vindo do token).
      * @return A entidade {@link Usuario} encontrada.
      */
     private Usuario validarUsuario(Integer usuarioId) {
-        Usuario usuario = usuarioRepository.obterUsuarioPeloId(usuarioId);
+        Usuario usuario = usuarioRepository.listarUsuarioPorId(usuarioId);
         if (usuario == null) {
             throw new EntityNotFoundException("Usuário não encontrado com o ID: " + usuarioId);
         }

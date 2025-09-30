@@ -17,27 +17,34 @@ import java.util.List;
 public interface TratamentoRepository extends JpaRepository<Tratamento, Integer> {
 
     /**
-     * Busca todos os tratamentos com status ATIVO.
-     * @return Uma lista de tratamentos ativos.
+     * Retorna uma lista de todos os tratamentos ativos de um usuário específico.
+     * A consulta busca por tratamentos cujo status é maior que 0.
+     *
+     * @param usuarioId O ID do usuário para o qual os tratamentos serão listados.
+     * @return Uma lista de entidades {@link Tratamento} ativas para o usuário especificado.
      */
-    @Query("SELECT t FROM Tratamento t WHERE t.status > 0")
-    List<Tratamento> listarTratamentos();
+    @Query("SELECT t FROM Tratamento t WHERE t.usuario.id = :usuarioId AND t.status > 0")
+    List<Tratamento> listarTratamentos(@Param("usuarioId") Integer usuarioId);
 
     /**
-     * Busca um tratamento ativo pelo seu ID.
+     * Busca um tratamento específico pelo seu ID e pelo ID do usuário proprietário.
+     * Garante que um usuário só possa acessar seus próprios tratamentos.
+     *
      * @param tratamentoId O ID do tratamento a ser buscado.
+     * @param usuarioId O ID do usuário proprietário do tratamento.
      */
-    @Query("SELECT t FROM Tratamento t WHERE t.id = :id")
-    Tratamento obterTratamentoPeloId(@Param("id") Integer tratamentoId);
+    @Query("SELECT t FROM Tratamento t WHERE t.id = :tratamentoId AND t.usuario.id = :usuarioId")
+    Tratamento listarTratamentoPorId(@Param("tratamentoId") Integer tratamentoId, @Param("usuarioId") Integer usuarioId);
 
     /**
-     * Realiza a exclusão lógica de um tratamento diretamente no banco de dados.
-     * Esta consulta de atualização (UPDATE) altera o status do tratamento para 0 (cancelado)
-     * sem a necessidade de carregar a entidade na memória.
+     * Realiza a exclusão lógica de um tratamento, garantindo que ele pertença ao usuário correto.
+     * Esta consulta de atualização (UPDATE) altera o status do tratamento para 0 (inativo/cancelado).
+     *
      * @param tratamentoId O ID do tratamento a ser desativado.
+     * @param usuarioId O ID do usuário proprietário do tratamento.
      */
     @Modifying
     @Transactional
-    @Query("UPDATE Tratamento t SET t.status = 0 WHERE t.id = :id")
-    void apagadoLogicoTratamento(@Param("tratamentoId") Integer tratamentoId);
+    @Query("UPDATE Tratamento t SET t.status = 0 WHERE t.id = :tratamentoId AND t.usuario.id = :usuarioId")
+    void apagarLogicoTratamento(@Param("tratamentoId") Integer tratamentoId, @Param("usuarioId") Integer usuarioId);
 }

@@ -23,10 +23,13 @@ public class UserDetailsImpl implements UserDetails {
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
 
-        // LINHA DE DEBUG: Verifique o que aparece no console do seu servidor
         System.out.println("PERMISSÕES PARA O USUÁRIO " + usuario.getEmail() + ": " + authorities);
 
         return authorities;
+    }
+
+    public Integer getUserId() {
+        return usuario.getId();
     }
 
     @Override

@@ -35,36 +35,39 @@ public class MedicamentoService {
     }
 
     /**
-     * Retorna uma lista de todos os medicamentos com status ATIVO.
+     * Retorna uma lista de todos os medicamentos ativos de um usuário específico.
+     * @param usuarioId O ID do usuário autenticado.
      * @return Uma lista de {@link MedicamentoDTOResponse}.
      */
-    public List<MedicamentoDTOResponse> listarMedicamentosAtivos() {
+    public List<MedicamentoDTOResponse> listarMedicamentosAtivos(Integer usuarioId) {
         // Alterado para chamar o seu método customizado
-        return medicamentoRepository.listarMedicamentos()
+        return medicamentoRepository.listarMedicamentos(usuarioId)
                 .stream()
                 .map(MedicamentoDTOResponse::new)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Busca um medicamento pelo seu ID.
+     * Busca um medicamento pelo seu ID, garantindo que pertença ao usuário.
      * @param medicamentoId O ID do medicamento a ser buscado.
+     * @param usuarioId O ID do usuário autenticado.
      * @return O {@link MedicamentoDTOResponse} correspondente ao ID.
      */
-    public MedicamentoDTOResponse buscarMedicamentoPorId(Integer medicamentoId) {
-        Medicamento medicamento = this.validarMedicamento(medicamentoId);
+    public MedicamentoDTOResponse listarMedicamentoPorId(Integer medicamentoId, Integer usuarioId) {
+        Medicamento medicamento = validarMedicamento(medicamentoId, usuarioId);
         return new MedicamentoDTOResponse(medicamento);
     }
 
     /**
-     * Cria um novo medicamento no catálogo.
+     * Cria um novo medicamento no catálogo do usuário autenticado.
      * @param medicamentoDTORequest O DTO contendo os dados para o novo medicamento.
+     * @param usuarioId O ID do usuário autenticado (vindo do token).
      * @return O {@link MedicamentoDTOResponse} da entidade recém-criada.
      */
     @Transactional
-    public MedicamentoDTOResponse cadastrarMedicamento(MedicamentoDTORequest medicamentoDTORequest) {
+    public MedicamentoDTOResponse cadastrarMedicamento(MedicamentoDTORequest medicamentoDTORequest, Integer usuarioId) {
 
-        Usuario usuario = usuarioRepository.findById(medicamentoDTORequest.getUsuarioId()).orElseThrow();
+        Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
 
         Medicamento novoMedicamento = new Medicamento();
 
@@ -86,16 +89,15 @@ public class MedicamentoService {
     }
 
     /**
-     * Atualiza os dados de um medicamento existente.
-     * Apenas os campos não nulos no DTO serão atualizados.
+     * Atualiza os dados de um medicamento existente, garantindo que pertença ao usuário.
      * @param medicamentoId O ID do medicamento a ser atualizado.
+     * @param usuarioId O ID do usuário autenticado.
      * @param medicamentoAtualizarDTORequest O DTO com os novos dados.
      * @return O {@link MedicamentoDTOResponse} da entidade atualizada.
-     * @throws EntityNotFoundException se o medicamento não for encontrado.
      */
     @Transactional
-    public MedicamentoDTOResponse atualizarMedicamento(Integer medicamentoId, MedicamentoAtualizarDTORequest medicamentoAtualizarDTORequest) {
-        Medicamento medicamentoExistente = validarMedicamento(medicamentoId);
+    public MedicamentoDTOResponse atualizarMedicamento(Integer medicamentoId, Integer usuarioId, MedicamentoAtualizarDTORequest medicamentoAtualizarDTORequest) {
+        Medicamento medicamentoExistente = validarMedicamento(medicamentoId, usuarioId);
 
         if (medicamentoAtualizarDTORequest.getNome() != null) {
             medicamentoExistente.setNome(medicamentoAtualizarDTORequest.getNome());
@@ -118,37 +120,37 @@ public class MedicamentoService {
     }
 
     /**
-     * Realiza a exclusão lógica de um medicamento, alterando seu status para INATIVO.
+     * Realiza a exclusão lógica de um medicamento, garantindo que pertença ao usuário.
      * @param medicamentoId O ID do medicamento a ser desativado.
-     * @throws EntityNotFoundException se o medicamento não for encontrado.
+     * @param usuarioId O ID do usuário autenticado.
      */
     @Transactional
-    public void deletarLogico(Integer medicamentoId) {
-        validarMedicamento(medicamentoId);
-        medicamentoRepository.apagadoLogicoMedicamento(medicamentoId);
+    public void deletarLogico(Integer medicamentoId, Integer usuarioId) {
+        validarMedicamento(medicamentoId, usuarioId);
+        medicamentoRepository.apagarLogicoMedicamento(medicamentoId, usuarioId);
     }
 
     /**
-     * Retorna uma lista de todos os medicamentos com status INATIVO.
+     * Retorna uma lista de todos os medicamentos inativos de um usuário específico.
+     * @param usuarioId O ID do usuário autenticado.
      * @return Uma lista de {@link MedicamentoDTOResponse}.
      */
-    public List<MedicamentoDTOResponse> listarMedicamentosInativos() {
-        return medicamentoRepository.listarMedicamentosInativos()
+    public List<MedicamentoDTOResponse> listarMedicamentosInativos(Integer usuarioId) {
+        return medicamentoRepository.listarMedicamentosInativos(usuarioId)
                 .stream()
                 .map(MedicamentoDTOResponse::new)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Valida a existência de um medicamento pelo seu ID e o retorna.
-     * Este é um método auxiliar privado para evitar a repetição de código nos
-     * métodos públicos que precisam de buscar uma entidade antes de realizar uma ação.
-     *
-     * @param medicamentoId O ID do medicamento a ser validado e buscado.
+     * Valida a existência de um medicamento pelo seu ID e se ele pertence ao usuário.
+     * @param medicamentoId O ID do medicamento a ser validado.
+     * @param usuarioId O ID do usuário autenticado.
      * @return A entidade {@link Medicamento} encontrada.
+     * @throws EntityNotFoundException se o medicamento não for encontrado ou não pertencer ao usuário.
      */
-    private Medicamento validarMedicamento(Integer medicamentoId) {
-        Medicamento medicamento = medicamentoRepository.obterMedicamentoPeloId(medicamentoId);
+    private Medicamento validarMedicamento(Integer medicamentoId, Integer usuarioId) {
+        Medicamento medicamento = medicamentoRepository.listarMedicamentoPorId(medicamentoId, usuarioId);
         if (medicamento == null) {
             throw new EntityNotFoundException("Medicamento não encontrado com o ID: " + medicamentoId);
         }

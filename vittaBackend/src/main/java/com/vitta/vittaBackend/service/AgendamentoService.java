@@ -12,6 +12,7 @@ import com.vitta.vittaBackend.repository.AgendamentoRepository;
 import com.vitta.vittaBackend.repository.MedicamentoHistoricoRepository;
 import com.vitta.vittaBackend.repository.TratamentoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
-    private final MedicamentoHistoricoRepository medicamentoHistoricoRepository;
     private final UsuarioRepository usuarioRepository;
     private final TratamentoRepository tratamentoRepository;
 
@@ -33,37 +33,53 @@ public class AgendamentoService {
 
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
-            MedicamentoHistoricoRepository medicamentoHistoricoRepository,
             UsuarioRepository usuarioRepository,
             TratamentoRepository tratamentoRepository
     ) {
         this.agendamentoRepository = agendamentoRepository;
-        this.medicamentoHistoricoRepository = medicamentoHistoricoRepository;
         this.usuarioRepository = usuarioRepository;
         this.tratamentoRepository = tratamentoRepository;
     }
 
-    //LISTAR OS AGENDAMENTOS
-    public List<AgendamentoDTOResponse> listarAgendamentos() {
-        List<Agendamento> todosAgendamentos = agendamentoRepository.listarAgendamentos();
-
-        return agendamentoRepository.listarAgendamentos()
-                .stream()
-                .map(AgendamentoDTOResponse::new)
+    /**
+     * Lista todos os agendamentos ativos de um usuário específico.
+     * @param usuarioId O ID do usuário autenticado.
+     * @return Uma lista de AgendamentoDTOResponse.
+     */
+    public List<AgendamentoDTOResponse> listarAgendamentosPorUsuario(Integer usuarioId) {
+        List<Agendamento> agendamentosDoUsuario = agendamentoRepository.listarAgendamentosAtivos(usuarioId);
+        return agendamentosDoUsuario.stream()
+                .map(agendamento -> modelMapper.map(agendamento, AgendamentoDTOResponse.class))
                 .collect(Collectors.toList());
     }
 
-    //LISTAR 1 AGENDAMENTO, PEGANDO PELO ID
-    public AgendamentoDTOResponse buscarAgendamentoPorId(Integer agendamentoId) {
-        Agendamento agendamento = this.validarAgendamento(agendamentoId);
+    /**
+     * Busca um único agendamento pelo seu ID, garantindo que ele pertença ao usuário.
+     * @param agendamentoId O ID do agendamento a ser buscado.
+     * @param usuarioId O ID do usuário autenticado.
+     * @return O AgendamentoDTOResponse correspondente.
+     */
+    public AgendamentoDTOResponse listarAgendamentoPorId(Integer agendamentoId, Integer usuarioId) {
+        Agendamento agendamento = validarAgendamento(agendamentoId, usuarioId);
         return new AgendamentoDTOResponse(agendamento);
     }
 
-    //CADASTRAR AGENDAMENTO
+    /**
+     * Cadastra um novo agendamento para o usuário autenticado.
+     * O ID do usuário é obtido do contexto de segurança, não do DTO.
+     * @param agendamentoDTORequest DTO com os dados do novo agendamento.
+     * @param usuarioId O ID do usuário autenticado.
+     * @return O AgendamentoDTOResponse do novo agendamento.
+     */
     @Transactional
-    public AgendamentoDTOResponse cadastrarAgendamento(AgendamentoDTORequest agendamentoDTORequest) {
-        Usuario usuario = usuarioRepository.findById(agendamentoDTORequest.getUsuarioId()).orElseThrow();
-        Tratamento tratamento = tratamentoRepository.findById(agendamentoDTORequest.getTratamentoId()).orElseThrow();
+    public AgendamentoDTOResponse cadastrarAgendamento(AgendamentoDTORequest agendamentoDTORequest, Integer usuarioId) {
+        Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
+
+        Tratamento tratamento = tratamentoRepository.listarTratamentoPorId(agendamentoDTORequest.getTratamentoId(), usuarioId);
+
+        if (tratamento == null) {
+            throw new EntityNotFoundException("Tratamento não encontrado ou não pertence a este usuário.");
+        }
 
         Agendamento agendamento = new Agendamento();
 
@@ -82,12 +98,16 @@ public class AgendamentoService {
         return new AgendamentoDTOResponse(agendamentoSalvo);
     }
 
-    //ATUALIZAR 1 AGENDAMENTO, PEGANDO PELO ID
+    /**
+     * Atualiza um agendamento existente, garantindo que ele pertença ao usuário.
+     * @param agendamentoId O ID do agendamento a ser atualizado.
+     * @param usuarioId O ID do usuário autenticado.
+     * @param agendamentoAtualizarDTORequest DTO com os dados de atualização.
+     * @return O AgendamentoDTOResponse atualizado.
+     */
     @Transactional
-    public AgendamentoDTOResponse atualizarAgendamento(Integer agendamentoId, AgendamentoAtualizarDTORequest agendamentoAtualizarDTORequest) {
-        Agendamento agendamentoBuscado = this.validarAgendamento(agendamentoId);
-
-        if (agendamentoBuscado != null) {
+    public AgendamentoDTOResponse atualizarAgendamento(Integer agendamentoId, Integer usuarioId, AgendamentoAtualizarDTORequest agendamentoAtualizarDTORequest) {
+        Agendamento agendamentoBuscado = validarAgendamento(agendamentoId, usuarioId);
 
             agendamentoBuscado.setHorarioDoAgendamento(agendamentoAtualizarDTORequest.getHorarioDoAgendamento());
 
@@ -106,19 +126,31 @@ public class AgendamentoService {
 
             Agendamento agendamentoRecebido = agendamentoRepository.save(agendamentoBuscado);
             return new AgendamentoDTOResponse(agendamentoRecebido);
-        } else {
-            return null;
-        }
     }
 
-    //DELETAR 1 AGENDAMENTO, PEGANDO PELO ID
+    /**
+     * Realiza a exclusão lógica de um agendamento, garantindo que ele pertença ao usuário.
+     * @param agendamentoId O ID do agendamento a ser deletado.
+     * @param usuarioId O ID do usuário autenticado.
+     */
     @Transactional
-    public void deletarAgendamento(Integer agendamentoId) { agendamentoRepository.apagadoLogicoAgendamento(agendamentoId); }
+    public void deletarAgendamento(Integer agendamentoId, Integer usuarioId) { agendamentoRepository.apagarLogicoAgendamento(agendamentoId, usuarioId); }
 
 
-    //METODO PRIVADO PARA VALIDAR SE O AGENDAMENTO, PEGANDO PELO ID - para utilizar em outros métodos
-    private Agendamento validarAgendamento(Integer agendamentoId) {
-        Agendamento agendamento = agendamentoRepository.obterAgendamentoPeloId(agendamentoId);
+    /**
+     * Valida a existência de um agendamento e a sua posse pelo usuário especificado.
+     * <p>
+     * Este é um método auxiliar privado que busca um agendamento no repositório
+     * usando tanto o ID do agendamento quanto o ID do usuário. Ele serve como uma
+     * verificação de segurança e existência antes de qualquer operação de atualização ou exclusão.
+     *
+     * @param agendamentoId O ID do agendamento a ser validado e buscado.
+     * @param usuarioId O ID do usuário que deve ser o proprietário do agendamento.
+     * @return A entidade {@link Agendamento} encontrada, caso seja válida e pertença ao usuário.
+     * @throws RuntimeException se o agendamento não for encontrado ou não pertencer ao usuário especificado.
+     */
+    private Agendamento validarAgendamento(Integer agendamentoId, Integer usuarioId) {
+        Agendamento agendamento = agendamentoRepository.listarAgendamentoPorId(agendamentoId, usuarioId);
         if (agendamento == null) {
             throw new RuntimeException("Agendamento não encontrado ou inativo.");
         }

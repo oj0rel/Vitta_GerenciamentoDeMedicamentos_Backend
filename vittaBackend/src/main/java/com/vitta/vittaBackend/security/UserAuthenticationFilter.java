@@ -41,8 +41,9 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String token = authorizationHeader.replace("Bearer ", "");
             try {
-                String subject = jwtTokenService.getSubjectFromToken(token);
-                Optional<Usuario> maybeUser = usuarioRepository.findByEmail(subject);
+//                String subject = jwtTokenService.getSubjectFromToken(token);
+                Integer userId = jwtTokenService.getUserIdFromToken(token);
+                Optional<Usuario> maybeUser = usuarioRepository.findById(userId);
 
                 if (maybeUser.isPresent()) {
                     Usuario user = maybeUser.get();

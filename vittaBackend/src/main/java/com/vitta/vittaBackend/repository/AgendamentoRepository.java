@@ -17,30 +17,36 @@ import java.util.Optional;
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Integer> {
 
     /**
-     * Retorna uma lista de todos os agendamentos considerados ativos.
+     * Retorna uma lista de todos os agendamentos ativos de um usuário específico.
      * A consulta busca por agendamentos cujo status é maior que 0.
-     * @return Uma lista de entidades {@link Agendamento} ativas.
+     *
+     * @param usuarioId O ID do usuário dono dos agendamentos.
+     * @return Uma lista de entidades {@link Agendamento} ativas para o usuário especificado.
      */
-    @Query("SELECT a FROM Agendamento a WHERE a.status > 0")
-    List<Agendamento> listarAgendamentos();
+    @Query("SELECT a FROM Agendamento a WHERE a.usuario.id = :usuarioId AND a.status > 0")
+    List<Agendamento> listarAgendamentosAtivos(@Param("usuarioId") Integer usuarioId);
 
     /**
-     * Busca um agendamento específico pelo seu ID.
+     * Busca um agendamento específico pelo seu ID e pelo ID do usuário proprietário.
+     * Garante que um usuário só possa acessar seus próprios agendamentos.
+     *
      * @param agendamentoId O ID do agendamento a ser buscado.
-     * @return A entidade {@link Agendamento} correspondente, ou {@code null} se não for encontrada.
+     * @param usuarioId O ID do usuário que deve ser o proprietário do agendamento.
      */
-    @Query("SELECT a FROM Agendamento a WHERE a.id = :id AND a.status >= 0")
-    Agendamento obterAgendamentoPeloId(@Param("id") Integer agendamentoId);
+    @Query("SELECT a FROM Agendamento a WHERE a.id = :agendamentoId AND a.usuario.id = :usuarioId AND a.status >= 0")
+    Agendamento listarAgendamentoPorId(@Param("agendamentoId") Integer agendamentoId, @Param("usuarioId") Integer usuarioId);
 
     /**
-     * Realiza a exclusão lógica de um agendamento diretamente no banco de dados.
+     * Realiza a exclusão lógica de um agendamento, garantindo que pertença ao usuário correto.
      * Esta consulta de atualização (UPDATE) altera o status do agendamento para 0 (inativo).
+     *
      * @param agendamentoId O ID do agendamento a ser desativado.
+     * @param usuarioId O ID do usuário proprietário do agendamento.
      */
     @Modifying
     @Transactional
-    @Query("UPDATE Agendamento a SET a.status = 0 WHERE a.id = :id")
-    void apagadoLogicoAgendamento(@Param("id") Integer agendamentoId);
+    @Query("UPDATE Agendamento a SET a.status = 0 WHERE a.id = :agendamentoId AND a.usuario.id = :usuarioId")
+    void apagarLogicoAgendamento(@Param("agendamentoId") Integer agendamentoId, @Param("usuarioId") Integer usuarioId);
 
     /**
      * Encontra o primeiro agendamento associado a um ID de tratamento específico.
@@ -48,17 +54,35 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
      * "ByTratamentoId" - Filtra pela propriedade 'id' da entidade relacionada 'tratamento'.
      *
      * @param tratamentoId o ID do tratamento a ser buscado.
+     * @param usuarioId o ID do usuário proprietário.
      * @return um Optional contendo o primeiro agendamento encontrado, ou um Optional vazio se nenhum for encontrado.
      */
-    Optional<Agendamento> findFirstByTratamentoId(Integer tratamentoId);
+    @Query("SELECT a FROM Agendamento a\n" +
+            "WHERE a.tratamento.id = :tratamentoId\n" +
+            "  AND a.usuario.id = :usuarioId\n" +
+            "ORDER BY a.id ASC\n" +
+            "LIMIT 1")
+    Optional<Agendamento> obterPrimeiroAgendamentoDeTratamentoEspecifico(Integer tratamentoId, Integer usuarioId);
 
     /**
      * Deleta todos os agendamentos de um tratamento que estão com status PENDENTE
      * e cuja data/hora é futura em relação ao momento atual.
      *
      * @param tratamentoId O ID do tratamento.
+     * @param usuarioId O ID do usuário proprietário dos agendamentos.
+     * @param status O status do agendamento.
      * @param agora O momento atual, para garantir que apenas agendamentos futuros sejam apagados.
      */
     @Modifying
-    void deleteByTratamentoIdAndStatusAndHorarioDoAgendamentoAfter(Integer tratamentoId, AgendamentoStatus status, LocalDateTime agora);
+    @Query("DELETE FROM Agendamento a\n" +
+            "WHERE a.tratamento.id = :tratamentoId\n" +
+            "  AND a.usuario.id = :usuarioId\n" +
+            "  AND a.status = :status\n" +
+            "  AND a.horarioDoAgendamento > :agora")
+    void deletarAgendamentosFuturosPendentesDeTratamento(
+            @Param("tratamentoId") Integer tratamentoId,
+            @Param("usuarioId") Integer usuarioId,
+            @Param("status") AgendamentoStatus status,
+            @Param("agora") LocalDateTime agora
+    );
 }
