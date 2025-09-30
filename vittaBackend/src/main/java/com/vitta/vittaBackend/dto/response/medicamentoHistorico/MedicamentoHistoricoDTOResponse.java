@@ -15,6 +15,7 @@ public class MedicamentoHistoricoDTOResponse {
     private String observacao;
     private GeralStatus historicoStatus;
     private AgendamentoResumoDTOResponse agendamento;
+    private MedicamentoResumoDTOResponse medicamento;
 
     public MedicamentoHistoricoDTOResponse() {
     }
@@ -29,6 +30,16 @@ public class MedicamentoHistoricoDTOResponse {
         // Converte também o medicamento aninhado
         if (historicoEntity.getAgendamento() != null) {
             this.agendamento = new AgendamentoResumoDTOResponse(historicoEntity.getAgendamento());
+        }
+
+        // navegação para buscar a informação do medicamento para registrar no historico
+        if (historicoEntity.getAgendamento() != null &&
+                historicoEntity.getAgendamento().getTratamento() != null &&
+                historicoEntity.getAgendamento().getTratamento().getMedicamento() != null) {
+
+            this.medicamento = new MedicamentoResumoDTOResponse(
+                    historicoEntity.getAgendamento().getTratamento().getMedicamento()
+            );
         }
     }
 
@@ -78,5 +89,13 @@ public class MedicamentoHistoricoDTOResponse {
 
     public void setAgendamento(AgendamentoResumoDTOResponse agendamento) {
         this.agendamento = agendamento;
+    }
+
+    public MedicamentoResumoDTOResponse getMedicamento() {
+        return medicamento;
+    }
+
+    public void setMedicamento(MedicamentoResumoDTOResponse medicamento) {
+        this.medicamento = medicamento;
     }
 }
