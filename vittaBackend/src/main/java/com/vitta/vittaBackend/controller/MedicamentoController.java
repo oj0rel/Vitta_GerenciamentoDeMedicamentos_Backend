@@ -26,7 +26,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/medicamentos")
 @Tag(name = "Medicamento", description = "API para gerenciamento de medicamentos do usuário autenticado.")
-@SecurityRequirement(name = "bearer-key")
 public class MedicamentoController {
 
     private MedicamentoService medicamentoService;

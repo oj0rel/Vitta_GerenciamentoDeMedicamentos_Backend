@@ -27,7 +27,6 @@ import java.util.List;
 @RequestMapping("/api/medicamentoHistoricos")
 @Tag(name = "Uso de Medicamento Historico",
         description = "API para gerenciamento dos históricos de uso de mendicamentos do usuário autenticado.")
-@SecurityRequirement(name = "bearer-key")
 public class MedicamentoHistoricoController {
 
     private MedicamentoHistoricoService medicamentoHistoricoService;

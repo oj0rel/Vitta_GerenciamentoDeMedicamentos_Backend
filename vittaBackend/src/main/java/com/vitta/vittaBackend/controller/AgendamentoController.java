@@ -26,7 +26,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/agendamentos")
 @Tag(name = "Agendamento", description = "API para gerenciamento dos agendamentos do usuário autenticado.")
-@SecurityRequirement(name = "bearer-key")
 public class AgendamentoController {
 
     private AgendamentoService agendamentoService;
