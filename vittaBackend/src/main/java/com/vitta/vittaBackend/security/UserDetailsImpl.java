@@ -1,6 +1,7 @@
 package com.vitta.vittaBackend.security;
 
 import com.vitta.vittaBackend.entity.Usuario;
+import com.vitta.vittaBackend.enums.UsuarioStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -59,6 +60,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.usuario.getStatus() == UsuarioStatus.ATIVO;
     }
 }
