@@ -102,11 +102,12 @@ public class TratamentoService {
         Tratamento tratamento = new Tratamento();
 
         tratamento.setMedicamento(medicamento);
-        tratamento.setUsuario(usuario);
         tratamento.setDosagem(tratamentoDTORequest.getDosagem());
         tratamento.setInstrucoes(tratamentoDTORequest.getInstrucoes());
         tratamento.setDataDeInicio(tratamentoDTORequest.getDataDeInicio());
         tratamento.setDataDeTermino(tratamentoDTORequest.getDataDeTermino());
+
+        tratamento.setUsuario(usuario);
 
         if (tratamentoDTORequest.getTipoDeFrequencia() != null) {
             tratamento.setTipoDeFrequencia(
@@ -296,6 +297,7 @@ public class TratamentoService {
             }
             dataCorrente = dataCorrente.plusDays(1);
         }
+
         return agendamentos;
     }
 
