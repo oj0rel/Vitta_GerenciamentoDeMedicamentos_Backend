@@ -96,6 +96,7 @@ public class TratamentoDTOResponse {
         if (tratamentoEntity.getMedicamento() != null) {
             this.medicamento = new MedicamentoResumoDTOResponse(tratamentoEntity.getMedicamento());
         }
+
     }
 
     public Integer getId() {

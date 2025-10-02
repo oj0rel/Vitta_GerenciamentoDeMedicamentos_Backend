@@ -18,11 +18,6 @@ public class TratamentoDTORequest {
     private Integer medicamentoId;
 
     /**
-     * ID do usuário ao qual este tratamento pertence.
-     */
-    private Integer usuarioId;
-
-    /**
      * Dosagem a ser administrada em cada toma (ex: 1.00 para um comprimido).
      */
     private BigDecimal dosagem;
@@ -96,14 +91,6 @@ public class TratamentoDTORequest {
 
     public void setMedicamentoId(Integer medicamentoId) {
         this.medicamentoId = medicamentoId;
-    }
-
-    public Integer getUsuarioId() {
-        return usuarioId;
-    }
-
-    public void setUsuarioId(Integer usuarioId) {
-        this.usuarioId = usuarioId;
     }
 
     public BigDecimal getDosagem() {
