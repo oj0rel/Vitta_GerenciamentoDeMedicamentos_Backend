@@ -1,5 +1,6 @@
 package com.vitta.vittaBackend.dto.response.tratamento;
 
+import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.entity.Tratamento;
@@ -8,6 +9,9 @@ import com.vitta.vittaBackend.enums.tratamento.TratamentoStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TratamentoDTOResponse {
 
@@ -57,6 +61,11 @@ public class TratamentoDTOResponse {
     private TratamentoStatus status;
 
     /**
+     * A lista de agendamentos gerados a partir deste tratamento.
+     */
+    private List<AgendamentoResumoDTOResponse> agendamentos;
+
+    /**
      * DTO resumido do usuário ao qual este tratamento pertence.
      */
     private UsuarioResumoDTOResponse usuario;
@@ -88,6 +97,14 @@ public class TratamentoDTOResponse {
         this.intervaloEmHoras = tratamentoEntity.getIntervaloEmHoras();
         this.horariosEspecificos = tratamentoEntity.getHorariosEspecificos();
         this.status = tratamentoEntity.getStatus();
+
+        if (tratamentoEntity.getAgendamentos() != null) {
+            this.agendamentos = tratamentoEntity.getAgendamentos().stream()
+                    .map(agendamentoEntity -> new AgendamentoResumoDTOResponse(agendamentoEntity))
+                    .collect(Collectors.toList());
+        } else {
+            this.agendamentos = Collections.emptyList();
+        }
 
         if (tratamentoEntity.getUsuario() != null) {
             this.usuario = new UsuarioResumoDTOResponse(tratamentoEntity.getUsuario());
@@ -169,6 +186,14 @@ public class TratamentoDTOResponse {
 
     public void setStatus(TratamentoStatus status) {
         this.status = status;
+    }
+
+    public List<AgendamentoResumoDTOResponse> getAgendamentos() {
+        return agendamentos;
+    }
+
+    public void setAgendamentos(List<AgendamentoResumoDTOResponse> agendamentos) {
+        this.agendamentos = agendamentos;
     }
 
     public UsuarioResumoDTOResponse getUsuario() {
