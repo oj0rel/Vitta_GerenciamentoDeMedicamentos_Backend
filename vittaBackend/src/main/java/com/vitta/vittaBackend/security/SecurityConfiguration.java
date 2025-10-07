@@ -41,8 +41,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/cadastrar", "/api/usuarios/login").permitAll()
 
                         // Endpoints de teste com suas respectivas permissões
-                        .requestMatchers("/users/test").authenticated()
-                        .requestMatchers("/users/test/customer").hasRole("CUSTOMER")
+                        .requestMatchers("/api/usuarios/test").authenticated()
+                        .requestMatchers("/api/usuarios/test/customer").hasRole("CUSTOMER")
 
                         // Qualquer outra requisição não listada acima exigirá autenticação
                         .anyRequest().authenticated()
