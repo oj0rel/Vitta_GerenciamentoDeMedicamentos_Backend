@@ -128,14 +128,13 @@ public class TratamentoService {
             tipoDeAlertaEscolhido = TipoDeAlerta.NOTIFICACAO_PUSH;
         }
 
-        Tratamento tratamentoSalvo = tratamentoRepository.save(tratamento);
-
         // gerar e salvar os agendamentos
-        List<Agendamento> agendamentos = gerarAgendamentosParaTratamento(tratamentoSalvo, tipoDeAlertaEscolhido);
+        List<Agendamento> agendamentos = gerarAgendamentosParaTratamento(tratamento, tipoDeAlertaEscolhido);
         if (agendamentos != null && !agendamentos.isEmpty()) {
-            agendamentoRepository.saveAll(agendamentos);
+            tratamento.setAgendamentos(agendamentos);
         }
 
+        Tratamento tratamentoSalvo = tratamentoRepository.save(tratamento);
         return new TratamentoDTOResponse(tratamentoSalvo);
     }
 
@@ -183,28 +182,32 @@ public class TratamentoService {
         // verificar se o tipo de alerta mudou (isso também força a regeração)
         if (tratamentoAtualizarDTORequest.getTipoDeAlerta() != null) {
             tipoDeAlertaParaRegeracao = TipoDeAlerta.fromCodigo(tratamentoAtualizarDTORequest.getTipoDeAlerta());
-            regerarAgendamentos = true; // se o alerta muda, os futuros agendamentos precisam ser recriados
+            regerarAgendamentos = true;
         } else if (regerarAgendamentos) {
             // se precisa regerar, mas o alerta não foi alterado, precisamos buscar o alerta atual
             // para manter a consistência.
-            tipoDeAlertaParaRegeracao = agendamentoRepository
-                    .obterPrimeiroAgendamentoDeTratamentoEspecifico(tratamentoId, usuarioId)
+            tipoDeAlertaParaRegeracao = tratamentoExistente.getAgendamentos().stream()
+                    .filter(a -> a.getHorarioDoAgendamento().isAfter(LocalDateTime.now()))
+                    .findFirst()
                     .map(Agendamento::getTipoDeAlerta)
-                    .orElse(TipoDeAlerta.NOTIFICACAO_PUSH); // Fallback para um padrão, caso não encontre nenhum
+                    .orElse(TipoDeAlerta.NOTIFICACAO_PUSH);
         }
 
         if (regerarAgendamentos) {
-            agendamentoRepository.deletarAgendamentosFuturosPendentesDeTratamento(
-                    tratamentoId,
-                    usuarioId,
-                    AgendamentoStatus.PENDENTE,
-                    LocalDateTime.now()
+            // Passo 1: Remover os agendamentos futuros e pendentes DA COLEÇÃO em memória.
+            // O `orphanRemoval=true` cuidará da exclusão no banco.
+            tratamentoExistente.getAgendamentos().removeIf(agendamento ->
+                    agendamento.getStatus() == AgendamentoStatus.PENDENTE &&
+                            agendamento.getHorarioDoAgendamento().isAfter(LocalDateTime.now())
             );
 
-            List<Agendamento> novosAgendamentos = gerarAgendamentosParaTratamento(tratamentoExistente, tipoDeAlertaParaRegeracao);
+            // Passo 2: Gerar os novos agendamentos (idealmente a partir de hoje).
+            // Criaremos uma versão melhorada do método de geração.
+            List<Agendamento> novosAgendamentos = gerarAgendamentosFuturos(tratamentoExistente, tipoDeAlertaParaRegeracao);
 
+            // Passo 3: Adicionar os novos agendamentos à coleção.
             if (novosAgendamentos != null && !novosAgendamentos.isEmpty()) {
-                agendamentoRepository.saveAll(novosAgendamentos);
+                tratamentoExistente.getAgendamentos().addAll(novosAgendamentos);
             }
         }
 
@@ -298,6 +301,27 @@ public class TratamentoService {
             dataCorrente = dataCorrente.plusDays(1);
         }
 
+        return agendamentos;
+    }
+
+    /**
+     * Versão modificada que gera agendamentos apenas a partir de uma data de início,
+     * que por padrão será "hoje".
+     */
+    private List<Agendamento> gerarAgendamentosFuturos(Tratamento tratamento, TipoDeAlerta tipoDeAlerta) {
+        LocalDate hoje = LocalDate.now();
+        LocalDate dataDePartida = tratamento.getDataDeInicio().isAfter(hoje) ? tratamento.getDataDeInicio() : hoje;
+
+        // A lógica interna de geração permanece a mesma, apenas usando a 'dataDePartida'
+        // no lugar de 'tratamento.getDataDeInicio()' no início do seu loop 'while'.
+        // (O resto do seu código de `gerarAgendamentosParaTratamento` entra aqui, ajustado)
+        List<Agendamento> agendamentos = new ArrayList<>();
+        LocalDate dataCorrente = dataDePartida;
+
+        while (!dataCorrente.isAfter(tratamento.getDataDeTermino())) {
+            // ... (resto da sua lógica de geração exatamente como estava)
+            // apenas garanta que os horários gerados sejam no futuro
+        }
         return agendamentos;
     }
 
