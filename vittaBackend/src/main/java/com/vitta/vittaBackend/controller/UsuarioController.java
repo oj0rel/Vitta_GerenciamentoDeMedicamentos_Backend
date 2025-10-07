@@ -81,7 +81,6 @@ public class UsuarioController {
      */
     @GetMapping("/buscarMeuPerfil")
     @Operation(summary = "Buscar meu perfil", description = "Endpoint para o usuário logado buscar seus próprios dados de perfil.")
-    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<UsuarioDTOResponse> buscarMeuPerfil(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
         UsuarioDTOResponse usuarioDTOResponse = usuarioService.buscarMeuPerfil(usuarioId);
@@ -97,7 +96,6 @@ public class UsuarioController {
      */
     @PutMapping("/atualizarMeuPerfil")
     @Operation(summary = "Atualizar meu perfil", description = "Endpoint para o usuário logado atualizar seus dados de perfil.")
-    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<UsuarioDTOResponse> atualizarUsuarioPorId(
             @RequestBody @Valid UsuarioAtualizarDTORequest usuarioAtualizarDTORequest,
             @AuthenticationPrincipal UserDetailsImpl userDetails
@@ -128,7 +126,6 @@ public class UsuarioController {
      */
     @GetMapping("/listarMeusAgendamentos")
     @Operation(summary = "Listar meus agendamentos", description = "Busca o usuário logado com sua lista de agendamentos cadastrados.")
-    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<UsuarioAgendamentosDTOResponse> buscarMeusAgendamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
         return ResponseEntity.ok(usuarioService.buscarMeusAgendamentos(usuarioId));
@@ -140,7 +137,6 @@ public class UsuarioController {
      */
     @GetMapping("/listarMeusHistoricos")
     @Operation(summary = "Listar meus históricos", description = "Busca o usuário logado com seu histórico de uso de medicamentos cadastrados.")
-    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<UsuarioHistoricoDTOResponse> buscarMeusHistoricos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
         return ResponseEntity.ok(usuarioService.buscarMeusHistoricos(usuarioId));
@@ -152,7 +148,6 @@ public class UsuarioController {
      */
     @GetMapping("/listarMeusMedicamentos")
     @Operation(summary = "Listar meus medicamentos", description = "Busca o usuário logado com sua lista de medicamentos cadastrados.")
-    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<UsuarioMedicamentosDTOResponse> buscarMeusMedicamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
         return ResponseEntity.ok(usuarioService.buscarMeusMedicamentos(usuarioId));
@@ -164,7 +159,6 @@ public class UsuarioController {
      */
     @GetMapping("/listarMeusTratamentos")
     @Operation(summary = "Listar meus tratamentos", description = "Busca o usuário logado com sua lista de tratamentos cadastrados.")
-    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity<UsuarioTratamentosDTOResponse> buscarMeusTratamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
         return ResponseEntity.ok(usuarioService.buscarMeusTratamentos(usuarioId));
