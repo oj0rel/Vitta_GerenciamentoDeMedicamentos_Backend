@@ -222,6 +222,11 @@ public class TratamentoService {
     public void deletarLogico(Integer tratamentoId, Integer usuarioId) {
         Tratamento tratamento = validarTratamento(tratamentoId, usuarioId);
 
+        //isso aki apaga todos os agendamentos com status 'PENDENTE'que haviam
+        // sido gerados para o Tratamento que está sendo apagado
+        tratamento.getAgendamentos().removeIf(agendamento ->
+                agendamento.getStatus() == AgendamentoStatus.PENDENTE);
+
         tratamento.setStatus(TratamentoStatus.CANCELADO);
         tratamentoRepository.save(tratamento);
     }
