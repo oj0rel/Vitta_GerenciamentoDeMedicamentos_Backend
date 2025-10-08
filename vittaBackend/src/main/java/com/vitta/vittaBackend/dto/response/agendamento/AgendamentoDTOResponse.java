@@ -1,6 +1,7 @@
 package com.vitta.vittaBackend.dto.response.agendamento;
 
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoResumoDTOResponse;
+import com.vitta.vittaBackend.dto.response.tratamento.TratamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.usuario.UsuarioResumoDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
@@ -16,6 +17,7 @@ public class AgendamentoDTOResponse {
     private TipoDeAlerta tipoDeAlerta;
     private AgendamentoStatus status;
     private UsuarioResumoDTOResponse usuario;
+    private TratamentoResumoDTOResponse tratamento;
     private MedicamentoHistoricoResumoDTOResponse historicoDoMedicamentoTomado;
 
     public AgendamentoDTOResponse() {
@@ -33,6 +35,10 @@ public class AgendamentoDTOResponse {
 
         if (agendamentoEntity.getUsuario() != null) {
             this.usuario = new UsuarioResumoDTOResponse(agendamentoEntity.getUsuario());
+        }
+
+        if (agendamentoEntity.getTratamento() != null) {
+            this.tratamento = new TratamentoResumoDTOResponse(agendamentoEntity.getTratamento());
         }
 
         if (agendamentoEntity.getMedicamentoHistorico() != null) {
@@ -78,6 +84,14 @@ public class AgendamentoDTOResponse {
 
     public void setUsuario(UsuarioResumoDTOResponse usuario) {
         this.usuario = usuario;
+    }
+
+    public TratamentoResumoDTOResponse getTratamento() {
+        return tratamento;
+    }
+
+    public void setTratamento(TratamentoResumoDTOResponse tratamento) {
+        this.tratamento = tratamento;
     }
 
     public MedicamentoHistoricoResumoDTOResponse getHistoricoDoMedicamentoTomado() {

@@ -9,6 +9,7 @@ import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.TipoFrequencia;
 import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
+import com.vitta.vittaBackend.enums.tratamento.TratamentoStatus;
 import com.vitta.vittaBackend.repository.AgendamentoRepository;
 import com.vitta.vittaBackend.repository.MedicamentoHistoricoRepository;
 import com.vitta.vittaBackend.repository.TratamentoRepository;
@@ -54,10 +55,10 @@ public class AgendamentoService {
      * @param usuarioId O ID do usuário autenticado.
      * @return Uma lista de AgendamentoDTOResponse.
      */
-    public List<AgendamentoDTOResponse> listarAgendamentosPorUsuario(Integer usuarioId) {
-        List<Agendamento> agendamentosDoUsuario = agendamentoRepository.listarAgendamentosAtivos(usuarioId);
-        return agendamentosDoUsuario.stream()
-                .map(agendamento -> modelMapper.map(agendamento, AgendamentoDTOResponse.class))
+    public List<AgendamentoDTOResponse> listarAgendamentosDoUsuario(Integer usuarioId) {
+        return agendamentoRepository.listarAgendamentosAtivos(usuarioId)
+                .stream()
+                .map(AgendamentoDTOResponse::new)
                 .collect(Collectors.toList());
     }
 
@@ -73,17 +74,38 @@ public class AgendamentoService {
     }
 
     /**
-     * Cadastra um novo agendamento para o usuário autenticado.
+     * Cria um novo agendamento para o usuário autenticado.
      * O ID do usuário é obtido do contexto de segurança, não do DTO.
      * @param agendamentoDTORequest DTO com os dados do novo agendamento.
      * @param usuarioId O ID do usuário autenticado.
      * @return O AgendamentoDTOResponse do novo agendamento.
      */
     @Transactional
-    public AgendamentoDTOResponse cadastrarAgendamento(AgendamentoDTORequest agendamentoDTORequest, Integer usuarioId) {
+    public AgendamentoDTOResponse criarAgendamento(AgendamentoDTORequest agendamentoDTORequest, Integer usuarioId) {
         Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
 
         Tratamento tratamento = tratamentoRepository.listarTratamentoPorId(agendamentoDTORequest.getTratamentoId(), usuarioId);
+        // fazer as verificações de regra de negócio para garantir
+        // que não crie agendamentos associados a tratamentos inválidos
+        if (tratamento.getStatus() != TratamentoStatus.ATIVO) {
+            throw new IllegalArgumentException("Não é possível criar agendamento para um tratamento inativo.");
+        }
+        LocalDate dataInicioTratamento = tratamento.getDataDeInicio();
+        LocalDate dataTerminoTratamento = tratamento.getDataDeTermino();
+
+        // conversão para LocalDateTime para poder usar as
+        // funções necessários para validar as condicionais
+        LocalDateTime inicioTratamento = dataInicioTratamento.atStartOfDay();
+
+        if (agendamentoDTORequest.getHorarioDoAgendamento().isBefore(inicioTratamento)) {
+            throw new IllegalArgumentException("A data do agendamento não pode ser anterior à data de início do tratamento.");
+        }
+        if (dataTerminoTratamento != null) {
+            LocalDateTime fimTratamento = dataTerminoTratamento.atTime(LocalTime.MAX);
+            if (agendamentoDTORequest.getHorarioDoAgendamento().isAfter(fimTratamento)) {
+                throw new IllegalArgumentException("A data do agendamento não pode ser posterior à data de término do tratamento.");
+            }
+        }
 
         if (tratamento == null) {
             throw new EntityNotFoundException("Tratamento não encontrado ou não pertence a este usuário.");

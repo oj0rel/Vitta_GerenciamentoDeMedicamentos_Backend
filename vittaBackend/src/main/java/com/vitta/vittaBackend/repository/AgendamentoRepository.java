@@ -18,12 +18,18 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
 
     /**
      * Retorna uma lista de todos os agendamentos ativos de um usuário específico.
-     * A consulta busca por agendamentos cujo status é maior que 0.
+     * A consulta busca por agendamentos, tratamento e medicamento correspondentes,
+     * que pertencem ao usuário logado e o status é maior que 0.
      *
      * @param usuarioId O ID do usuário dono dos agendamentos.
      * @return Uma lista de entidades {@link Agendamento} ativas para o usuário especificado.
      */
-    @Query("SELECT a FROM Agendamento a WHERE a.usuario.id = :usuarioId AND a.status > 0")
+    @Query(
+//            "SELECT a FROM Agendamento a WHERE a.usuario.id = :usuarioId AND a.status > 0"
+            "SELECT a FROM Agendamento a " +
+                    "JOIN FETCH a.tratamento t " +
+                    "WHERE a.usuario.id = :usuarioId AND a.status > 0"
+    )
     List<Agendamento> listarAgendamentosAtivos(@Param("usuarioId") Integer usuarioId);
 
     /**

@@ -6,7 +6,6 @@ import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
 import com.vitta.vittaBackend.security.UserDetailsImpl;
 import com.vitta.vittaBackend.service.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -41,7 +40,7 @@ public class AgendamentoController {
     @Operation(summary = "Listar meus Agendamentos", description = "Endpoint para listar todos os Agendamentos do usuário logado.")
     public ResponseEntity<List<AgendamentoDTOResponse>> listarAgendamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
-        return ResponseEntity.ok(agendamentoService.listarAgendamentosPorUsuario(usuarioId));
+        return ResponseEntity.ok(agendamentoService.listarAgendamentosDoUsuario(usuarioId));
     }
 
     /**
@@ -75,7 +74,7 @@ public class AgendamentoController {
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         Integer usuarioId = userDetails.getUserId();
-        AgendamentoDTOResponse agendamentoDTOResponse = agendamentoService.cadastrarAgendamento(agendamentoDTORequest, usuarioId);
+        AgendamentoDTOResponse agendamentoDTOResponse = agendamentoService.criarAgendamento(agendamentoDTORequest, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED).body(agendamentoDTOResponse);
     }
 
