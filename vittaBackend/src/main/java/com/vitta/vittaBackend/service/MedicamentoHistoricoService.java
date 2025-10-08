@@ -24,18 +24,18 @@ public class MedicamentoHistoricoService {
     private final MedicamentoHistoricoRepository medicamentoHistoricoRepository;
     private final AgendamentoRepository agendamentoRepository;
     private final UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     public MedicamentoHistoricoService(
             MedicamentoHistoricoRepository medicamentoHistoricoRepository,
             AgendamentoRepository agendamentoRepository,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            ModelMapper modelMapper
     ) {
         this.medicamentoHistoricoRepository = medicamentoHistoricoRepository;
         this.agendamentoRepository = agendamentoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.modelMapper = modelMapper;
     }
 
     /**

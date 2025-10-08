@@ -21,10 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,20 +36,23 @@ public class TratamentoService {
     private final AgendamentoRepository agendamentoRepository;
     private final MedicamentoRepository medicamentoRepository;
     private final UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
+    private final AgendamentoService agendamentoService;
+    private final ModelMapper modelMapper;
 
     public TratamentoService(
             TratamentoRepository tratamentoRepository,
             AgendamentoRepository agendamentoRepository,
             MedicamentoRepository medicamentoRepository,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            AgendamentoService agendamentoService,
+            ModelMapper modelMapper
     ) {
         this.tratamentoRepository = tratamentoRepository;
         this.agendamentoRepository = agendamentoRepository;
         this.medicamentoRepository = medicamentoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.agendamentoService = agendamentoService;
+        this.modelMapper = modelMapper;
     }
 
     /**
@@ -129,7 +129,7 @@ public class TratamentoService {
         }
 
         // gerar e salvar os agendamentos
-        List<Agendamento> agendamentos = gerarAgendamentosParaTratamento(tratamento, tipoDeAlertaEscolhido);
+        List<Agendamento> agendamentos = agendamentoService.gerarAgendamentosParaTratamento(tratamento, tipoDeAlertaEscolhido);
         if (agendamentos != null && !agendamentos.isEmpty()) {
             tratamento.setAgendamentos(agendamentos);
         }
@@ -187,23 +187,21 @@ public class TratamentoService {
             // se precisa regerar, mas o alerta não foi alterado, precisamos buscar o alerta atual
             // para manter a consistência.
             tipoDeAlertaParaRegeracao = tratamentoExistente.getAgendamentos().stream()
-                    .filter(a -> a.getHorarioDoAgendamento().isAfter(LocalDateTime.now()))
                     .findFirst()
                     .map(Agendamento::getTipoDeAlerta)
                     .orElse(TipoDeAlerta.NOTIFICACAO_PUSH);
         }
 
         if (regerarAgendamentos) {
-            // Passo 1: Remover os agendamentos futuros e pendentes DA COLEÇÃO em memória.
-            // O `orphanRemoval=true` cuidará da exclusão no banco.
+            // remover os agendamentos futuros e pendentes DA COLEÇÃO em memória.
+            // o `orphanRemoval=true` cuidará da exclusão no banco.
             tratamentoExistente.getAgendamentos().removeIf(agendamento ->
-                    agendamento.getStatus() == AgendamentoStatus.PENDENTE &&
-                            agendamento.getHorarioDoAgendamento().isAfter(LocalDateTime.now())
+                    agendamento.getStatus() == AgendamentoStatus.PENDENTE
             );
 
             // Passo 2: Gerar os novos agendamentos (idealmente a partir de hoje).
             // Criaremos uma versão melhorada do método de geração.
-            List<Agendamento> novosAgendamentos = gerarAgendamentosFuturos(tratamentoExistente, tipoDeAlertaParaRegeracao);
+            List<Agendamento> novosAgendamentos = agendamentoService.gerarAgendamentosFuturos(tratamentoExistente, tipoDeAlertaParaRegeracao);
 
             // Passo 3: Adicionar os novos agendamentos à coleção.
             if (novosAgendamentos != null && !novosAgendamentos.isEmpty()) {
@@ -228,8 +226,6 @@ public class TratamentoService {
         tratamentoRepository.save(tratamento);
     }
 
-
-
     /**
      * Valida a existência de um tratamento e sua posse pelo usuário.
      * @param tratamentoId o ID do tratamento a ser validado.
@@ -247,103 +243,4 @@ public class TratamentoService {
         return tratamento;
     }
 
-    /**
-     * Lógica principal para gerar a lista completa de agendamentos com base nas regras de um tratamento.
-     * <p>
-     * Este método itera do primeiro ao último dia do tratamento e, para cada dia, calcula
-     * os horários das doses de acordo com o tipo de frequência definido (intervalo de horas
-     * ou horários específicos). Ele utiliza o método auxiliar {@link #criarAgendamento}
-     * para instanciar cada agendamento individual.
-     *
-     * @param tratamento A entidade {@link Tratamento} já salva, contendo as regras de agendamento.
-     * @return Uma lista de novas entidades {@link Agendamento}, prontas para serem salvas no banco de dados.
-     */
-    private List<Agendamento> gerarAgendamentosParaTratamento(Tratamento tratamento, TipoDeAlerta tipoDeAlerta) {
-        List<Agendamento> agendamentos = new ArrayList<>();
-
-        if (tratamento.getDataDeTermino() == null || tratamento.getDataDeTermino().isBefore(tratamento.getDataDeInicio())) {
-            return agendamentos;
-        }
-
-        LocalDate dataCorrente = tratamento.getDataDeInicio();
-
-        while (!dataCorrente.isAfter(tratamento.getDataDeTermino())) {
-            if (tratamento.getTipoDeFrequencia() == TipoFrequencia.INTERVALO_HORAS) {
-
-                // define o primeiro horário do dia
-                LocalDateTime proximoAgendamento = dataCorrente.atTime(8, 0);
-
-                // loop para gerar agendamentos ENQUANTO eles pertencerem à dataCorrente
-                while (proximoAgendamento.toLocalDate().isEqual(dataCorrente)) {
-                    // adiciona o agendamento apenas se ele não ultrapassar a data e hora de término do tratamento
-                    if (tratamento.getDataDeTermino() != null) {
-                        LocalDateTime dataHoraTermino = tratamento.getDataDeTermino().atTime(LocalTime.MAX);
-                        if (proximoAgendamento.isAfter(dataHoraTermino)) {
-                            break; // para o loop se o próximo agendamento já passou do fim do tratamento
-                        }
-                    }
-
-                    agendamentos.add(criarAgendamento(tratamento, proximoAgendamento, tipoDeAlerta));
-
-                    proximoAgendamento = proximoAgendamento.plusHours(tratamento.getIntervaloEmHoras());
-                }
-
-            } else if (tratamento.getTipoDeFrequencia() == TipoFrequencia.HORARIOS_ESPECIFICOS) {
-                String[] horarios = tratamento.getHorariosEspecificos().split(",");
-                for (String horaStr : horarios) {
-                    LocalTime horario = LocalTime.parse(horaStr.trim());
-                    LocalDateTime dataHoraAgendamento = LocalDateTime.of(dataCorrente, horario);
-
-                    // passa o tipoDeAlerta para o método criador
-                    agendamentos.add(criarAgendamento(tratamento, dataHoraAgendamento, tipoDeAlerta));
-                }
-            }
-            dataCorrente = dataCorrente.plusDays(1);
-        }
-
-        return agendamentos;
-    }
-
-    /**
-     * Versão modificada que gera agendamentos apenas a partir de uma data de início,
-     * que por padrão será "hoje".
-     */
-    private List<Agendamento> gerarAgendamentosFuturos(Tratamento tratamento, TipoDeAlerta tipoDeAlerta) {
-        LocalDate hoje = LocalDate.now();
-        LocalDate dataDePartida = tratamento.getDataDeInicio().isAfter(hoje) ? tratamento.getDataDeInicio() : hoje;
-
-        // A lógica interna de geração permanece a mesma, apenas usando a 'dataDePartida'
-        // no lugar de 'tratamento.getDataDeInicio()' no início do seu loop 'while'.
-        // (O resto do seu código de `gerarAgendamentosParaTratamento` entra aqui, ajustado)
-        List<Agendamento> agendamentos = new ArrayList<>();
-        LocalDate dataCorrente = dataDePartida;
-
-        while (!dataCorrente.isAfter(tratamento.getDataDeTermino())) {
-            // ... (resto da sua lógica de geração exatamente como estava)
-            // apenas garanta que os horários gerados sejam no futuro
-        }
-        return agendamentos;
-    }
-
-
-    /**
-     * Método auxiliar (factory) para criar e configurar uma única instância da entidade {@link Agendamento}.
-     * <p>
-     * Centraliza a criação do objeto, definindo os valores padrão como o status inicial {@code PENDENTE}.
-     *
-     * @param tratamento O tratamento "pai" ao qual este agendamento pertence.
-     * @param dataHora   A data e hora exata em que este agendamento deve ocorrer.
-     * @return A nova entidade {@link Agendamento}, pronta para ser adicionada à lista de geração.
-     */
-    private Agendamento criarAgendamento(Tratamento tratamento, LocalDateTime dataHora, TipoDeAlerta tipoDeAlerta) {
-        Agendamento agendamento = new Agendamento();
-
-        agendamento.setTratamento(tratamento);
-        agendamento.setHorarioDoAgendamento(dataHora);
-        agendamento.setStatus(AgendamentoStatus.PENDENTE);
-        agendamento.setTipoDeAlerta(tipoDeAlerta);
-        agendamento.setUsuario(tratamento.getUsuario());
-
-        return agendamento;
-    }
 }
