@@ -38,7 +38,7 @@ public class MedicamentoHistoricoController {
      * @return Uma lista de históricos do usuário.
      */
     @GetMapping("/listar")
-    @Operation(summary = "Listar meus Históricos de Uso de Medicamentos",
+    @Operation(summary = "Listar meus Históricos de Uso de Medicamentos.",
             description = "Endpoint para listar todos os Históricos de Uso de Medicamentos do usuário logado.")
     public ResponseEntity<List<MedicamentoHistoricoDTOResponse>> listarMedicamentosHistoricos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
@@ -52,7 +52,7 @@ public class MedicamentoHistoricoController {
      * @return O histórico encontrado.
      */
     @GetMapping("/listarMedicamentoHistoricoPorId/{medicamentoHistoricoId}")
-    @Operation(summary = "Listar o Histórico de Uso de Medicamento pelo ID dele",
+    @Operation(summary = "Listar o Histórico de Uso de Medicamento pelo ID dele.",
             description = "Endpoint para listar um Histórico de Uso de Medicamento específico do usuário logado.")
     public ResponseEntity<MedicamentoHistoricoDTOResponse> buscarMedicamentoHistoricoPorId(
             @PathVariable("medicamentoHistoricoId") Integer medicamentoHistoricoId,
@@ -73,7 +73,7 @@ public class MedicamentoHistoricoController {
      * @return O histórico recém-criado.
      */
     @PostMapping("/cadastrar")
-    @Operation(summary = "Criar novo Histórico de Uso de Medicamento",
+    @Operation(summary = "Criar novo Histórico de Uso de Medicamento.",
             description = "Endpoint para criar um novo registro de Histórico de Uso de Medicamento para o usuário logado.")
     public ResponseEntity<MedicamentoHistoricoDTOResponse> cadastrarMedicamentoHistorico(
             @Valid @RequestBody MedicamentoHistoricoDTORequest historicoDTORequest,
@@ -94,7 +94,7 @@ public class MedicamentoHistoricoController {
      * @return O histórico atualizado.
      */
     @PutMapping("/atualizar/{medicamentoHistoricoId}")
-    @Operation(summary = "Atualizar todos os dados do Histórico de Uso de Medicamento",
+    @Operation(summary = "Atualizar todos os dados do Histórico de Uso de Medicamento.",
             description = "Endpoint para atualizar o registro do Histórico de Uso de Medicamento existente do usuário logado.")
     public ResponseEntity<MedicamentoHistoricoDTOResponse> atualizarMedicamentoHistoricoPorId(
             @PathVariable("medicamentoHistoricoId") Integer medicamentoHistoricoId,
@@ -115,7 +115,7 @@ public class MedicamentoHistoricoController {
      * @return Resposta sem conteúdo.
      */
     @DeleteMapping("/deletar/{medicamentoHistoricoId}")
-    @Operation(summary = "Deletar todos os dados do Histórico de Uso de Medicamento",
+    @Operation(summary = "Deletar todos os dados do Histórico de Uso de Medicamento.",
             description = "Endpoint para deletar o registro do Histórico de Uso de Medicamento do usuário logado.")
     public ResponseEntity<Void> deletarMedicamentoHistorico(
             @PathVariable("medicamentoHistoricoId") Integer medicamentoHistoricoId,

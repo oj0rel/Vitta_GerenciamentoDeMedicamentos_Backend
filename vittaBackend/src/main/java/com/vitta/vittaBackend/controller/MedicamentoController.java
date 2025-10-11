@@ -41,7 +41,7 @@ public class MedicamentoController {
      * @return Uma lista de medicamentos do usuário.
      */
     @GetMapping("/listar")
-    @Operation(summary = "Listar meus Medicamentos", description = "Endpoint para listar todos os Medicamentos do usuário logado.")
+    @Operation(summary = "Listar meus Medicamentos.", description = "Endpoint para listar todos os Medicamentos do usuário logado.")
     public ResponseEntity<List<MedicamentoDTOResponse>> listarMedicamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
         return ResponseEntity.ok(medicamentoService.listarMedicamentosPorUsuario(usuarioId));
@@ -54,7 +54,7 @@ public class MedicamentoController {
      * @return o medicamento encontrado.
      */
     @GetMapping("/listarMedicamentoPorId/{medicamentoId}")
-    @Operation(summary = "Listar o Medicamento pelo ID dele", description = "Endpoint para listar um Medicamento específico do usuário logado.")
+    @Operation(summary = "Listar o Medicamento pelo ID dele.", description = "Endpoint para listar um Medicamento específico do usuário logado.")
     public ResponseEntity<MedicamentoDTOResponse> buscarMedicamentoPorId(
             @PathVariable("medicamentoId") Integer medicamentoId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
@@ -72,7 +72,7 @@ public class MedicamentoController {
      * @return O medicamento recém-criado.
      */
     @PostMapping("/cadastrar")
-    @Operation(summary = "Criar novo Medicamento", description = "Endpoint para criar um novo registro de Medicamento para o usuário logado.")
+    @Operation(summary = "Criar novo Medicamento.", description = "Endpoint para criar um novo registro de Medicamento para o usuário logado.")
     public ResponseEntity<MedicamentoDTOResponse> cadastrarMedicamento(
             @Valid @RequestBody MedicamentoDTORequest medicamentoDTORequest,
             @AuthenticationPrincipal UserDetailsImpl userDetails
@@ -90,7 +90,7 @@ public class MedicamentoController {
      * @return O medicamento autalizado.
      */
     @PutMapping("/atualizar/{medicamentoId}")
-    @Operation(summary = "Atualizar todos os dados do Medicamento", description = "Endpoint para atualizar o registro do Medicamento existente do usuário logado.")
+    @Operation(summary = "Atualizar todos os dados do Medicamento.", description = "Endpoint para atualizar o registro do Medicamento existente do usuário logado.")
     public ResponseEntity<MedicamentoDTOResponse> atualizarMedicamentoPorId(
             @PathVariable("medicamentoId") Integer medicamentoId,
             @RequestBody @Valid MedicamentoAtualizarDTORequest medicamentoAtualizarDTORequest,
@@ -108,7 +108,7 @@ public class MedicamentoController {
      * @return Resposta sem conteúdo.
      */
     @DeleteMapping("/deletar/{medicamentoId}")
-    @Operation(summary = "Deletar todos os dados do Medicamento", description = "Endpoint para deletar o registro do Medicamento do usuário logado.")
+    @Operation(summary = "Deletar todos os dados do Medicamento.", description = "Endpoint para deletar o registro do Medicamento do usuário logado.")
     public ResponseEntity<Void> deletarMedicamento(
             @PathVariable("medicamentoId") Integer medicamentoId,
             @AuthenticationPrincipal UserDetailsImpl userDetails

@@ -6,7 +6,6 @@ import com.vitta.vittaBackend.dto.response.tratamento.TratamentoDTOResponse;
 import com.vitta.vittaBackend.security.UserDetailsImpl;
 import com.vitta.vittaBackend.service.TratamentoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -38,7 +37,7 @@ public class TratamentoController {
      * @return Uma lista de tratamentos do usuário.
      */
     @GetMapping("/listar")
-    @Operation(summary = "Listar meus Tratamentos",
+    @Operation(summary = "Listar meus Tratamentos.",
             description = "Endpoint para listar todos os Tratamentos do usuário logado.")
     public ResponseEntity <List<TratamentoDTOResponse>> listarTratamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
@@ -52,7 +51,7 @@ public class TratamentoController {
      * @return O tratamento encontrado.
      */
     @GetMapping("/listarTratamentoPorId/{tratamentoId}")
-    @Operation(summary = "Listar Tratamento pelo ID dele",
+    @Operation(summary = "Listar Tratamento pelo ID dele.",
             description = "Endpoint para listar um Tratamento específico do usuário logado.")
     public ResponseEntity<TratamentoDTOResponse> buscarTratamentoPorId(
             @PathVariable("tratamentoId") Integer tratamentoId,
@@ -71,7 +70,7 @@ public class TratamentoController {
      * @return O tratamento recém-criado.
      */
     @PostMapping("/cadastrar")
-    @Operation(summary = "Criar novo Tratamento",
+    @Operation(summary = "Criar novo Tratamento.",
             description = "Endpoint para criar um novo registro de Tratamento para o usuário logado.")
     public ResponseEntity<TratamentoDTOResponse> cadastrarTratamento(
             @Valid @RequestBody TratamentoDTORequest tratamentoDTORequest,
@@ -90,7 +89,7 @@ public class TratamentoController {
      * @return O tratamento atualizado.
      */
     @PutMapping("/atualizar/{tratamentoId}")
-    @Operation(summary = "Atualizar todos os dados do Tratamento",
+    @Operation(summary = "Atualizar todos os dados do Tratamento.",
             description = "Endpoint para atualizar o registro do Tratamento, pelo ID.")
     public ResponseEntity<TratamentoDTOResponse> atualizarTratamentoPorId(
             @PathVariable("tratamentoId") Integer tratamentoId,
@@ -109,7 +108,7 @@ public class TratamentoController {
      * @return Resposta sem conteúdo.
      */
     @DeleteMapping("/deletar/{tratamentoId}")
-    @Operation(summary = "Deletar todos os dados do Tratamento",
+    @Operation(summary = "Deletar todos os dados do Tratamento.",
             description = "Endpoint para deletar o registro do Tratamento, pelo ID.")
     public ResponseEntity<Void> deletarTratamento(
             @PathVariable("tratamentoId") Integer tratamentoId,
