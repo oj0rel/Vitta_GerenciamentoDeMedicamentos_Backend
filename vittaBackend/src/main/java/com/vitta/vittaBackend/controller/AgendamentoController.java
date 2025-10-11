@@ -2,7 +2,9 @@ package com.vitta.vittaBackend.controller;
 
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
+import com.vitta.vittaBackend.dto.request.medicamentoHistorico.RegistrarUsoDTORequest;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
 import com.vitta.vittaBackend.security.UserDetailsImpl;
 import com.vitta.vittaBackend.service.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -112,5 +114,18 @@ public class AgendamentoController {
         Integer usuarioId = userDetails.getUserId();
         agendamentoService.deletarAgendamento(agendamentoId, usuarioId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/concluirAgendamento/{agendamentoId}")
+    @Operation(summary = "Concluir um Agendamento.", description = "Endpoint para concluir um Agendamento, automaticamente mudando seu status.")
+    public ResponseEntity<MedicamentoHistoricoDTOResponse> registrarUso(
+            @PathVariable("agendamentoId") Integer agendamentoId,
+            @Valid @RequestBody RegistrarUsoDTORequest requestDTO,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Integer usuarioId = userDetails.getUserId();
+        MedicamentoHistoricoDTOResponse respostaDTO = agendamentoService.concluirAgendamento(agendamentoId, requestDTO, usuarioId);
+
+        return ResponseEntity.ok(respostaDTO);
     }
 }

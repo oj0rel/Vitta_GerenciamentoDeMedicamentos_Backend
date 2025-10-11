@@ -2,8 +2,13 @@ package com.vitta.vittaBackend.service;
 
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
+import com.vitta.vittaBackend.dto.request.medicamentoHistorico.RegistrarUsoDTORequest;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
+import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoResumoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
+import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
 import com.vitta.vittaBackend.entity.Agendamento;
+import com.vitta.vittaBackend.entity.MedicamentoHistorico;
 import com.vitta.vittaBackend.entity.Tratamento;
 import com.vitta.vittaBackend.entity.Usuario;
 import com.vitta.vittaBackend.enums.TipoFrequencia;
@@ -11,7 +16,7 @@ import com.vitta.vittaBackend.enums.agendamento.AgendamentoStatus;
 import com.vitta.vittaBackend.enums.agendamento.TipoDeAlerta;
 import com.vitta.vittaBackend.enums.tratamento.TratamentoStatus;
 import com.vitta.vittaBackend.repository.AgendamentoRepository;
-import com.vitta.vittaBackend.repository.MedicamentoHistoricoRepository;
+import com.vitta.vittaBackend.entity.Medicamento;
 import com.vitta.vittaBackend.repository.TratamentoRepository;
 import com.vitta.vittaBackend.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,7 +24,6 @@ import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -331,5 +335,84 @@ public class AgendamentoService {
         agendamento.setUsuario(tratamento.getUsuario());
 
         return agendamento;
+    }
+
+    /**
+     * Conclui um agendamento de medicamento, alterando seu status para TOMADO e registrando o histórico do uso.
+     * <p>
+     * Este método orquestra a lógica de negócio para confirmar a toma de um medicamento. Ele primeiro valida
+     * se o agendamento alvo existe e se está com o status PENDENTE. Se as condições forem atendidas,
+     * o status do agendamento é atualizado e um novo registro {@link MedicamentoHistorico} é criado com os
+     * detalhes fornecidos e associado ao usuário que realizou a ação.
+     * <p>
+     *
+     * @param registroDoUso DTO contendo os dados da conclusão.
+     * @param usuarioId     O ID do usuário autenticado que está realizando a operação.
+     * @return Um {@link MedicamentoHistoricoDTOResponse} representando o novo registro de histórico que foi criado.
+     * @throws EntityNotFoundException se o agendamento com o ID fornecido não for encontrado.
+     * @throws IllegalStateException se o agendamento já foi concluído ou cancelado (não está com status PENDENTE).
+     */
+    @Transactional
+    public MedicamentoHistoricoDTOResponse concluirAgendamento(Integer agendamentoId, RegistrarUsoDTORequest registroDoUso, Integer usuarioId) {
+
+        Usuario usuario = usuarioRepository.getReferenceById(usuarioId);
+
+        Agendamento agendamento = agendamentoRepository.findById(agendamentoId)
+                .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado..."));
+
+        if (agendamento.getStatus() != AgendamentoStatus.PENDENTE) {
+            throw new IllegalStateException("Este agendamento já foi concluído ou cancelado.");
+        }
+
+        MedicamentoHistorico novoHistorico = new MedicamentoHistorico();
+        novoHistorico.setAgendamento(agendamento);
+        novoHistorico.setHoraDoUso(registroDoUso.getHoraDoUso());
+        novoHistorico.setDoseTomada(registroDoUso.getDoseTomada());
+        novoHistorico.setObservacao(registroDoUso.getObservacao());
+        novoHistorico.setUsuario(usuario);
+
+        agendamento.setMedicamentoHistorico(novoHistorico);
+        agendamento.setStatus(AgendamentoStatus.TOMADO);
+
+        Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
+
+        return converterHistoricoParaDTO(agendamentoSalvo.getMedicamentoHistorico());
+    }
+
+
+    /**
+     * Converte uma entidade {@link MedicamentoHistorico} em seu respectivo DTO de resposta, {@link MedicamentoHistoricoDTOResponse}.
+     * <p>
+     * Este método atua como um mapeador, transformando o objeto do domínio (entidade JPA) em um
+     * Objeto de Transferência de Dados (DTO) seguro para ser exposto na API. Ele seleciona os campos
+     * relevantes do histórico e também converte entidades aninhadas, como {@link Agendamento} e {@link Medicamento},
+     * para seus respectivos DTOs de resumo.
+     * <p>
+     * Se o objeto de histórico fornecido for nulo, o método retornará nulo.
+     *
+     * @param historico A entidade {@link MedicamentoHistorico} a ser convertida.
+     * @return O {@link MedicamentoHistoricoDTOResponse} correspondente, ou null se a entrada for nula.
+     */
+    private MedicamentoHistoricoDTOResponse converterHistoricoParaDTO(MedicamentoHistorico historico) {
+        if (historico == null) {
+            return null;
+        }
+
+        MedicamentoHistoricoDTOResponse dto = new MedicamentoHistoricoDTOResponse();
+        dto.setId(historico.getId());
+        dto.setHoraDoUso(historico.getHoraDoUso());
+        dto.setDoseTomada(historico.getDoseTomada());
+        dto.setObservacao(historico.getObservacao());
+        dto.setHistoricoStatus(historico.getHistoricoStatus());
+
+        if (historico.getAgendamento() != null) {
+            dto.setAgendamento(new AgendamentoResumoDTOResponse(historico.getAgendamento()));
+        }
+
+        if (historico.getAgendamento() != null && historico.getAgendamento().getTratamento().getMedicamento() != null) {
+            dto.setMedicamento(new MedicamentoResumoDTOResponse(historico.getAgendamento().getTratamento().getMedicamento()));
+        }
+
+        return dto;
     }
 }

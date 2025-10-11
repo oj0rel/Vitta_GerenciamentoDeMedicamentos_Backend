@@ -12,7 +12,6 @@ import com.vitta.vittaBackend.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -147,54 +146,5 @@ public class MedicamentoHistoricoService {
         }
         return medicamentoHistorico;
     }
-
-//    @Transactional
-//    public AgendamentoDTOResponse registrarUsoDoMedicamento(RegistrarUsoDTORequest registroDoUso) {
-//
-//        Agendamento agendamento = agendamentoRepository.findById(registroDoUso.getAgendamentoId())
-//                .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado..."));
-//
-//        if (agendamento.getStatus() != AgendamentoStatus.PENDENTE) {
-//            throw new IllegalStateException("Este agendamento já foi concluído ou cancelado.");
-//        }
-//
-//        MedicamentoHistorico novoHistorico = new MedicamentoHistorico();
-//        novoHistorico.setMedicamento(agendamento.getMedicamento());
-//        novoHistorico.setHoraDoUso(registroDoUso.getHoraDoUso());
-//        novoHistorico.setDoseTomada(registroDoUso.getDoseTomada());
-//        novoHistorico.setObservacao(registroDoUso.getObservacao());
-//
-//        novoHistorico.setAgendamento(agendamento);
-//        agendamento.setMedicamentoHistorico(novoHistorico);
-//
-//        agendamento.setStatus(AgendamentoStatus.TOMADO);
-//
-//        Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
-//
-//        return converterAgendamentoParaDTO(agendamentoSalvo);
-//    }
-//
-//    private AgendamentoDTOResponse converterAgendamentoParaDTO(Agendamento agendamento) {
-//        AgendamentoDTOResponse dto = new AgendamentoDTOResponse();
-//        dto.setId(agendamento.getId());
-//        dto.setHorarioDoAgendamento(agendamento.getHorarioDoAgendamento());
-//        dto.setTipoDeAlerta(agendamento.getTipoDeAlerta());
-//        dto.setStatus(agendamento.getStatus());
-//
-//        if (agendamento.getUsuario() != null) {
-//            dto.setUsuario(new UsuarioResumoDTOResponse(agendamento.getUsuario()));
-//        }
-//        if (agendamento.getMedicamento() != null) {
-//            dto.setMedicamento(new MedicamentoResumoDTOResponse(agendamento.getMedicamento()));
-//        }
-//
-//        if (agendamento.getMedicamentoHistorico() != null) {
-//            dto.setHistoricoDoMedicamentoTomado(
-//                    new MedicamentoHistoricoResumoDTOResponse(agendamento.getMedicamentoHistorico())
-//            );
-//        }
-//
-//        return dto;
-//    }
 
 }

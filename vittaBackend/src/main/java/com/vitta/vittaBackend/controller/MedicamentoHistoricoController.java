@@ -6,7 +6,6 @@ import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHisto
 import com.vitta.vittaBackend.security.UserDetailsImpl;
 import com.vitta.vittaBackend.service.MedicamentoHistoricoService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -127,12 +126,4 @@ public class MedicamentoHistoricoController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/registrarUso")
-//    public ResponseEntity<AgendamentoDTOResponse> registrarUso(
-//            @Valid @RequestBody RegistrarUsoDTORequest requestDTO) {
-//
-//        AgendamentoDTOResponse respostaDTO = medicamentoHistoricoService.registrarUsoDoMedicamento(requestDTO);
-//
-//        return ResponseEntity.ok(respostaDTO);
-//    }
 }
