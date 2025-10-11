@@ -65,6 +65,25 @@ public class AgendamentoController {
     }
 
     /**
+     * Lista todos os agendamentos de um tratamento específico do usuário autenticado.
+     *
+     * @param tratamentoId O ID do tratamento a ser consultado, vindo da URL.
+     * @param userDetails  O principal do usuário autenticado.
+     * @return ResponseEntity com a lista de agendamentos (status 200 OK).
+     */
+    @GetMapping("listarAgendamentosDoTratamento/{tratamentoId}")
+    @Operation(summary = "Listar os Agendamentos pelo ID do Tratamento.",
+            description = "Endpoint para listar Agendamentos que pertencem a um Tratamento, do usuário logado.")
+    public ResponseEntity<List<AgendamentoDTOResponse>> buscarAgendamentosDoTratamento(
+            @PathVariable("tratamentoId") Integer tratamentoId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        Integer usuarioId = userDetails.getUserId();
+        List<AgendamentoDTOResponse> agendamentoDTOResponse = agendamentoService.listarAgendamentosDoTratamento(tratamentoId, usuarioId);
+        return  ResponseEntity.ok(agendamentoDTOResponse);
+    }
+
+    /**
      * Cria um novo agendamento para o usuário autenticado.
      * @param agendamentoDTORequest O corpo da requisição com os dados do novo agendamento.
      * @param userDetails O principal do usuário autenticado.
@@ -132,6 +151,8 @@ public class AgendamentoController {
 
     /**
      * Busca a agenda de medicamentos do dia para o usuário logado.
+     *
+     * @param userDetails O principal do usuário autenticado.
      * @return ResponseEntity com a lista de agendamentos do dia e status 200 OK,
      * ou status 204 No Content se não houver agendamentos para o dia.
      */

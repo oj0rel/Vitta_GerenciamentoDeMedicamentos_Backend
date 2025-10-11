@@ -79,6 +79,30 @@ public class AgendamentoService {
     }
 
     /**
+     * Busca e retorna uma lista detalhada de agendamentos para um tratamento específico.
+     * <p>
+     * A consulta valida se o tratamento pertence ao usuário informado, garantindo a segurança dos dados.
+     *
+     * @param tratamentoId O ID do tratamento a ser consultado.
+     * @param usuarioId    O ID do usuário para verificação de permissão.
+     * @return Lista com os detalhes dos agendamentos do tratamento, ou uma lista vazia se não houver nenhum.
+     * @throws EntityNotFoundException se o tratamento não existir ou não pertencer ao usuário.
+     */
+    public List<AgendamentoDTOResponse> listarAgendamentosDoTratamento(Integer tratamentoId, Integer usuarioId) {
+        boolean tratamentoValido = tratamentoRepository.existsByIdAndUsuarioId(tratamentoId, usuarioId);
+
+        if (!tratamentoValido) {
+            throw new EntityNotFoundException("Tratamento não encontrado ou não pertence ao usuário.");
+        }
+
+        List<Agendamento> agendamentosDoTratamento = agendamentoRepository.findAllByTratamentoIdAndUsuarioId(tratamentoId, usuarioId);
+
+        return agendamentosDoTratamento.stream()
+                .map(AgendamentoDTOResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Cria um novo agendamento para o usuário autenticado.
      * O ID do usuário é obtido do contexto de segurança, não do DTO.
      * @param agendamentoDTORequest DTO com os dados do novo agendamento.

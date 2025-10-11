@@ -107,4 +107,15 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
             @Param("fimDoDia") LocalDateTime fimDoDia
     );
 
+    /**
+     * Encontra todos os agendamentos associados a um tratamento específico e a um usuário.
+     *
+     * @param tratamentoId O ID do tratamento.
+     * @param usuarioId    O ID do usuário proprietário do tratamento.
+     * @return Uma lista de entidades {@link Agendamento} completas.
+     */
+    @Query("SELECT a FROM Agendamento a WHERE a.tratamento.id = :tratamentoId AND a.usuario.id = :usuarioId")
+    List<Agendamento> findAllByTratamentoIdAndUsuarioId(
+            @Param("tratamentoId") Integer tratamentoId,
+            @Param("usuarioId") Integer usuarioId);
 }

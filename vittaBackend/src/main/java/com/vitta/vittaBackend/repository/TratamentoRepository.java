@@ -47,4 +47,14 @@ public interface TratamentoRepository extends JpaRepository<Tratamento, Integer>
     @Transactional
     @Query("UPDATE Tratamento t SET t.status = 0 WHERE t.id = :tratamentoId AND t.usuario.id = :usuarioId")
     void apagarLogicoTratamento(@Param("tratamentoId") Integer tratamentoId, @Param("usuarioId") Integer usuarioId);
+
+    /**
+     * Verifica de forma eficiente se um tratamento com um determinado ID
+     * e pertencente a um usuário específico existe no banco de dados.
+     *
+     * @param tratamentoId o ID do tratamento.
+     * @param usuarioId o ID do usuário.
+     * @return true se o tratamento existir, false caso contrário.
+     */
+    boolean existsByIdAndUsuarioId(Integer tratamentoId, Integer usuarioId);
 }
