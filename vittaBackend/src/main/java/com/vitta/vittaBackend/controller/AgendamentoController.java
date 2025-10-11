@@ -3,6 +3,7 @@ package com.vitta.vittaBackend.controller;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.RegistrarUsoDTORequest;
+import com.vitta.vittaBackend.dto.response.agenda.AgendaDoDiaDTOResponse;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamentoHistorico.MedicamentoHistoricoDTOResponse;
 import com.vitta.vittaBackend.security.UserDetailsImpl;
@@ -39,7 +40,7 @@ public class AgendamentoController {
      * @return Uma lista de agendamentos do usuário.
      */
     @GetMapping("/listar")
-    @Operation(summary = "Listar meus Agendamentos", description = "Endpoint para listar todos os Agendamentos do usuário logado.")
+    @Operation(summary = "Listar meus Agendamentos.", description = "Endpoint para listar todos os Agendamentos do usuário logado.")
     public ResponseEntity<List<AgendamentoDTOResponse>> listarAgendamentos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Integer usuarioId = userDetails.getUserId();
         return ResponseEntity.ok(agendamentoService.listarAgendamentosDoUsuario(usuarioId));
@@ -52,7 +53,7 @@ public class AgendamentoController {
      * @return O agendamento encontrado.
      */
     @GetMapping("/listarAgendamentoPorId/{agendamentoId}")
-    @Operation(summary = "Listar o Agendamento pelo ID dele", description = "Endpoint para listar um Agendamento específico do usuário logado.")
+    @Operation(summary = "Listar o Agendamento pelo ID dele.", description = "Endpoint para listar um Agendamento específico do usuário logado.")
     public ResponseEntity<AgendamentoDTOResponse> buscarAgendamentoPorId(
             @PathVariable("agendamentoId") Integer agendamentoId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
@@ -70,7 +71,7 @@ public class AgendamentoController {
      * @return O agendamento recém-criado.
      */
     @PostMapping("/cadastrar")
-    @Operation(summary = "Criar novo Agendamento", description = "Endpoint para criar um novo registro de Agendamento para o usuário logado.")
+    @Operation(summary = "Criar novo Agendamento.", description = "Endpoint para criar um novo registro de Agendamento para o usuário logado.")
     public ResponseEntity<AgendamentoDTOResponse> cadastrarAgendamento(
             @Valid @RequestBody AgendamentoDTORequest agendamentoDTORequest,
             @AuthenticationPrincipal UserDetailsImpl userDetails
@@ -88,7 +89,7 @@ public class AgendamentoController {
      * @return O agendamento atualizado.
      */
     @PutMapping("/atualizar/{agendamentoId}")
-    @Operation(summary = "Atualizar todos os dados do Agendamento", description = "Endpoint para atualizar o registro do Agendamento existente do usuário logado.")
+    @Operation(summary = "Atualizar todos os dados do Agendamento.", description = "Endpoint para atualizar o registro do Agendamento existente do usuário logado.")
     public ResponseEntity<AgendamentoDTOResponse> atualizarAgendamentoPorId(
             @PathVariable("agendamentoId") Integer agendamentoId,
             @RequestBody @Valid AgendamentoAtualizarDTORequest agendamentoAtualizarDTORequest,
@@ -106,7 +107,7 @@ public class AgendamentoController {
      * @return Resposta sem conteúdo.
      */
     @DeleteMapping("/deletar/{agendamentoId}")
-    @Operation(summary = "Deletar todos os dados do Agendamento", description = "Endpoint para deletar o registro do Agendamento do usuário logado.")
+    @Operation(summary = "Deletar todos os dados do Agendamento.", description = "Endpoint para deletar o registro do Agendamento do usuário logado.")
     public ResponseEntity<Void> deletarAgendamento(
             @PathVariable("agendamentoId") Integer agendamentoId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
@@ -128,4 +129,24 @@ public class AgendamentoController {
 
         return ResponseEntity.ok(respostaDTO);
     }
+
+    /**
+     * Busca a agenda de medicamentos do dia para o usuário logado.
+     * @return ResponseEntity com a lista de agendamentos do dia e status 200 OK,
+     * ou status 204 No Content se não houver agendamentos para o dia.
+     */
+    @GetMapping("/minhaAgendaDoDia")
+    @Operation(summary = "Lista todos os agendamento do dia.", description = "Endpoint para verificar todos os agendamento do dia, do usuário logado.")
+    public ResponseEntity<List<AgendaDoDiaDTOResponse>> getAgendaDoDia(
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Integer usuarioId = userDetails.getUserId();
+        List<AgendaDoDiaDTOResponse> agenda = agendamentoService.getAgendaDoDia(usuarioId);
+        if (agenda.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(agenda);
+    }
+
 }

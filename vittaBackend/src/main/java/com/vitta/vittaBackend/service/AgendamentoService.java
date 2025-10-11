@@ -3,6 +3,7 @@ package com.vitta.vittaBackend.service;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoAtualizarDTORequest;
 import com.vitta.vittaBackend.dto.request.agendamento.AgendamentoDTORequest;
 import com.vitta.vittaBackend.dto.request.medicamentoHistorico.RegistrarUsoDTORequest;
+import com.vitta.vittaBackend.dto.response.agenda.AgendaDoDiaDTOResponse;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoDTOResponse;
 import com.vitta.vittaBackend.dto.response.agendamento.AgendamentoResumoDTOResponse;
 import com.vitta.vittaBackend.dto.response.medicamento.MedicamentoResumoDTOResponse;
@@ -224,7 +225,7 @@ public class AgendamentoService {
                 }
 
                 // define o primeiro horário do dia
-                LocalDateTime proximoAgendamento = dataCorrente.atTime(1, 0);
+                LocalDateTime proximoAgendamento = dataCorrente.atTime(0, 0);
 
                 // loop para gerar agendamentos ENQUANTO eles pertencerem à dataCorrente
                 while (proximoAgendamento.toLocalDate().isEqual(dataCorrente)) {
@@ -283,7 +284,7 @@ public class AgendamentoService {
                 }
 
                 // define o primeiro horário do dia
-                LocalDateTime proximoAgendamento = dataCorrente.atTime(1, 0);
+                LocalDateTime proximoAgendamento = dataCorrente.atTime(0, 0);
 
                 // loop para gerar agendamentos ENQUANTO eles pertencerem à dataCorrente
                 while (proximoAgendamento.toLocalDate().isEqual(dataCorrente)) {
@@ -415,4 +416,38 @@ public class AgendamentoService {
 
         return dto;
     }
+
+    public List<AgendaDoDiaDTOResponse> getAgendaDoDia(Integer usuarioId) {
+        //define o intervalo de hoje
+        LocalDate hoje = LocalDate.now();
+        LocalDateTime inicioDoDia = hoje.atStartOfDay(); // Ex: 2025-09-17T00:00:00
+        LocalDateTime fimDoDia = hoje.atTime(LocalTime.MAX);   // Ex: 2025-09-17T23:59:59.999...
+
+        //busca o agendamento no banco de dados
+        List<Agendamento> agendamentosDoDia = agendamentoRepository.findAllByUsuarioAndPeriodo(usuarioId, inicioDoDia, fimDoDia);
+
+        return agendamentosDoDia.stream()
+                .map(this::converterParaResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private AgendaDoDiaDTOResponse converterParaResponseDTO(Agendamento agendamento) {
+        AgendaDoDiaDTOResponse agendaDoDiaDTOResponse = new AgendaDoDiaDTOResponse();
+
+        agendaDoDiaDTOResponse.setAgendamentoId(agendamento.getId());
+        agendaDoDiaDTOResponse.setHorario(agendamento.getHorarioDoAgendamento());
+        agendaDoDiaDTOResponse.setStatusDoAgendamento(agendamento.getStatus());
+
+        //acessa o objeto Medicamento relacionado para pegar os dados dele
+        agendaDoDiaDTOResponse.setNomeMedicamento(agendamento.getTratamento().getMedicamento().getNome());
+        agendaDoDiaDTOResponse.setDosagem(agendamento.getTratamento().getDosagem());
+        agendaDoDiaDTOResponse.setInstrucoes(agendamento.getTratamento().getInstrucoes());
+
+        if (agendamento.getMedicamentoHistorico() != null) {
+            agendaDoDiaDTOResponse.setHistorico(new MedicamentoHistoricoDTOResponse(agendamento.getMedicamentoHistorico()));
+        }
+
+        return agendaDoDiaDTOResponse;
+    }
+
 }

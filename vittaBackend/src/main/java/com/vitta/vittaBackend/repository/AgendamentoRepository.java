@@ -91,4 +91,20 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
             @Param("status") AgendamentoStatus status,
             @Param("agora") LocalDateTime agora
     );
+
+    /**
+     * Encontra todos os agendamentos de um usuário específico que ocorrem dentro de um intervalo de tempo.
+     *
+     * @param usuarioId O ID do usuário para o qual os agendamentos serão buscados.
+     * @param inicioDoDia O timestamp inicial do período de busca.
+     * @param fimDoDia O timestamp final do período de busca.
+     * @return Uma lista de {@link Agendamento} que correspondem aos critérios.
+     */
+    @Query("SELECT a FROM Agendamento a WHERE a.usuario.id = :usuarioId AND a.horarioDoAgendamento BETWEEN :inicioDoDia AND :fimDoDia")
+    List<Agendamento> findAllByUsuarioAndPeriodo(
+            @Param("usuarioId") Integer usuarioId,
+            @Param("inicioDoDia") LocalDateTime inicioDoDia,
+            @Param("fimDoDia") LocalDateTime fimDoDia
+    );
+
 }
