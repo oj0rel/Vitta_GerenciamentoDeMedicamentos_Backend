@@ -5,18 +5,9 @@ import java.time.LocalDateTime;
 
 public class RegistrarUsoDTORequest {
 
-    private Integer agendamentoId;
     private LocalDateTime horaDoUso = LocalDateTime.now();
     private BigDecimal doseTomada;
     private String observacao;
-
-    public Integer getAgendamentoId() {
-        return agendamentoId;
-    }
-
-    public void setAgendamentoId(Integer agendamentoId) {
-        this.agendamentoId = agendamentoId;
-    }
 
     public LocalDateTime getHoraDoUso() {
         return horaDoUso;

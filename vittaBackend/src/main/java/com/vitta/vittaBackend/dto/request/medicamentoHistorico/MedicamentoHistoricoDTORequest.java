@@ -13,7 +13,6 @@ public class MedicamentoHistoricoDTORequest {
     private BigDecimal doseTomada;
     private String observacao;
     private Integer agendamentoId;
-    private Integer usuarioId;
 
     public LocalDateTime getHoraDoUso() {
         return horaDoUso;
@@ -45,13 +44,5 @@ public class MedicamentoHistoricoDTORequest {
 
     public void setAgendamentoId(Integer agendamentoId) {
         this.agendamentoId = agendamentoId;
-    }
-
-    public Integer getUsuarioId() {
-        return usuarioId;
-    }
-
-    public void setUsuarioId(Integer usuarioId) {
-        this.usuarioId = usuarioId;
     }
 }
