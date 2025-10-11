@@ -118,15 +118,15 @@ public class MedicamentoController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Lista todos os medicamentos inativos (excluídos logicamente) de um usuário autenticado.
-     * @param userDetails O principal do usuário autenticado.
-     * @return ResponseEntity contendo uma lista de medicamentos inativos e o status HTTP 200 OK.
-     */
-    @GetMapping("/listar/inativos")
-    @Operation(summary = "Listar Medicamentos inativos", description = "Endpoint para listar todos os Medicamentos inativos do usuário logado.")
-    public ResponseEntity <List<MedicamentoDTOResponse>> listarMedicamentosInativos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        Integer usuarioId = userDetails.getUserId();
-        return ResponseEntity.ok(medicamentoService.listarMedicamentosInativos(usuarioId));
-    }
+//    /**
+//     * Lista todos os medicamentos inativos (excluídos logicamente) de um usuário autenticado.
+//     * @param userDetails O principal do usuário autenticado.
+//     * @return ResponseEntity contendo uma lista de medicamentos inativos e o status HTTP 200 OK.
+//     */
+//    @GetMapping("/listar/inativos")
+//    @Operation(summary = "Listar Medicamentos inativos", description = "Endpoint para listar todos os Medicamentos inativos do usuário logado.")
+//    public ResponseEntity <List<MedicamentoDTOResponse>> listarMedicamentosInativos(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        Integer usuarioId = userDetails.getUserId();
+//        return ResponseEntity.ok(medicamentoService.listarMedicamentosInativos(usuarioId));
+//    }
 }
