@@ -28,6 +28,11 @@ public class SecurityConfiguration {
             "/swagger-resources/**",
     };
 
+    private static final String[] AUTENTICACAO_ENDPOINTS = {
+            "/api/usuarios/cadastrar",
+            "/api/usuarios/login"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -38,7 +43,7 @@ public class SecurityConfiguration {
                         .requestMatchers(SWAGGER_ENDPOINTS).permitAll()
 
                         // Libera criação de usuário e login sem token
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios/cadastrar", "/api/usuarios/login").permitAll()
+                        .requestMatchers(AUTENTICACAO_ENDPOINTS).permitAll()
 
                         // Endpoints de teste com suas respectivas permissões
                         .requestMatchers("/api/usuarios/test").authenticated()
