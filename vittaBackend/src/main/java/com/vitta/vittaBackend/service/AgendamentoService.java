@@ -25,6 +25,7 @@ import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -42,17 +43,20 @@ public class AgendamentoService {
     private final TratamentoRepository tratamentoRepository;
     private final ModelMapper modelMapper;
     private static final Logger logger = LoggerFactory.getLogger(AgendamentoService.class);
+    private final TratamentoService tratamentoService;
 
     public AgendamentoService(
             AgendamentoRepository agendamentoRepository,
             UsuarioRepository usuarioRepository,
             TratamentoRepository tratamentoRepository,
-            ModelMapper modelMapper
+            ModelMapper modelMapper,
+            @Lazy TratamentoService tratamentoService
     ) {
         this.agendamentoRepository = agendamentoRepository;
         this.usuarioRepository = usuarioRepository;
         this.tratamentoRepository = tratamentoRepository;
         this.modelMapper = modelMapper;
+        this.tratamentoService = tratamentoService;
     }
 
     /**
@@ -385,6 +389,10 @@ public class AgendamentoService {
         Agendamento agendamento = agendamentoRepository.findById(agendamentoId)
                 .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado..."));
 
+        if (!agendamento.getTratamento().getUsuario().getId().equals(usuarioId)) {
+            throw new EntityNotFoundException("Agendamento não encontrado ou não pertence a este usuário.");
+        }
+
         if (agendamento.getStatus() != AgendamentoStatus.PENDENTE) {
             throw new IllegalStateException("Este agendamento já foi concluído ou cancelado.");
         }
@@ -400,6 +408,9 @@ public class AgendamentoService {
         agendamento.setStatus(AgendamentoStatus.TOMADO);
 
         Agendamento agendamentoSalvo = agendamentoRepository.save(agendamento);
+
+        Integer tratamentoId = agendamento.getTratamento().getId();
+        tratamentoService.verificarEConcluirTratamento(tratamentoId, usuarioId);
 
         return converterHistoricoParaDTO(agendamentoSalvo.getMedicamentoHistorico());
     }

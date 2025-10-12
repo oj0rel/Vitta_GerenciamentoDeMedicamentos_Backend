@@ -136,6 +136,14 @@ public class AgendamentoController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Conclui um agendamento registrando o uso do medicamento.
+     *
+     * @param agendamentoId ID do agendamento a ser concluído.
+     * @param requestDTO Dados do uso do medicamento.
+     * @param userDetails Usuário autenticado pelo Spring Security.
+     * @return ResponseEntity com o histórico do uso recém-criado.
+     */
     @PostMapping("/concluirAgendamento/{agendamentoId}")
     @Operation(summary = "Concluir um Agendamento.", description = "Endpoint para concluir um Agendamento, automaticamente mudando seu status.")
     public ResponseEntity<MedicamentoHistoricoDTOResponse> registrarUso(

@@ -246,4 +246,28 @@ public class TratamentoService {
         return tratamento;
     }
 
+    /**
+     * Verifica o status de um tratamento e o atualiza para CONCLUIDO se todos os seus
+     * agendamentos já foram finalizados (não estão PENDENTES).
+     * Este método deve ser chamado sempre que um agendamento for concluído.
+     *
+     * @param tratamentoId O ID do tratamento a ser verificado.
+     */
+    @Transactional
+    public void verificarEConcluirTratamento(Integer tratamentoId, Integer usuarioId) {
+        Tratamento tratamento = validarTratamento(tratamentoId, usuarioId);
+
+        if (tratamento.getStatus() != TratamentoStatus.ATIVO) {
+            return;
+        }
+
+        long agendamentosPendentes = agendamentoRepository.countByTratamentoIdAndStatus(
+                tratamentoId, AgendamentoStatus.PENDENTE);
+
+        if (agendamentosPendentes == 0) {
+            tratamento.setStatus(TratamentoStatus.CONCLUIDO);
+            tratamentoRepository.save(tratamento);
+        }
+    }
+
 }

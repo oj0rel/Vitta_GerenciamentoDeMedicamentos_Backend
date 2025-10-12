@@ -118,4 +118,14 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
     List<Agendamento> findAllByTratamentoIdAndUsuarioId(
             @Param("tratamentoId") Integer tratamentoId,
             @Param("usuarioId") Integer usuarioId);
+
+    /**
+     * Conta o número de agendamentos para um tratamento específico que possuem um determinado status.
+     *
+     * @param tratamentoId O ID do tratamento.
+     * @param status O status do agendamento a ser contado.
+     * @return O número de agendamentos que correspondem aos critérios.
+     */
+    @Query("SELECT COUNT(a) FROM Agendamento a WHERE a.tratamento.id = :tratamentoId AND a.status = :status")
+    long countByTratamentoIdAndStatus(@Param("tratamentoId") Integer tratamentoId, @Param("status") AgendamentoStatus status);
 }

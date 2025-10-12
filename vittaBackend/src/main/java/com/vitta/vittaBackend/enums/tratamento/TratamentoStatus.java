@@ -2,7 +2,7 @@ package com.vitta.vittaBackend.enums.tratamento;
 
 public enum TratamentoStatus {
     ATIVO(1),
-    PAUSADO(2),
+//    PAUSADO(2),
     CONCLUIDO(3),
     CANCELADO(0);
 
